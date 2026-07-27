@@ -16,7 +16,7 @@
       "dest": "src/api/server.py"
     },
     {
-      "src": "/admin/(.*)",
+      "src": "/owner/(.*)",
       "dest": "src/api/server.py"
     },
     {

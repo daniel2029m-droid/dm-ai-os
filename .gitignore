@@ -32,3 +32,5 @@ logs/*.log
 !logs/.gitkeep
 *.db-wal
 *.db-shm
+
+.vercel

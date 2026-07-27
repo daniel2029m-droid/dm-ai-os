@@ -203,12 +203,12 @@ def get_admin_dashboard_html() -> str:
 
     <script>
         const token = localStorage.getItem('admin_token');
-        if(!token) window.location.href = '/admin/login';
+        if(!token) window.location.href = '/owner/login';
 
         async function loadAdminData() {
             const headers = { 'Authorization': 'Bearer ' + token };
-            const resTx = await fetch('/v1/admin/transactions', { headers });
-            if(resTx.status === 401) window.location.href = '/admin/login';
+            const resTx = await fetch('/v1/owner/transactions', { headers });
+            if(resTx.status === 401) window.location.href = '/owner/login';
             const txs = await resTx.json();
 
             let txHtml = '';
@@ -230,7 +230,7 @@ def get_admin_dashboard_html() -> str:
             });
             document.getElementById('txTable').innerHTML = txHtml;
 
-            const resSub = await fetch('/v1/admin/subscriptions', { headers });
+            const resSub = await fetch('/v1/owner/subscriptions', { headers });
             const subs = await resSub.json();
             let subHtml = '';
             subs.forEach(s => {
@@ -247,12 +247,12 @@ def get_admin_dashboard_html() -> str:
         }
 
         async function approveTx(txId) {
-            await fetch('/v1/admin/transactions/' + txId + '/approve', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+            await fetch('/v1/owner/transactions/' + txId + '/approve', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
             loadAdminData();
         }
 
         async function rejectTx(txId) {
-            await fetch('/v1/admin/transactions/' + txId + '/reject', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
+            await fetch('/v1/owner/transactions/' + txId + '/reject', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } });
             loadAdminData();
         }
 
@@ -284,7 +284,7 @@ def get_admin_login_html() -> str:
     <script>
         async function loginAdmin() {
             const password = document.getElementById('adminPassword').value;
-            const res = await fetch('/v1/admin/login', {
+            const res = await fetch('/v1/owner/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ password })
@@ -292,7 +292,7 @@ def get_admin_login_html() -> str:
             if(res.ok) {
                 const data = await res.json();
                 localStorage.setItem('admin_token', data.access_token);
-                window.location.href = '/admin/dashboard';
+                window.location.href = '/owner/dashboard';
             } else {
                 alert('Contraseña incorrecta');
             }
@@ -300,3 +300,4 @@ def get_admin_login_html() -> str:
     </script>
 </body>
 </html>"""
+

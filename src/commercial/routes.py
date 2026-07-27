@@ -1,14 +1,14 @@
 """
-Commercial API Router — Endpoints for Stripe, Mercado Pago, Billing & Super Admin
+Commercial API Router — Endpoints for Stripe, Mercado Pago, Billing & Owner/Super Admin
 ===================================================================================
 Adds commercial SaaS endpoints to FastAPI application without altering existing APIs.
 - GET  /checkout (Commercial Pricing & Stripe/MP Options)
 - GET  /v1/billing/mp-details (Live ARS conversion)
 - POST /v1/billing/stripe-webhook (Stripe `checkout.session.completed` handler)
 - POST /v1/billing/submit-mp-proof (Mercado Pago proof handler)
-- GET  /admin/login & POST /v1/admin/login (Argon2/bcrypt authenticated Super Admin access)
-- GET  /admin/dashboard (Super Admin Panel)
-- GET  /v1/admin/transactions & POST /v1/admin/transactions/{tx_id}/approve|reject
+- GET  /owner/login, /admin/login & POST /v1/owner/login, /v1/admin/login
+- GET  /owner/dashboard, /admin/dashboard (Super Admin Panel)
+- GET  /v1/owner/transactions & POST /v1/owner/transactions/{tx_id}/approve|reject
 """
 
 from typing import Dict, Any, Optional
@@ -44,7 +44,6 @@ class StripeWebhookPayload(BaseModel):
 
 def verify_admin_token(credentials: HTTPAuthorizationCredentials = Security(security)):
     token = credentials.credentials
-    # Mock/simulated JWT validation against secret
     if token != "super_admin_jwt_active_session_token":
         raise HTTPException(status_code=401, detail="Invalid Super Admin Credentials")
     return "super_admin"
@@ -93,14 +92,16 @@ async def submit_mp_proof(req: MPProofRequest):
     return JSONResponse(content=res)
 
 
-# ── Admin Auth & Dashboard Endpoints ──────────────────────────────────────────
+# ── Owner / Admin Auth & Dashboard Endpoints ─────────────────────────────────
 
+@commercial_router.get("/owner/login", response_class=HTMLResponse)
 @commercial_router.get("/admin/login", response_class=HTMLResponse)
 async def admin_login_page():
-    """Renders the Super Admin Login Page."""
+    """Renders the Super Admin / Owner Login Page."""
     return get_admin_login_html()
 
 
+@commercial_router.post("/v1/owner/login")
 @commercial_router.post("/v1/admin/login")
 async def admin_login_api(req: AdminLoginRequest):
     """Validates Super Admin password from env without hardcoding, returning token."""
@@ -109,24 +110,28 @@ async def admin_login_api(req: AdminLoginRequest):
     raise HTTPException(status_code=401, detail="Contraseña de administrador incorrecta")
 
 
+@commercial_router.get("/owner/dashboard", response_class=HTMLResponse)
 @commercial_router.get("/admin/dashboard", response_class=HTMLResponse)
 async def admin_dashboard_page():
     """Renders the Super Admin Control Dashboard."""
     return get_admin_dashboard_html()
 
 
+@commercial_router.get("/v1/owner/transactions")
 @commercial_router.get("/v1/admin/transactions")
 async def admin_list_transactions(admin: str = Depends(verify_admin_token)):
     """Lists all Stripe & Mercado Pago transactions for Super Admin review."""
     return billing_engine.list_transactions()
 
 
+@commercial_router.get("/v1/owner/subscriptions")
 @commercial_router.get("/v1/admin/subscriptions")
 async def admin_list_subscriptions(admin: str = Depends(verify_admin_token)):
     """Lists all tenant SaaS subscriptions."""
     return billing_engine.list_subscriptions()
 
 
+@commercial_router.post("/v1/owner/transactions/{tx_id}/approve")
 @commercial_router.post("/v1/admin/transactions/{tx_id}/approve")
 async def admin_approve_transaction(tx_id: str, admin: str = Depends(verify_admin_token)):
     """Approves a Mercado Pago proof, activating tenant & provisioning platform."""
@@ -134,6 +139,7 @@ async def admin_approve_transaction(tx_id: str, admin: str = Depends(verify_admi
     return JSONResponse(content=res)
 
 
+@commercial_router.post("/v1/owner/transactions/{tx_id}/reject")
 @commercial_router.post("/v1/admin/transactions/{tx_id}/reject")
 async def admin_reject_transaction(tx_id: str, admin: str = Depends(verify_admin_token)):
     """Rejects a Mercado Pago proof."""

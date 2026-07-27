@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DM AI OS — Commercial SaaS & Remote Terminal</title>
+    <title>DM AI OS — Commercial SaaS & Autonomous Platform</title>
     
     <!-- PWA & iOS Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="DM AI OS">
     <meta name="theme-color" content="#0f172a">
 
-    <!-- Modern Typography -->
+    <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -19,8 +19,8 @@
     <style>
         :root {
             --bg-dark: #070b14;
-            --bg-card: rgba(15, 23, 42, 0.75);
-            --bg-card-border: rgba(56, 189, 248, 0.15);
+            --bg-card: rgba(15, 23, 42, 0.85);
+            --bg-card-border: rgba(56, 189, 248, 0.2);
             --accent-cyan: #38bdf8;
             --accent-purple: #8b5cf6;
             --accent-green: #34d399;
@@ -52,7 +52,7 @@
             justify-content: space-between;
             backdrop-filter: blur(10px);
         }
-        .card.featured { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(56,189,248,0.2); }
+        .card.featured { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(56,189,248,0.25); }
         .price { font-size: 2rem; font-weight: 700; margin: 15px 0; color: #fff; }
         .btn-stripe {
             background: linear-gradient(135deg, #6366f1, #4f46e5);
@@ -62,11 +62,15 @@
             background: linear-gradient(135deg, #009ee3, #0073a5);
             color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
         }
+        .btn-owner {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px;
+        }
         /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #0f172a; border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 30px; max-width: 450px; width: 90%; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-        .nav-link { color: var(--accent-cyan); text-decoration: none; font-weight: 600; margin: 0 10px; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
+        .nav-link { color: var(--accent-cyan); text-decoration: none; font-weight: 600; margin: 0 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -74,12 +78,13 @@
         <h1>DM AI OS Commercial SaaS</h1>
         <p style="color: var(--text-muted);">Sistema Operativo para Empleados Digitales Autónomos</p>
         <div style="margin-top: 15px;">
-            <a href="#pricing" class="nav-link">Planes</a> |
-            <a href="/admin/login" class="nav-link">Super Admin</a>
+            <a href="#pricing" class="nav-link">Planes Comercial</a> |
+            <span onclick="openAdminModal()" class="nav-link" style="color: var(--accent-green); font-weight: 700;">🔑 Acceso Dueño / Super Admin</span>
         </div>
     </div>
 
     <div class="grid" id="pricing">
+        <!-- Starter Plan -->
         <div class="card">
             <div>
                 <h3>Starter</h3>
@@ -92,6 +97,7 @@
             </div>
         </div>
 
+        <!-- Professional Plan -->
         <div class="card featured">
             <div>
                 <span style="background: var(--accent-cyan); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">MÁS POPULAR</span>
@@ -106,7 +112,18 @@
         </div>
     </div>
 
-    <!-- Modal Mercado Pago -->
+    <!-- Owner / Super Admin Login Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: var(--accent-cyan); margin-top:0;">Acceso Exclusivo Dueño / Super Admin</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Ingresa tu contraseña de dueño para acceder gratis y administrar la plataforma sin realizar pagos.</p>
+            <input type="password" id="adminPassword" placeholder="Contraseña de Administrador" required>
+            <button class="btn-owner" onclick="loginAdmin()">Ingresar Gratis como Dueño</button>
+            <button onclick="closeAdminModal()" style="background:transparent; border:none; color:var(--text-muted); width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Mercado Pago Modal -->
     <div id="mpModal" class="modal">
         <div class="modal-content">
             <h3 style="color: var(--accent-cyan); margin-top:0;">Pago con Mercado Pago (Argentina)</h3>
@@ -128,6 +145,34 @@
 
     <script>
         let currentPlan = 'professional';
+
+        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+        async function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if(!password) return alert('Por favor ingresa tu contraseña de dueño');
+
+            try {
+                const res = await fetch('/v1/owner/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password })
+                });
+                if(res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('admin_token', data.access_token);
+                    alert('¡Acceso concedido como Dueño! Redirigiendo al panel...');
+                    window.location.href = '/owner/dashboard';
+                } else {
+                    alert('Contraseña incorrecta');
+                }
+            } catch(e) {
+                alert('Error al conectar con el servidor.');
+            }
+        }
+
+
         async function openMPModal(plan, usd) {
             currentPlan = plan;
             document.getElementById('mpPlanName').innerText = plan.toUpperCase();
@@ -141,6 +186,7 @@
             }
             document.getElementById('mpModal').style.display = 'flex';
         }
+
         function closeMPModal() { document.getElementById('mpModal').style.display = 'none'; }
 
         async function submitMPProof() {
