@@ -1,13 +1,6 @@
-# Vercel Configuration file for Static Frontend / SPA Deployment
 {
   "version": 2,
   "public": true,
-  "builds": [
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
       "src": "/v1/billing/(.*)",
