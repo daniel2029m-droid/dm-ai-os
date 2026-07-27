@@ -1,0 +1,31 @@
+{
+  "mcp_server": {
+    "name": "DM Autonomous Orchestrator MCP Server",
+    "version": "1.2.0",
+    "port": 8001,
+    "tools": [
+      "system_status",
+      "list_agents",
+      "run_agent",
+      "run_workflow",
+      "search_memory",
+      "get_artifacts",
+      "get_user_profile",
+      "remember",
+      "update_memory",
+      "forget_memory",
+      "get_context",
+      "index_document",
+      "search_documents",
+      "web_search",
+      "get_capability_matrix",
+      "browser.search",
+      "browser.open",
+      "computer.execute",
+      "research.search",
+      "research.summarize",
+      "facebook.generate",
+      "media.generate"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "system_name": "AI Operating System",
+  "version": "1.0.0",
+  "environment": "production",
+  "ollama_url": "http://localhost:11434",
+  "max_runpod_budget_usd": 10.0,
+  "cache_default_ttl_sec": 86400,
+  "dag_default_node_timeout_sec": 60.0,
+  "safety_gates": {
+    "require_human_approval_on_publishing": true,
+    "require_human_approval_on_os_deletion": true,
+    "require_human_approval_on_form_submission": true
+  },
+  "model_cascade_priority": [
+    "bonsai",
+    "qwen3",
+    "qwen2.5:1.5b",
+    "qwen2.5:0.5b"
+  ]
+}

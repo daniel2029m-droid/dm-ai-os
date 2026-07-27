@@ -1,0 +1,30 @@
+{
+  "ollama": {
+    "enabled": true,
+    "host": "http://localhost:11434",
+    "models": {
+      "reasoning": "qwen2.5:1.5b",
+      "summarization": "qwen2.5:0.5b"
+    }
+  },
+  "openai": {
+    "enabled": false,
+    "api_key_env": "OPENAI_API_KEY",
+    "model": "gpt-4o"
+  },
+  "anthropic": {
+    "enabled": false,
+    "api_key_env": "ANTHROPIC_API_KEY",
+    "model": "claude-3-5-sonnet-20241022"
+  },
+  "gemini": {
+    "enabled": false,
+    "api_key_env": "GEMINI_API_KEY",
+    "model": "gemini-1.5-pro"
+  },
+  "xai": {
+    "enabled": false,
+    "api_key_env": "XAI_API_KEY",
+    "model": "grok-2"
+  }
+}

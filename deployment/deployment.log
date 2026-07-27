@@ -1,0 +1,515 @@
+[2026-07-24 06:06:18] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 06:06:18] [WARN] Found existing cloudflared config. Backing it up to prevent conflicts.
+[2026-07-24 06:06:18] [INFO] Virtual environment activated
+[2026-07-24 06:06:18] [INFO] Started API Gateway on port 8000
+[2026-07-24 06:06:18] [INFO] Started MCP Server on port 8001
+[2026-07-24 06:06:22] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 06:06:22] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 06:06:22] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 06:06:26] [SUCCESS] Extracted Tunnel URL: https://syracuse-architects-authorization-belief.trycloudflare.com
+[2026-07-24 06:06:26] [INFO] Initiating E2E Public Endpoint Validation...
+[2026-07-24 06:06:29] [WAIT] Waiting for public /health to be ready (attempt 1)...
+[2026-07-24 06:06:31] [WAIT] Waiting for public /health to be ready (attempt 2)...
+[2026-07-24 06:06:33] [WAIT] Waiting for public /health to be ready (attempt 3)...
+[2026-07-24 06:06:35] [WAIT] Waiting for public /health to be ready (attempt 4)...
+[2026-07-24 06:06:37] [WAIT] Waiting for public /health to be ready (attempt 5)...
+[2026-07-24 06:06:39] [WAIT] Waiting for public /health to be ready (attempt 6)...
+[2026-07-24 06:06:41] [WAIT] Waiting for public /health to be ready (attempt 7)...
+[2026-07-24 06:06:43] [WAIT] Waiting for public /health to be ready (attempt 8)...
+[2026-07-24 06:06:45] [WAIT] Waiting for public /health to be ready (attempt 9)...
+[2026-07-24 06:06:47] [WAIT] Waiting for public /health to be ready (attempt 10)...
+[2026-07-24 06:06:49] [WAIT] Waiting for public /health to be ready (attempt 11)...
+[2026-07-24 06:06:51] [WAIT] Waiting for public /health to be ready (attempt 12)...
+[2026-07-24 06:06:53] [WAIT] Waiting for public /health to be ready (attempt 13)...
+[2026-07-24 06:06:55] [WAIT] Waiting for public /health to be ready (attempt 14)...
+[2026-07-24 06:06:57] [WAIT] Waiting for public /health to be ready (attempt 15)...
+[2026-07-24 06:06:59] [WAIT] Waiting for public /health to be ready (attempt 16)...
+[2026-07-24 06:07:01] [WAIT] Waiting for public /health to be ready (attempt 17)...
+[2026-07-24 06:07:03] [WAIT] Waiting for public /health to be ready (attempt 18)...
+[2026-07-24 06:07:05] [WAIT] Waiting for public /health to be ready (attempt 19)...
+[2026-07-24 06:07:07] [WAIT] Waiting for public /health to be ready (attempt 20)...
+[2026-07-24 06:07:09] [WAIT] Waiting for public /health to be ready (attempt 21)...
+[2026-07-24 06:07:11] [WAIT] Waiting for public /health to be ready (attempt 22)...
+[2026-07-24 06:07:13] [WAIT] Waiting for public /health to be ready (attempt 23)...
+[2026-07-24 06:07:15] [WAIT] Waiting for public /health to be ready (attempt 24)...
+[2026-07-24 06:20:43] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 06:20:43] [INFO] Virtual environment activated
+[2026-07-24 06:20:43] [INFO] Started API Gateway on port 8000
+[2026-07-24 06:20:43] [INFO] Started MCP Server on port 8001
+[2026-07-24 06:20:48] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 06:20:48] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 06:20:48] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 06:20:52] [SUCCESS] Extracted Tunnel URL: https://accommodation-boxes-shareware-honest.trycloudflare.com
+[2026-07-24 06:20:52] [INFO] Initiating E2E Public Endpoint Validation...
+[2026-07-24 06:20:54] [WAIT] Waiting for public /health to be ready (attempt 1)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:20:56] [WAIT] Waiting for public /health to be ready (attempt 2)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:20:58] [WAIT] Waiting for public /health to be ready (attempt 3)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:00] [WAIT] Waiting for public /health to be ready (attempt 4)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:02] [WAIT] Waiting for public /health to be ready (attempt 5)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:04] [WAIT] Waiting for public /health to be ready (attempt 6)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:06] [WAIT] Waiting for public /health to be ready (attempt 7)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:08] [WAIT] Waiting for public /health to be ready (attempt 8)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:10] [WAIT] Waiting for public /health to be ready (attempt 9)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:12] [WAIT] Waiting for public /health to be ready (attempt 10)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:14] [WAIT] Waiting for public /health to be ready (attempt 11)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:16] [WAIT] Waiting for public /health to be ready (attempt 12)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:21:18] [WAIT] Waiting for public /health to be ready (attempt 13)... Error: No se puede resolver el nombre remoto: 'accommodation-boxes-shareware-honest.trycloudflare.com'
+[2026-07-24 06:22:59] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 06:22:59] [INFO] Virtual environment activated
+[2026-07-24 06:22:59] [INFO] Started API Gateway on port 8000
+[2026-07-24 06:23:00] [INFO] Started MCP Server on port 8001
+[2026-07-24 06:23:04] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 06:23:04] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 06:23:04] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 06:23:10] [SUCCESS] Extracted Tunnel URL: https://ham-frozen-stainless-establish.trycloudflare.com
+[2026-07-24 06:23:10] [INFO] Waiting 8 seconds for Cloudflare edge propagation...
+[2026-07-24 06:23:18] [INFO] Initiating E2E validation with curl.exe (bypasses PowerShell DNS limitation)...
+[2026-07-24 06:23:18] [INFO] [Check 1/4] Testing https://ham-frozen-stainless-establish.trycloudflare.com/health ...
+[2026-07-24 06:23:19] [INFO] [Check 1/4] /health response code: {"status":"ONLINE","version":"v1.0.0-production"}
+[2026-07-24 06:23:19] [WARN] [Check 1/4] Public /health returned code {"status":"ONLINE","version":"v1.0.0-production"} - possible firewall or tunnel issue.
+[2026-07-24 06:23:19] [INFO] Tunnel may still work from external devices. Continuing...
+[2026-07-24 06:23:19] [INFO] [Check 2/4] Testing https://ham-frozen-stainless-establish.trycloudflare.com/docs ...
+[2026-07-24 06:23:19] [INFO] [Check 2/4] /docs response code:      <!DOCTYPE html>     <html>     <head>     <meta name="viewport" content="width=device-width, initial-scale=1.0">     <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">     <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">     <title>DM AI Operating System ÔÇö OpenAI-Compatible API Gateway - Swagger UI</title>     </head>     <body>     <div id="swagger-ui">     </div>     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>     <!-- `SwaggerUIBundle` is now available on the page -->     <script>     const ui = SwaggerUIBundle({         url: '/openapi.json',     "dom_id": "#swagger-ui", "layout": "BaseLayout", "deepLinking": true, "showExtensions": true, "showCommonExtensions": true, oauth2RedirectUrl: window.location.origin + '/docs/oauth2-redirect',     presets: [         SwaggerUIBundle.presets.apis,         SwaggerUIBundle.SwaggerUIStandalonePreset         ],     })     </script>     </body>     </html>     
+[2026-07-24 06:23:19] [WARN] [Check 2/4] /docs returned code      <!DOCTYPE html>     <html>     <head>     <meta name="viewport" content="width=device-width, initial-scale=1.0">     <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">     <link rel="shortcut icon" href="https://fastapi.tiangolo.com/img/favicon.png">     <title>DM AI Operating System ÔÇö OpenAI-Compatible API Gateway - Swagger UI</title>     </head>     <body>     <div id="swagger-ui">     </div>     <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>     <!-- `SwaggerUIBundle` is now available on the page -->     <script>     const ui = SwaggerUIBundle({         url: '/openapi.json',     "dom_id": "#swagger-ui", "layout": "BaseLayout", "deepLinking": true, "showExtensions": true, "showCommonExtensions": true, oauth2RedirectUrl: window.location.origin + '/docs/oauth2-redirect',     presets: [         SwaggerUIBundle.presets.apis,         SwaggerUIBundle.SwaggerUIStandalonePreset         ],     })     </script>     </body>     </html>     
+[2026-07-24 06:23:19] [INFO] [Check 3/4] Testing https://ham-frozen-stainless-establish.trycloudflare.com/v1/models ...
+[2026-07-24 06:23:20] [INFO] [Check 3/4] /v1/models response code: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-reasoner","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-fast","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-memory","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-browser","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-research","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-media","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-facebook","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"qwen2.5:1.5b","object":"model","created":1784885000,"owned_by":"ollama"},{"id":"qwen2.5:0.5b","object":"model","created":1784885000,"owned_by":"ollama"}]}
+[2026-07-24 06:23:20] [WARN] [Check 3/4] /v1/models returned code {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-reasoner","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-fast","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-memory","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-browser","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-research","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-media","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"dm-facebook","object":"model","created":1720000000,"owned_by":"dm-platform"},{"id":"qwen2.5:1.5b","object":"model","created":1784885000,"owned_by":"ollama"},{"id":"qwen2.5:0.5b","object":"model","created":1784885000,"owned_by":"ollama"}]}
+[2026-07-24 06:23:20] [INFO] [Check 4/4] Testing POST https://ham-frozen-stainless-establish.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 06:23:20] [INFO] [Check 4/4] /v1/chat/completions response code: {"detail":{"error":{"message":"Invalid JSON body","type":"invalid_request_error","code":"invalid_request"}}}
+[2026-07-24 06:23:20] [WARN] [Check 4/4] /v1/chat/completions returned code {"detail":{"error":{"message":"Invalid JSON body","type":"invalid_request_error","code":"invalid_request"}}}
+[2026-07-24 06:23:20] [SUCCESS] E2E validation complete. Tunnel is UP.
+[2026-07-24 06:23:20] [INFO] Generating QR Codes...
+[2026-07-24 06:23:20] [SUCCESS] Deployment Assets generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+[2026-07-24 06:25:23] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 06:25:23] [INFO] Virtual environment activated
+[2026-07-24 06:25:23] [INFO] Started API Gateway on port 8000
+[2026-07-24 06:25:23] [INFO] Started MCP Server on port 8001
+[2026-07-24 06:25:27] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 06:25:27] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 06:25:27] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 06:25:33] [SUCCESS] Extracted Tunnel URL: https://engaged-investing-measurements-accommodate.trycloudflare.com
+[2026-07-24 06:25:33] [INFO] Waiting 8 seconds for Cloudflare edge propagation...
+[2026-07-24 06:25:41] [INFO] Initiating E2E validation with curl.exe (bypasses PowerShell DNS limitation)...
+[2026-07-24 06:25:41] [INFO] [Check 1/4] Testing https://engaged-investing-measurements-accommodate.trycloudflare.com/health ...
+[2026-07-24 06:25:42] [INFO] [Check 1/4] /health HTTP code: 200
+[2026-07-24 06:26:24] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 06:26:24] [INFO] Virtual environment activated
+[2026-07-24 06:26:25] [INFO] Started API Gateway on port 8000
+[2026-07-24 06:26:25] [INFO] Started MCP Server on port 8001
+[2026-07-24 06:26:29] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 06:26:29] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 06:26:29] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 06:26:35] [SUCCESS] Extracted Tunnel URL: https://intervals-trunk-ringtone-additionally.trycloudflare.com
+[2026-07-24 06:26:35] [INFO] Waiting 8 seconds for Cloudflare edge propagation...
+[2026-07-24 06:26:43] [INFO] Initiating E2E validation with curl.exe (bypasses PowerShell DNS limitation)...
+[2026-07-24 06:26:43] [INFO] [Check 1/4] Testing https://intervals-trunk-ringtone-additionally.trycloudflare.com/health ...
+[2026-07-24 06:26:44] [INFO] [Check 1/4] /health HTTP code: 530
+[2026-07-24 06:26:44] [WARN] [Check 1/4] Public /health returned 530
+[2026-07-24 06:26:44] [INFO] [Check 2/4] Testing https://intervals-trunk-ringtone-additionally.trycloudflare.com/docs ...
+[2026-07-24 06:26:44] [INFO] [Check 2/4] /docs HTTP code: 530
+[2026-07-24 06:26:44] [WARN] [Check 2/4] /docs returned 530
+[2026-07-24 06:26:44] [INFO] [Check 3/4] Testing https://intervals-trunk-ringtone-additionally.trycloudflare.com/v1/models ...
+[2026-07-24 06:26:44] [INFO] [Check 3/4] /v1/models HTTP code: 530
+[2026-07-24 06:26:44] [WARN] [Check 3/4] /v1/models returned 530
+[2026-07-24 06:26:44] [INFO] [Check 4/4] Testing POST https://intervals-trunk-ringtone-additionally.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 06:26:44] [INFO] [Check 4/4] /v1/chat/completions HTTP code: 530
+[2026-07-24 06:26:44] [WARN] [Check 4/4] /v1/chat/completions returned 530
+[2026-07-24 06:26:44] [SUCCESS] E2E validation complete. Tunnel is LIVE and responding.
+[2026-07-24 06:26:44] [INFO] Generating QR Codes...
+[2026-07-24 06:26:45] [SUCCESS] Deployment Assets generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+[2026-07-24 20:15:09] [INFO] Starting DM AI OS Bootstrapper
+[2026-07-24 20:15:09] [INFO] Virtual environment activated
+[2026-07-24 20:15:09] [INFO] Cleaning up any orphan processes from previous runs...
+[2026-07-24 20:15:09] [INFO] Killed process on port 8000 (PID 9044)
+[2026-07-24 20:15:09] [INFO] Killed process on port 8001 (PID 14296)
+[2026-07-24 20:15:11] [INFO] Started API Gateway on port 8000
+[2026-07-24 20:15:11] [INFO] Started MCP Server on port 8001
+[2026-07-24 20:15:16] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 20:15:16] [INFO] Starting Cloudflare Quick Tunnel: C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 20:15:16] [INFO] Waiting for tunnel URL allocation...
+[2026-07-24 20:15:20] [SUCCESS] Extracted Tunnel URL: https://offering-maui-justice-onion.trycloudflare.com
+[2026-07-24 20:15:20] [INFO] Waiting 8 seconds for Cloudflare edge propagation...
+[2026-07-24 20:15:28] [INFO] Initiating E2E validation with curl.exe (bypasses PowerShell DNS limitation)...
+[2026-07-24 20:15:28] [INFO] [Check 1/4] Waiting for https://offering-maui-justice-onion.trycloudflare.com/health to return 200...
+[2026-07-24 20:15:29] [INFO] [Check 1/4] /health HTTP code: 200
+[2026-07-24 20:15:29] [SUCCESS] [Check 1/4] Public /health PASSED (HTTP 200) [OK]
+[2026-07-24 20:15:29] [INFO] [Check 2/4] Testing https://offering-maui-justice-onion.trycloudflare.com/docs ...
+[2026-07-24 20:15:30] [INFO] [Check 2/4] /docs HTTP code: 200
+[2026-07-24 20:15:30] [SUCCESS] [Check 2/4] Public /docs PASSED (HTTP 200) [OK]
+[2026-07-24 20:15:30] [INFO] [Check 3/4] Testing https://offering-maui-justice-onion.trycloudflare.com/v1/models ...
+[2026-07-24 20:15:30] [INFO] [Check 3/4] /v1/models HTTP code: 200
+[2026-07-24 20:15:30] [SUCCESS] [Check 3/4] Public /v1/models PASSED (HTTP 200) [OK]  Response: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":...
+[2026-07-24 20:15:30] [INFO] [Check 4/4] Testing POST https://offering-maui-justice-onion.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 20:15:43] [INFO] [Check 4/4] /v1/chat/completions HTTP code: 200
+[2026-07-24 20:15:43] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200) [OK]
+[2026-07-24 20:15:43] [INFO]   Response excerpt: {"id":"chatcmpl-0ed3acb9b0a047f49515a0e937e8c308","object":"chat.completion","created":1784934943,"m...
+[2026-07-24 20:15:43] [SUCCESS] E2E validation complete. Tunnel is LIVE and responding.
+[2026-07-24 20:15:43] [INFO] Generating QR Codes...
+[2026-07-24 20:15:43] [SUCCESS] Deployment Assets generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+[2026-07-24 21:19:23] [INFO] ==========================================================
+[2026-07-24 21:19:23] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 21:19:23] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 21:19:23] [INFO] Virtual environment activated
+[2026-07-24 21:19:24] [INFO] Ollama Status: CONNECTED
+[2026-07-24 21:19:24] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 21:19:26] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 21:19:26] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 21:19:30] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 21:19:30] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:19:30] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:19:38] [SUCCESS] Allocated Public Tunnel URL: https://disclaimers-seem-update-fioricet.trycloudflare.com
+[2026-07-24 21:19:38] [INFO] Waiting for Cloudflare Edge propagation on https://disclaimers-seem-update-fioricet.trycloudflare.com/health...
+[2026-07-24 21:19:42] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (881ms)
+[2026-07-24 21:19:42] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 21:19:42] [INFO] [Check 2/4] Testing GET https://disclaimers-seem-update-fioricet.trycloudflare.com/docs ...
+[2026-07-24 21:19:42] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 444ms)
+[2026-07-24 21:19:42] [INFO] [Check 3/4] Testing GET https://disclaimers-seem-update-fioricet.trycloudflare.com/v1/models ...
+[2026-07-24 21:19:43] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 687ms)
+[2026-07-24 21:19:43] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 21:19:43] [INFO] [Check 4/4] Testing POST https://disclaimers-seem-update-fioricet.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 21:19:43] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 159ms)
+[2026-07-24 21:19:43] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-dbeab57d62624959aad110de74a01858","object":"chat.completion","created":1784938783,"model":"dm-autonomous
+[2026-07-24 21:19:43] [INFO] Generating QR Codes and OpenAI deployment configuration...
+[2026-07-24 21:19:43] [SUCCESS] Deployment Assets successfully generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+
+--- CLOUDFLARED LOG START ---
+2026-07-25T00:19:30Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-07-25T00:19:30Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-07-25T00:19:36Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:19:36Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-07-25T00:19:36Z INF |  https://disclaimers-seem-update-fioricet.trycloudflare.com                                |
+2026-07-25T00:19:36Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:19:36Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-07-25T00:19:36Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-07-25T00:19:36Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-07-25T00:19:36Z INF Settings: map[ha-connections:1 protocol:quic url:http://127.0.0.1:8000]
+2026-07-25T00:19:36Z INF cloudflared will not automatically update on Windows systems.
+2026-07-25T00:19:36Z INF Generated Connector ID: 95ddb525-74eb-4699-bd98-abdbd1c6b81a
+2026-07-25T00:19:37Z INF Initial protocol quic
+2026-07-25T00:19:37Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:19:37Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:19:37Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-07-25T00:19:37Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:19:37Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.63
+2026-07-25T00:19:37Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:19:37Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-07-25T00:19:37Z INF Registered tunnel connection connIndex=0 connection=31b10526-55f4-4f1c-9dec-5641c4c4a76f event=0 ip=198.41.200.63 location=eze07 protocol=quic
+
+--- CLOUDFLARED LOG END ---
+
+[2026-07-24 21:20:17] [INFO] ==========================================================
+[2026-07-24 21:20:17] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 21:20:17] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 21:20:17] [INFO] Virtual environment activated
+[2026-07-24 21:20:17] [INFO] Ollama Status: CONNECTED
+[2026-07-24 21:20:17] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 21:20:19] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 21:20:19] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 21:20:23] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 21:20:23] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:20:23] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:20:29] [SUCCESS] Allocated Public Tunnel URL: https://fever-many-subscription-reproduction.trycloudflare.com
+[2026-07-24 21:20:29] [INFO] Waiting for Cloudflare Edge propagation on https://fever-many-subscription-reproduction.trycloudflare.com/health...
+[2026-07-24 21:20:33] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (86ms)
+[2026-07-24 21:20:36] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (14ms)
+[2026-07-24 21:20:39] [INFO] [Check 1/4] GET /health attempt 3/15: HTTP 000 (19ms)
+[2026-07-24 21:20:42] [INFO] [Check 1/4] GET /health attempt 4/15: HTTP 000 (15ms)
+[2026-07-24 21:20:45] [INFO] [Check 1/4] GET /health attempt 5/15: HTTP 000 (22ms)
+[2026-07-24 21:20:48] [INFO] [Check 1/4] GET /health attempt 6/15: HTTP 000 (16ms)
+[2026-07-24 21:20:51] [INFO] [Check 1/4] GET /health attempt 7/15: HTTP 000 (21ms)
+[2026-07-24 21:20:54] [INFO] [Check 1/4] GET /health attempt 8/15: HTTP 000 (16ms)
+[2026-07-24 21:20:57] [INFO] [Check 1/4] GET /health attempt 9/15: HTTP 000 (21ms)
+[2026-07-24 21:21:00] [INFO] [Check 1/4] GET /health attempt 10/15: HTTP 000 (18ms)
+[2026-07-24 21:21:03] [INFO] [Check 1/4] GET /health attempt 11/15: HTTP 000 (19ms)
+[2026-07-24 21:21:06] [INFO] [Check 1/4] GET /health attempt 12/15: HTTP 000 (17ms)
+[2026-07-24 21:21:09] [INFO] [Check 1/4] GET /health attempt 13/15: HTTP 000 (20ms)
+[2026-07-24 21:21:12] [INFO] [Check 1/4] GET /health attempt 14/15: HTTP 000 (16ms)
+[2026-07-24 21:21:15] [INFO] [Check 1/4] GET /health attempt 15/15: HTTP 000 (22ms)
+[2026-07-24 21:21:15] [WARN] Cloudflare Tunnel https://fever-many-subscription-reproduction.trycloudflare.com/health failed to return 200 (Got: '000'). Restarting cloudflared tunnel...
+[2026-07-24 21:21:18] [INFO] Starting Cloudflare Quick Tunnel (Attempt 2/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:21:18] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:21:22] [SUCCESS] Allocated Public Tunnel URL: https://monitor-wrap-rod-key.trycloudflare.com
+[2026-07-24 21:21:22] [INFO] Waiting for Cloudflare Edge propagation on https://monitor-wrap-rod-key.trycloudflare.com/health...
+[2026-07-24 21:21:25] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (102ms)
+[2026-07-24 21:21:28] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (16ms)
+[2026-07-24 21:21:44] [INFO] ==========================================================
+[2026-07-24 21:21:44] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 21:21:44] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 21:21:44] [INFO] Virtual environment activated
+[2026-07-24 21:21:44] [INFO] Ollama Status: CONNECTED
+[2026-07-24 21:21:44] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 21:21:47] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 21:21:47] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 21:21:51] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 21:21:51] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:21:51] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:21:57] [SUCCESS] Allocated Public Tunnel URL: https://regime-interior-paper-occupation.trycloudflare.com
+[2026-07-24 21:21:57] [INFO] Waiting for Cloudflare Edge propagation on https://regime-interior-paper-occupation.trycloudflare.com/health...
+[2026-07-24 21:22:01] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (987ms)
+[2026-07-24 21:22:01] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 21:22:01] [INFO] [Check 2/4] Testing GET https://regime-interior-paper-occupation.trycloudflare.com/docs ...
+[2026-07-24 21:22:01] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 435ms)
+[2026-07-24 21:22:01] [INFO] [Check 3/4] Testing GET https://regime-interior-paper-occupation.trycloudflare.com/v1/models ...
+[2026-07-24 21:22:02] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 748ms)
+[2026-07-24 21:22:02] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 21:22:02] [INFO] [Check 4/4] Testing POST https://regime-interior-paper-occupation.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 21:22:02] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 242ms)
+[2026-07-24 21:22:02] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-bf864df69d504a8989b9c4b57670884e","object":"chat.completion","created":1784938922,"model":"dm-autonomous
+[2026-07-24 21:22:02] [INFO] Generating QR Codes and OpenAI deployment configuration...
+[2026-07-24 21:22:02] [SUCCESS] Deployment Assets successfully generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+
+--- CLOUDFLARED LOG START ---
+2026-07-25T00:21:51Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-07-25T00:21:51Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-07-25T00:21:55Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:21:55Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-07-25T00:21:55Z INF |  https://regime-interior-paper-occupation.trycloudflare.com                                |
+2026-07-25T00:21:55Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:21:55Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-07-25T00:21:55Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-07-25T00:21:55Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-07-25T00:21:55Z INF Settings: map[ha-connections:1 protocol:quic url:http://127.0.0.1:8000]
+2026-07-25T00:21:55Z INF cloudflared will not automatically update on Windows systems.
+2026-07-25T00:21:55Z INF Generated Connector ID: a6b39ddf-04fc-4049-b5b8-1dab61b619d1
+2026-07-25T00:21:55Z INF Initial protocol quic
+2026-07-25T00:21:55Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:21:55Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:21:55Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-07-25T00:21:55Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:21:55Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.27
+2026-07-25T00:21:55Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:21:55Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-07-25T00:21:56Z INF Registered tunnel connection connIndex=0 connection=ca50c35f-d99d-418e-8224-b9b3f1345b25 event=0 ip=198.41.192.27 location=gru11 protocol=quic
+
+--- CLOUDFLARED LOG END ---
+
+[2026-07-24 21:27:59] [INFO] ==========================================================
+[2026-07-24 21:27:59] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 21:27:59] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 21:27:59] [INFO] Virtual environment activated
+[2026-07-24 21:28:00] [INFO] Ollama Status: CONNECTED
+[2026-07-24 21:28:00] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 21:28:00] [INFO] Killed process on port 8000 (PID 3420)
+[2026-07-24 21:28:00] [INFO] Killed process on port 8001 (PID 7436)
+[2026-07-24 21:28:02] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 21:28:02] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 21:28:03] [WARN] Cloudflared process died unexpectedly. Initiating automatic recovery...
+[2026-07-24 21:28:03] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:28:03] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:28:06] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 21:28:06] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 21:28:06] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 21:28:09] [SUCCESS] Allocated Public Tunnel URL: https://galleries-gabriel-leaving-qualify.trycloudflare.com
+[2026-07-24 21:28:09] [INFO] Waiting for Cloudflare Edge propagation on https://galleries-gabriel-leaving-qualify.trycloudflare.com/health...
+[2026-07-24 21:28:10] [SUCCESS] Allocated Public Tunnel URL: https://galleries-gabriel-leaving-qualify.trycloudflare.com
+[2026-07-24 21:28:10] [INFO] Waiting for Cloudflare Edge propagation on https://galleries-gabriel-leaving-qualify.trycloudflare.com/health...
+[2026-07-24 21:28:13] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (833ms)
+[2026-07-24 21:28:13] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 21:28:13] [INFO] [Check 2/4] Testing GET https://galleries-gabriel-leaving-qualify.trycloudflare.com/docs ...
+[2026-07-24 21:28:13] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (157ms)
+[2026-07-24 21:28:13] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 21:28:13] [INFO] [Check 2/4] Testing GET https://galleries-gabriel-leaving-qualify.trycloudflare.com/docs ...
+[2026-07-24 21:28:13] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 399ms)
+[2026-07-24 21:28:13] [INFO] [Check 3/4] Testing GET https://galleries-gabriel-leaving-qualify.trycloudflare.com/v1/models ...
+[2026-07-24 21:28:13] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 157ms)
+[2026-07-24 21:28:13] [INFO] [Check 3/4] Testing GET https://galleries-gabriel-leaving-qualify.trycloudflare.com/v1/models ...
+[2026-07-24 21:28:14] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 674ms)
+[2026-07-24 21:28:14] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 21:28:14] [INFO] [Check 4/4] Testing POST https://galleries-gabriel-leaving-qualify.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 21:28:14] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 677ms)
+[2026-07-24 21:28:14] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 21:28:14] [INFO] [Check 4/4] Testing POST https://galleries-gabriel-leaving-qualify.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 21:28:14] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 132ms)
+[2026-07-24 21:28:14] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-683386395c6447a1a744a40ec7d016f7","object":"chat.completion","created":1784939294,"model":"dm-autonomous
+[2026-07-24 21:28:14] [INFO] Generating QR Codes and OpenAI deployment configuration...
+[2026-07-24 21:28:14] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 178ms)
+[2026-07-24 21:28:14] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-2609533587b94ab1946dc559ffe2fb0f","object":"chat.completion","created":1784939294,"model":"dm-autonomous
+[2026-07-24 21:28:14] [SUCCESS] Tunnel recovered and re-validated at https://galleries-gabriel-leaving-qualify.trycloudflare.com
+[2026-07-24 21:28:14] [SUCCESS] Deployment Assets successfully generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+
+--- CLOUDFLARED LOG START ---
+2026-07-25T00:28:06Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-07-25T00:28:06Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-07-25T00:28:11Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:28:11Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-07-25T00:28:11Z INF |  https://yamaha-fields-cookbook-powered.trycloudflare.com                                  |
+2026-07-25T00:28:11Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T00:28:11Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-07-25T00:28:11Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-07-25T00:28:11Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-07-25T00:28:11Z INF Settings: map[ha-connections:1 protocol:quic url:http://127.0.0.1:8000]
+2026-07-25T00:28:11Z INF cloudflared will not automatically update on Windows systems.
+2026-07-25T00:28:11Z INF Generated Connector ID: 202cbf77-3c24-4bca-8f5c-e61ab330fdeb
+2026-07-25T00:28:11Z INF Initial protocol quic
+2026-07-25T00:28:11Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:28:11Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:28:11Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-07-25T00:28:11Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T00:28:11Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.37
+2026-07-25T00:28:11Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T00:28:11Z INF Starting metrics server on 127.0.0.1:20242/metrics
+2026-07-25T00:28:11Z INF Registered tunnel connection connIndex=0 connection=33777fd5-7b3d-4085-a0b9-3458d697e1c6 event=0 ip=198.41.192.37 location=gru13 protocol=quic
+c
+
+--- CLOUDFLARED LOG END ---
+
+[2026-07-24 21:46:51] [INFO] ==========================================================
+[2026-07-24 21:46:51] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 21:46:51] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 21:46:51] [INFO] Virtual environment activated
+[2026-07-24 21:46:51] [INFO] Ollama Status: CONNECTED
+[2026-07-24 21:46:51] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 21:46:51] [INFO] Killed process on port 8000 (PID 3176)
+[2026-07-24 21:46:51] [INFO] Killed process on port 8001 (PID 13480)
+[2026-07-24 21:46:54] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 21:46:54] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 21:46:56] [WARN] Cloudflared process died unexpectedly. Initiating automatic recovery...
+[2026-07-24 22:16:55] [INFO] ==========================================================
+[2026-07-24 22:16:55] [INFO] Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)
+[2026-07-24 22:16:55] [INFO] Working Directory: C:\Users\moral\.gemini\antigravity-ide\scratch
+[2026-07-24 22:16:55] [INFO] Virtual environment activated
+[2026-07-24 22:16:55] [INFO] Ollama Status: CONNECTED
+[2026-07-24 22:16:55] [INFO] Cleaning up any orphan cloudflared / uvicorn processes...
+[2026-07-24 22:16:55] [INFO] Killed process on port 8000 (PID 13164)
+[2026-07-24 22:16:55] [INFO] Killed process on port 8001 (PID 6404)
+[2026-07-24 22:16:57] [INFO] Started API Gateway on port 8000 (Job ID: 1)
+[2026-07-24 22:16:58] [INFO] Started MCP Server on port 8001 (Job ID: 3)
+[2026-07-24 22:16:59] [WARN] Cloudflared process died unexpectedly. Initiating automatic recovery...
+[2026-07-24 22:16:59] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:16:59] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:17:02] [SUCCESS] Local API Gateway health check passed (HTTP 200)
+[2026-07-24 22:17:02] [INFO] Starting Cloudflare Quick Tunnel (Attempt 1/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:17:02] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:17:04] [SUCCESS] Allocated Public Tunnel URL: https://baseline-robert-donate-robot.trycloudflare.com
+[2026-07-24 22:17:04] [INFO] Waiting for Cloudflare Edge propagation on https://baseline-robert-donate-robot.trycloudflare.com/health...
+[2026-07-24 22:17:05] [SUCCESS] Allocated Public Tunnel URL: https://baseline-robert-donate-robot.trycloudflare.com
+[2026-07-24 22:17:05] [INFO] Waiting for Cloudflare Edge propagation on https://baseline-robert-donate-robot.trycloudflare.com/health...
+[2026-07-24 22:17:07] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (63ms)
+[2026-07-24 22:17:08] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (24ms)
+[2026-07-24 22:17:10] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (16ms)
+[2026-07-24 22:17:11] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (20ms)
+[2026-07-24 22:17:13] [INFO] [Check 1/4] GET /health attempt 3/15: HTTP 000 (20ms)
+[2026-07-24 22:17:14] [INFO] [Check 1/4] GET /health attempt 3/15: HTTP 000 (18ms)
+[2026-07-24 22:17:16] [INFO] [Check 1/4] GET /health attempt 4/15: HTTP 000 (16ms)
+[2026-07-24 22:17:17] [INFO] [Check 1/4] GET /health attempt 4/15: HTTP 000 (19ms)
+[2026-07-24 22:17:19] [INFO] [Check 1/4] GET /health attempt 5/15: HTTP 000 (16ms)
+[2026-07-24 22:17:20] [INFO] [Check 1/4] GET /health attempt 5/15: HTTP 000 (15ms)
+[2026-07-24 22:17:22] [INFO] [Check 1/4] GET /health attempt 6/15: HTTP 000 (15ms)
+[2026-07-24 22:17:24] [INFO] [Check 1/4] GET /health attempt 6/15: HTTP 000 (20ms)
+[2026-07-24 22:17:25] [INFO] [Check 1/4] GET /health attempt 7/15: HTTP 000 (15ms)
+[2026-07-24 22:17:27] [INFO] [Check 1/4] GET /health attempt 7/15: HTTP 000 (15ms)
+[2026-07-24 22:17:28] [INFO] [Check 1/4] GET /health attempt 8/15: HTTP 000 (16ms)
+[2026-07-24 22:17:30] [INFO] [Check 1/4] GET /health attempt 8/15: HTTP 000 (21ms)
+[2026-07-24 22:17:31] [INFO] [Check 1/4] GET /health attempt 9/15: HTTP 000 (16ms)
+[2026-07-24 22:17:33] [INFO] [Check 1/4] GET /health attempt 9/15: HTTP 000 (15ms)
+[2026-07-24 22:17:34] [INFO] [Check 1/4] GET /health attempt 10/15: HTTP 000 (16ms)
+[2026-07-24 22:17:36] [INFO] [Check 1/4] GET /health attempt 10/15: HTTP 000 (20ms)
+[2026-07-24 22:17:37] [INFO] [Check 1/4] GET /health attempt 11/15: HTTP 000 (14ms)
+[2026-07-24 22:17:39] [INFO] [Check 1/4] GET /health attempt 11/15: HTTP 000 (15ms)
+[2026-07-24 22:17:40] [INFO] [Check 1/4] GET /health attempt 12/15: HTTP 000 (16ms)
+[2026-07-24 22:17:42] [INFO] [Check 1/4] GET /health attempt 12/15: HTTP 000 (19ms)
+[2026-07-24 22:17:43] [INFO] [Check 1/4] GET /health attempt 13/15: HTTP 000 (15ms)
+[2026-07-24 22:17:45] [INFO] [Check 1/4] GET /health attempt 13/15: HTTP 000 (18ms)
+[2026-07-24 22:17:46] [INFO] [Check 1/4] GET /health attempt 14/15: HTTP 000 (16ms)
+[2026-07-24 22:17:48] [INFO] [Check 1/4] GET /health attempt 14/15: HTTP 000 (20ms)
+[2026-07-24 22:17:49] [INFO] [Check 1/4] GET /health attempt 15/15: HTTP 000 (16ms)
+[2026-07-24 22:17:49] [WARN] Cloudflare Tunnel https://baseline-robert-donate-robot.trycloudflare.com/health failed to return 200 (Got: '000'). Restarting cloudflared tunnel...
+[2026-07-24 22:17:51] [INFO] [Check 1/4] GET /health attempt 15/15: HTTP 000 (14ms)
+[2026-07-24 22:17:51] [WARN] Cloudflare Tunnel https://baseline-robert-donate-robot.trycloudflare.com/health failed to return 200 (Got: '000'). Restarting cloudflared tunnel...
+[2026-07-24 22:17:52] [INFO] Starting Cloudflare Quick Tunnel (Attempt 2/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:17:52] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:17:54] [INFO] Starting Cloudflare Quick Tunnel (Attempt 2/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:17:54] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:17:58] [SUCCESS] Allocated Public Tunnel URL: https://leon-particles-projectors-walking.trycloudflare.com
+[2026-07-24 22:17:58] [INFO] Waiting for Cloudflare Edge propagation on https://leon-particles-projectors-walking.trycloudflare.com/health...
+[2026-07-24 22:17:58] [SUCCESS] Allocated Public Tunnel URL: https://recommends-applicable-jaguar-lee.trycloudflare.com
+[2026-07-24 22:17:58] [INFO] Waiting for Cloudflare Edge propagation on https://recommends-applicable-jaguar-lee.trycloudflare.com/health...
+[2026-07-24 22:18:01] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (85ms)
+[2026-07-24 22:18:02] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (885ms)
+[2026-07-24 22:18:02] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 22:18:02] [INFO] [Check 2/4] Testing GET https://recommends-applicable-jaguar-lee.trycloudflare.com/docs ...
+[2026-07-24 22:18:02] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 389ms)
+[2026-07-24 22:18:02] [INFO] [Check 3/4] Testing GET https://recommends-applicable-jaguar-lee.trycloudflare.com/v1/models ...
+[2026-07-24 22:18:03] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 671ms)
+[2026-07-24 22:18:03] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 22:18:03] [INFO] [Check 4/4] Testing POST https://recommends-applicable-jaguar-lee.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 22:18:04] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (16ms)
+[2026-07-24 22:18:07] [INFO] [Check 1/4] GET /health attempt 3/15: HTTP 000 (20ms)
+[2026-07-24 22:18:10] [INFO] [Check 1/4] GET /health attempt 4/15: HTTP 000 (23ms)
+[2026-07-24 22:18:13] [INFO] [Check 1/4] GET /health attempt 5/15: HTTP 000 (23ms)
+[2026-07-24 22:18:15] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 11973ms)
+[2026-07-24 22:18:15] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-685c02a55796469f97045ba39b32e401","object":"chat.completion","created":1784942295,"model":"dm-autonomous
+[2026-07-24 22:18:15] [INFO] Generating QR Codes and OpenAI deployment configuration...
+[2026-07-24 22:18:15] [SUCCESS] Deployment Assets successfully generated in C:\Users\moral\.gemini\antigravity-ide\scratch\deployment
+
+--- CLOUDFLARED LOG START ---
+2026-07-25T01:17:54Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-07-25T01:17:54Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-07-25T01:17:58Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T01:17:58Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-07-25T01:17:58Z INF |  https://recommends-applicable-jaguar-lee.trycloudflare.com                                |
+2026-07-25T01:17:58Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T01:17:58Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-07-25T01:17:58Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-07-25T01:17:58Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-07-25T01:17:58Z INF Settings: map[ha-connections:1 protocol:quic url:http://127.0.0.1:8000]
+2026-07-25T01:17:58Z INF cloudflared will not automatically update on Windows systems.
+2026-07-25T01:17:58Z INF Generated Connector ID: e2be47f9-fc78-40db-9e40-ed3000b00ecc
+2026-07-25T01:17:58Z INF Initial protocol quic
+2026-07-25T01:17:58Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T01:17:58Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T01:17:58Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-07-25T01:17:58Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T01:17:58Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.13
+2026-07-25T01:17:58Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T01:17:58Z INF Starting metrics server on 127.0.0.1:20242/metrics
+2026-07-25T01:17:59Z INF Registered tunnel connection connIndex=0 connection=7cf60ad7-956a-43f4-a8e4-56e085f5ca1f event=0 ip=198.41.200.13 location=eze07 protocol=quic
+
+--- CLOUDFLARED LOG END ---
+
+[2026-07-24 22:18:16] [INFO] [Check 1/4] GET /health attempt 6/15: HTTP 000 (18ms)
+[2026-07-24 22:18:19] [INFO] [Check 1/4] GET /health attempt 7/15: HTTP 000 (20ms)
+[2026-07-24 22:18:22] [INFO] [Check 1/4] GET /health attempt 8/15: HTTP 000 (16ms)
+[2026-07-24 22:18:25] [INFO] [Check 1/4] GET /health attempt 9/15: HTTP 000 (20ms)
+[2026-07-24 22:18:28] [INFO] [Check 1/4] GET /health attempt 10/15: HTTP 000 (16ms)
+[2026-07-24 22:18:31] [INFO] [Check 1/4] GET /health attempt 11/15: HTTP 000 (22ms)
+[2026-07-24 22:18:34] [INFO] [Check 1/4] GET /health attempt 12/15: HTTP 000 (16ms)
+[2026-07-24 22:18:37] [INFO] [Check 1/4] GET /health attempt 13/15: HTTP 000 (20ms)
+[2026-07-24 22:18:40] [INFO] [Check 1/4] GET /health attempt 14/15: HTTP 000 (16ms)
+[2026-07-24 22:18:43] [INFO] [Check 1/4] GET /health attempt 15/15: HTTP 000 (20ms)
+[2026-07-24 22:18:43] [WARN] Cloudflare Tunnel https://leon-particles-projectors-walking.trycloudflare.com/health failed to return 200 (Got: '000'). Restarting cloudflared tunnel...
+[2026-07-24 22:18:46] [INFO] Starting Cloudflare Quick Tunnel (Attempt 3/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:18:46] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:18:50] [SUCCESS] Allocated Public Tunnel URL: https://belle-nutritional-nuclear-encouraging.trycloudflare.com
+[2026-07-24 22:18:50] [INFO] Waiting for Cloudflare Edge propagation on https://belle-nutritional-nuclear-encouraging.trycloudflare.com/health...
+[2026-07-24 22:18:53] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 000 (79ms)
+[2026-07-24 22:18:56] [INFO] [Check 1/4] GET /health attempt 2/15: HTTP 000 (16ms)
+[2026-07-24 22:18:59] [INFO] [Check 1/4] GET /health attempt 3/15: HTTP 000 (19ms)
+[2026-07-24 22:19:02] [INFO] [Check 1/4] GET /health attempt 4/15: HTTP 000 (20ms)
+[2026-07-24 22:19:06] [INFO] [Check 1/4] GET /health attempt 5/15: HTTP 000 (20ms)
+[2026-07-24 22:19:09] [INFO] [Check 1/4] GET /health attempt 6/15: HTTP 000 (14ms)
+[2026-07-24 22:19:12] [INFO] [Check 1/4] GET /health attempt 7/15: HTTP 000 (20ms)
+[2026-07-24 22:19:15] [INFO] [Check 1/4] GET /health attempt 8/15: HTTP 000 (16ms)
+[2026-07-24 22:19:18] [INFO] [Check 1/4] GET /health attempt 9/15: HTTP 000 (21ms)
+[2026-07-24 22:19:21] [INFO] [Check 1/4] GET /health attempt 10/15: HTTP 000 (27ms)
+[2026-07-24 22:19:24] [INFO] [Check 1/4] GET /health attempt 11/15: HTTP 000 (19ms)
+[2026-07-24 22:19:27] [INFO] [Check 1/4] GET /health attempt 12/15: HTTP 000 (16ms)
+[2026-07-24 22:19:30] [INFO] [Check 1/4] GET /health attempt 13/15: HTTP 000 (21ms)
+[2026-07-24 22:19:33] [INFO] [Check 1/4] GET /health attempt 14/15: HTTP 000 (20ms)
+[2026-07-24 22:19:36] [INFO] [Check 1/4] GET /health attempt 15/15: HTTP 000 (21ms)
+[2026-07-24 22:19:36] [WARN] Cloudflare Tunnel https://belle-nutritional-nuclear-encouraging.trycloudflare.com/health failed to return 200 (Got: '000'). Restarting cloudflared tunnel...
+[2026-07-24 22:19:39] [INFO] Starting Cloudflare Quick Tunnel (Attempt 4/5): C:\Users\moral\.gemini\antigravity-ide\scratch\cloudflared.exe tunnel --url http://127.0.0.1:8000
+[2026-07-24 22:19:39] [INFO] Waiting for public tunnel URL allocation...
+[2026-07-24 22:19:45] [SUCCESS] Allocated Public Tunnel URL: https://opened-accomplished-doug-cheaper.trycloudflare.com
+[2026-07-24 22:19:45] [INFO] Waiting for Cloudflare Edge propagation on https://opened-accomplished-doug-cheaper.trycloudflare.com/health...
+[2026-07-24 22:19:49] [INFO] [Check 1/4] GET /health attempt 1/15: HTTP 200 (1067ms)
+[2026-07-24 22:19:49] [SUCCESS] [Check 1/4] Public GET /health PASSED (HTTP 200)
+[2026-07-24 22:19:49] [INFO] [Check 2/4] Testing GET https://opened-accomplished-doug-cheaper.trycloudflare.com/docs ...
+[2026-07-24 22:19:50] [SUCCESS] [Check 2/4] Public GET /docs PASSED (HTTP 200, 559ms)
+[2026-07-24 22:19:50] [INFO] [Check 3/4] Testing GET https://opened-accomplished-doug-cheaper.trycloudflare.com/v1/models ...
+[2026-07-24 22:19:51] [SUCCESS] [Check 3/4] Public GET /v1/models PASSED (HTTP 200, 1330ms)
+[2026-07-24 22:19:51] [INFO]   Models Response Snippet: {"object":"list","data":[{"id":"dm-autonomous-brain","object":"model","created":1720000000,"owned_by
+[2026-07-24 22:19:51] [INFO] [Check 4/4] Testing POST https://opened-accomplished-doug-cheaper.trycloudflare.com/v1/chat/completions ...
+[2026-07-24 22:19:51] [SUCCESS] [Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, 418ms)
+[2026-07-24 22:19:51] [INFO]   Chat Response Excerpt: {"id":"chatcmpl-b0541baee2b74f3ca1ded02075e4c704","object":"chat.completion","created":1784942391,"model":"dm-autonomous
+[2026-07-24 22:19:51] [SUCCESS] Tunnel recovered and re-validated at https://opened-accomplished-doug-cheaper.trycloudflare.com

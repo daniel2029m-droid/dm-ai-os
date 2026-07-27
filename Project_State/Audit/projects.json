@@ -1,0 +1,38 @@
+﻿{
+    "Timestamp":  "2026-07-23T12:38:47",
+    "GitRepos":  [
+
+                 ],
+    "AIProjects":  [
+                       "C:\\Users\\moral\\.agents",
+                       "C:\\Users\\moral\\.ollama",
+                       "C:\\Users\\moral\\Agente_Resultados",
+                       "C:\\Users\\moral\\.antigravity\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\agents",
+                       "C:\\Users\\moral\\.antigravity-ide\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\agents",
+                       "C:\\Users\\moral\\.bito\\codeReviewAgent",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\06fc1430-3bb2-4d35-9461-b0a0f621e7e3\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\14fde2cd-cc08-45b4-af8b-ea92d88084d1\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\21cab17a-1cd7-429b-928b-8de99cc2fecc\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\31c718be-3eb2-4d2f-9459-7eb271d7a720\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\66f565fc-5539-43ed-99e4-b338810d39c3\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\7bc41527-2514-45ca-a338-ccf7b2666b65\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\7d3bd024-523f-4a1a-9e53-e5abc1b81dc9\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\9092fe1f-8861-4c7f-bd32-d0ea1690c8fa\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\a3f4a868-9157-4324-87a9-ccdbad7f6dbe\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\b069198f-6693-4fa9-951a-4f53ed7510f1\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\b51d6abc-f81b-4ec1-8d62-9da83f944721\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\b9c35ff9-fd1a-4f43-8d88-c4321ed012f8\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\c62e1396-225a-4bc5-b628-b43822125891\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\cd2437c5-9ac7-4f69-82e5-bd95762e822b\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\e3e3b2e6-2b1f-4e26-b3d9-87c78d13defd\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\brain\\ff00bf6a-c978-4ef0-af2d-e2e79c637b97\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\scratch\\agent_bot",
+                       "C:\\Users\\moral\\.gemini\\antigravity\\scratch\\multi_agent_system",
+                       "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\06fc1430-3bb2-4d35-9461-b0a0f621e7e3\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\14fde2cd-cc08-45b4-af8b-ea92d88084d1\\.tempmediaStorage",
+                       "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\21cab17a-1cd7-429b-928b-8de99cc2fecc\\.tempmediaStorage"
+                   ]
+}

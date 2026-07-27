@@ -1,0 +1,10 @@
+﻿{
+    "NpmVersion":  "ERROR: Este comando no se puede ejecutar debido al error: %1 no es una aplicación Win32 válida.",
+    "Found":  true,
+    "Timestamp":  "2026-07-23T12:38:47",
+    "Path":  "C:\\Program Files\\nodejs\\node.exe",
+    "NodeVersion":  "22.17.0",
+    "GlobalPackages":  [
+
+                       ]
+}

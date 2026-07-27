@@ -1,0 +1,99 @@
+================================================================================
+DOCUMENTACIÓN TÉCNICA Y MANUAL DE USUARIO: AGENCIA AI VALERIA MONTESANO
+================================================================================
+Fecha: 23 de Abril, 2026
+Estado: Operativo - Versión Blindada (Grok Image-to-Video Optimized)
+================================================================================
+
+1. ARQUITECTURA DEL SISTEMA
+--------------------------------------------------------------------------------
+El sistema es un ecosistema de agentes autónomos orquestados mediante un Bot de 
+Telegram (Python). Se compone de tres capas principales:
+
+A. CAPA DE INTERFAZ (bot.py):
+   - Gestiona la comunicación con el usuario vía Telegram.
+   - Utiliza 'python-telegram-bot' para manejar comandos, fotos y videos.
+   - Implementa un sistema de botones interactivos para seleccionar escenarios.
+
+B. CAPA DE INTELIGENCIA (agents.py):
+   - Utiliza modelos locales (Qwen vía Ollama) o prompts estructurados para
+     refinar los prompts de imagen/video.
+   - Orquestador: Define qué herramienta (Grok, NanoBanana, Kling) usar según
+     el requerimiento.
+
+C. CAPA DE AUTOMATIZACIÓN (automation.py):
+   - Motor: Playwright (Chromium).
+   - Función: Navega físicamente por la web de ComfyUI Cloud para ejecutar flujos.
+   - Navegación Agéntica: No depende de selectores estáticos simples; busca por 
+     texto y contexto (Vídeo -> Grok -> Imagen a Video).
+
+2. COMPONENTES Y ARCHIVOS CLAVE
+--------------------------------------------------------------------------------
+- /agent_bot/
+  ├── bot.py           -> Entry point, lógica de Telegram y polling.
+  ├── automation.py    -> Cerebro de navegación y gestión de descargas.
+  ├── agents.py        -> Definición de roles y prompts del orquestador.
+  ├── config.py        -> Tokens (Telegram), rutas (Chrome) y constantes.
+  ├── accounts.json    -> Credenciales cifradas de ComfyUI (Cecilia Morales).
+  ├── secret.key       -> Llave Fernet para el cifrado de accounts.json.
+  ├── bot_log.txt      -> Registro de actividad del bot.
+  └── start_agency.bat -> Script de arranque rápido.
+
+3. FLUJO FUNCIONAL DE PRODUCCIÓN (CONVERSACIONAL)
+--------------------------------------------------------------------------------
+El bot ahora opera mediante una máquina de estados guiada:
+
+1. CONFIGURACIÓN INICIAL:
+   - Al iniciar con /start, el bot pide credenciales: `correo@gmail.com : contraseña`.
+   - SEGURIDAD: Al registrar una cuenta nueva, las anteriores se eliminan automáticamente.
+
+2. SELECCIÓN DE TAREA (/producir):
+   - El bot pregunta mediante botones:
+     A. Variaciones de Imagen (NanoBanana).
+     B. Generar Video (Grok Imagen a Video).
+     C. Replicar Video (Kling Motion Control).
+
+3. REQUERIMIENTO DE MEDIOS:
+   - Según la tarea, el bot solicita:
+     • Imagen de referencia (para todas las tareas).
+     • Video de muestra (solo para Kling Motion Control).
+
+4. EJECUCIÓN AGÉNTICA:
+   - El agente inicia sesión estrictamente vía Google Auth.
+   - VERIFICACIÓN: El agente lee el balance de créditos. Si es <= 0, aborta y avisa.
+   - NAVEGACIÓN: Localiza el workflow, sube los archivos y ejecuta el batch.
+
+5. ENTREGA DE RESULTADOS:
+   - El agente monitorea la descarga, la mueve a la carpeta final y la envía
+     directamente al chat de Telegram.
+
+4. CONFIGURACIÓN DE RUTAS Y PERMISOS
+--------------------------------------------------------------------------------
+- Carpeta de Sesión (Imágenes): C:\AgentSessions\
+- Carpeta de Capturas/Logs: C:\AgentScreenshots\
+- Carpeta de Descargas Finales: C:\Users\moral\Downloads\videos de @valeria\
+- Perfil de Chrome: C:\AgentScreenshots\recordings\auth_state.json
+
+================================================================================
+MANUAL DE USUARIO (OPERACIÓN PASO A PASO)
+================================================================================
+
+PASO 1: Iniciar el bot.
+   - Envía /start. Si no hay cuenta, envía tu correo y clave de Google.
+
+PASO 2: Elegir producción.
+   - Envía /producir o presiona el botón correspondiente.
+   - Elige entre Variaciones, Generar Video o Replicar Movimiento.
+
+PASO 3: Enviar archivos.
+   - El bot te guiará pidiendo la imagen y/o el video necesario.
+
+PASO 4: Indicar cantidad.
+   - Responde con el número de resultados deseados (ej: 5).
+
+PASO 5: Esperar el resultado.
+   - El bot hará todo el trabajo en la nube y te enviará el archivo final.
+
+================================================================================
+FIN DE LA DOCUMENTACIÓN - SISTEMA AGENTE ACTUALIZADO
+================================================================================

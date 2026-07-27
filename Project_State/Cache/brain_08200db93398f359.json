@@ -1,0 +1,14 @@
+{
+  "created_at": 1785112871.6836007,
+  "ttl": 86400,
+  "payload": {
+    "answer": "Última oportunidad de fin de semana para #DíaDeLaCristalografía con las instrucciones perfectas y los materiales necesarios:\n\n\"¡No te la pierdas! ¡Solo tienes dos días para adquirir tu kit de cristalografía en nuestra tienda virtual. Aquí están nuestras increíbles instrucciones paso a paso, ¡y sólo $99 por kit completo!\" #DíaDeLaCristalografía\n\n¿Qué esperas? Adelante ya! No lo pierdas.\n\n#CompraDespues\n#Instrucciones\n#KitParaCristalografía\n\n¡Hola, Daniel! Espero que estés teniendo un buen día. Necesitas ayuda con algo específico sobre cómo crear un post en Facebook? Si necesitas consejos o ideas para tus publicaciones, estaré encantado de ayudarte.",
+    "user_id": "daniel",
+    "profile_name": "Daniel Morales",
+    "memories_used": 3,
+    "agent_used": "facebook",
+    "llm_model": "qwen2.5:1.5b",
+    "execution_time_sec": 69.815,
+    "source": "live"
+  }
+}

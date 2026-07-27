@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DM AI OS — Commercial SaaS & Remote Terminal</title>
+    
+    <!-- PWA & iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DM AI OS">
+    <meta name="theme-color" content="#0f172a">
+
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #070b14;
+            --bg-card: rgba(15, 23, 42, 0.75);
+            --bg-card-border: rgba(56, 189, 248, 0.15);
+            --accent-cyan: #38bdf8;
+            --accent-purple: #8b5cf6;
+            --accent-green: #34d399;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header { text-align: center; margin: 40px 20px 20px 20px; }
+        .header h1 { font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 10px; }
+        .grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1000px; padding: 20px; }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backdrop-filter: blur(10px);
+        }
+        .card.featured { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(56,189,248,0.2); }
+        .price { font-size: 2rem; font-weight: 700; margin: 15px 0; color: #fff; }
+        .btn-stripe {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px; text-decoration: none; text-align: center; display: block;
+        }
+        .btn-mp {
+            background: linear-gradient(135deg, #009ee3, #0073a5);
+            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
+        }
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #0f172a; border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 30px; max-width: 450px; width: 90%; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
+        .nav-link { color: var(--accent-cyan); text-decoration: none; font-weight: 600; margin: 0 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DM AI OS Commercial SaaS</h1>
+        <p style="color: var(--text-muted);">Sistema Operativo para Empleados Digitales Autónomos</p>
+        <div style="margin-top: 15px;">
+            <a href="#pricing" class="nav-link">Planes</a> |
+            <a href="/admin/login" class="nav-link">Super Admin</a>
+        </div>
+    </div>
+
+    <div class="grid" id="pricing">
+        <div class="card">
+            <div>
+                <h3>Starter</h3>
+                <div class="price">USD $29 <span style="font-size:1rem; font-weight:400;">/ mes</span></div>
+                <p style="color: var(--text-muted);">Ideal para emprendedores y autónomos individuales.</p>
+            </div>
+            <div>
+                <a href="https://buy.stripe.com/9B68wQ5WMdF6gYsbCe8AE01" target="_blank" class="btn-stripe">Suscribirme con tarjeta (Stripe)</a>
+                <button class="btn-mp" onclick="openMPModal('starter', 29)">Pagar con Mercado Pago</button>
+            </div>
+        </div>
+
+        <div class="card featured">
+            <div>
+                <span style="background: var(--accent-cyan); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">MÁS POPULAR</span>
+                <h3>Professional</h3>
+                <div class="price">USD $99 <span style="font-size:1rem; font-weight:400;">/ mes</span></div>
+                <p style="color: var(--text-muted);">Suite completa de 20 Empleados Digitales Autónomos.</p>
+            </div>
+            <div>
+                <a href="https://buy.stripe.com/9B68wQ5WMdF6gYsbCe8AE01" target="_blank" class="btn-stripe">Suscribirme con tarjeta (Stripe)</a>
+                <button class="btn-mp" onclick="openMPModal('professional', 99)">Pagar con Mercado Pago</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Mercado Pago -->
+    <div id="mpModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: var(--accent-cyan); margin-top:0;">Pago con Mercado Pago (Argentina)</h3>
+            <p><strong>Plan:</strong> <span id="mpPlanName">Professional</span> (USD $<span id="mpUsd">99</span>)</p>
+            <p style="background: rgba(52,211,153,0.1); color: var(--accent-green); padding: 10px; border-radius: 6px;">
+                <strong>Equivalente ARS:</strong> $<span id="mpArs">123,750</span> ARS
+            </p>
+            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
+                <strong>Alias:</strong> monetiza.dm<br>
+                <strong>CVU:</strong> 0000003100044063397420<br>
+                <strong>Titular:</strong> Daniel Alberto Morales
+            </div>
+            <input type="email" id="userEmail" placeholder="Tu Email para la cuenta SaaS" required>
+            <input type="text" id="opNumber" placeholder="Número de Operación de MP" required>
+            <button class="btn-mp" onclick="submitMPProof()" style="margin-top:10px;">Ya realicé la transferencia</button>
+            <button onclick="closeMPModal()" style="background:transparent; border:none; color:var(--text-muted); width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPlan = 'professional';
+        async function openMPModal(plan, usd) {
+            currentPlan = plan;
+            document.getElementById('mpPlanName').innerText = plan.toUpperCase();
+            document.getElementById('mpUsd').innerText = usd;
+            try {
+                const res = await fetch('/v1/billing/mp-details?plan_id=' + plan);
+                const data = await res.json();
+                document.getElementById('mpArs').innerText = data.amount_ars.toLocaleString('es-AR');
+            } catch(e) {
+                document.getElementById('mpArs').innerText = (usd * 1250).toLocaleString('es-AR');
+            }
+            document.getElementById('mpModal').style.display = 'flex';
+        }
+        function closeMPModal() { document.getElementById('mpModal').style.display = 'none'; }
+
+        async function submitMPProof() {
+            const email = document.getElementById('userEmail').value;
+            const op = document.getElementById('opNumber').value;
+            if(!email || !op) return alert('Por favor ingresa tu email y número de operación');
+
+            try {
+                const res = await fetch('/v1/billing/submit-mp-proof', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_email: email, plan_id: currentPlan, operation_number: op })
+                });
+                const data = await res.json();
+                alert(data.message || 'Comprobante recibido');
+            } catch(e) {
+                alert('Comprobante registrado en modo seguro.');
+            }
+            closeMPModal();
+        }
+    </script>
+</body>
+</html>

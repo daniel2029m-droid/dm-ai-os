@@ -1,0 +1,9 @@
+﻿{
+    "model":  "dm-autonomous-brain",
+    "messages":  [
+                     {
+                         "content":  "PING",
+                         "role":  "user"
+                     }
+                 ]
+}

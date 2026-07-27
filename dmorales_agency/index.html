@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daniel Morales | Soluciones Digitales para Emprendedores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary-red: #FF0000;
+            --dark-bg: #0f0f0f;
+            --darker-bg: #000000;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --accent-red: #cc0000;
+        }
+
+        body {
+            font-family: 'Outfit', 'Segoe UI', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: rgba(0,0,0,0.95);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(255, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 700; color: var(--primary-red); }
+
+        .nav-links { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
+
+        .nav-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 400;
+        }
+
+        .nav-links a:hover { color: var(--primary-red); }
+
+        .nav-agency-btn {
+            background: linear-gradient(135deg, #FF0000, #cc0000) !important;
+            color: white !important;
+            padding: 8px 18px !important;
+            border-radius: 8px !important;
+            font-weight: 700 !important;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(255,0,0,0.3);
+            transition: all 0.3s ease !important;
+        }
+
+        .nav-agency-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,0,0,0.5) !important;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-red), #ff6666);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .cta-button {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .cta-button:hover { background-color: var(--accent-red); transform: scale(1.05); }
+
+        .btn-agency {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            color: var(--primary-red);
+            padding: 1rem 2rem;
+            border: 2px solid var(--primary-red);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.3s;
+        }
+
+        .btn-agency:hover {
+            background: var(--primary-red);
+            color: white;
+            box-shadow: 0 0 30px rgba(255,0,0,0.4);
+            transform: scale(1.05);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .section { margin: 4rem 0; }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--primary-red);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .service-card {
+            background-color: var(--darker-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.2);
+            border-color: var(--primary-red);
+        }
+
+        .service-card h3 { color: var(--primary-red); margin-bottom: 1rem; font-size: 1.4rem; }
+        .service-card p { color: var(--text-secondary); margin-bottom: 1rem; }
+        .price { font-size: 1.8rem; color: var(--primary-red); font-weight: 700; margin: 1rem 0; }
+
+        .about-section {
+            background-color: var(--darker-bg);
+            padding: 3rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary-red);
+        }
+
+        .achievement {
+            background-color: rgba(255, 0, 0, 0.08);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-red);
+        }
+
+        .payment-section {
+            text-align: center;
+            background-color: var(--darker-bg);
+            padding: 3rem;
+            border-radius: 15px;
+        }
+
+        .payment-buttons { display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; flex-wrap: wrap; }
+
+        .payment-btn {
+            padding: 1.5rem 3rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .mercadopago-btn { background-color: #009ee3; color: white; }
+        .stripe-btn { background-color: #635bff; color: white; }
+        .payment-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255, 255, 255, 0.15); }
+
+        footer {
+            background-color: var(--darker-bg);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            border-top: 2px solid var(--primary-red);
+        }
+
+        .contact-info { margin: 2rem 0; }
+        .contact-info a { color: var(--primary-red); text-decoration: none; margin: 0 1rem; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { flex-direction: column; gap: 0.8rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .payment-buttons { flex-direction: column; align-items: center; }
+            .hero-buttons { flex-direction: column; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.85);
+        }
+
+        .modal-content {
+            background-color: var(--dark-bg);
+            margin: 8% auto;
+            padding: 2rem;
+            border: 1px solid var(--primary-red);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .close { color: var(--text-secondary); float: right; font-size: 2rem; cursor: pointer; }
+        .close:hover { color: var(--primary-red); }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,0,0,0.4);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Daniel Morales</div>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#servicios">Servicios</a></li>
+                <li><a href="#sobre-mi">Sobre Mi</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+                <li><a href="agency.html" class="nav-agency-btn">&#x1F916; Agencia IA</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero" id="inicio">
+        <h1>Soluciones Digitales para Emprendedores</h1>
+        <p>Transformo ideas en realidad digital con IA, desarrollo web, apps moviles y estrategias de contenido</p>
+        <div class="hero-buttons">
+            <button class="cta-button" onclick="document.getElementById('contactModal').style.display='block'">Consulta Gratuita</button>
+            <a href="agency.html" class="btn-agency">&#x1F916; Acceder Panel IA</a>
+        </div>
+    </section>
+
+    <div class="container">
+        <section class="section" id="servicios">
+            <h2 class="section-title">Servicios Profesionales</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>&#x2728; Consultoria en IA</h3>
+                    <p>Asesoramiento personalizado desde herramientas basicas hasta soluciones avanzadas de IA para maximizar tu productividad.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Implementacion de ChatGPT, Claude, Midjourney</li>
+                        <li>Automatizacion de flujos de trabajo</li>
+                        <li>Estrategias de prompting avanzado</li>
+                        <li>Sesiones personalizadas 1-a-1</li>
+                    </ul>
+                    <div class="price">Desde USD $50/hora</div>
+                    <button class="cta-button" onclick="openPayment('ia-consulting')">Contratar Ahora</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>&#x1F4F1; Desarrollo de Apps Moviles</h3>
+                    <p>Creacion de aplicaciones moviles desde cero para Android, con experiencia publicando en Google Play Store.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Apps nativas para Android</li>
+                        <li>Diseno UI/UX profesional</li>
+                        <li>Integracion de APIs</li>
+                        <li>Publicacion en Play Store</li>
+                    </ul>
+                    <div class="price">Desde USD $500</div>
+                    <button class="cta-button" onclick="openPayment('app-dev')">Contratar Ahora</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>&#x1F310; Desarrollo Web</h3>
+                    <p>Sitios web profesionales, responsivos y optimizados. Landing pages, e-commerce y plataformas web personalizadas.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Diseno web moderno y responsivo</li>
+                        <li>Optimizacion SEO</li>
+                        <li>Integraciones de pago</li>
+                        <li>Hosting y dominio incluido</li>
+                    </ul>
+                    <div class="price">Desde USD $300</div>
+                    <button class="cta-button" onclick="openPayment('web-dev')">Contratar Ahora</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>&#x1F916; Chatbots Personalizados</h3>
+                    <p>Desarrollo de chatbots inteligentes para atencion al cliente, automatizacion y ventas 24/7.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Chatbots con IA conversacional</li>
+                        <li>Integracion WhatsApp, Instagram, Web</li>
+                        <li>Automatizacion de respuestas</li>
+                        <li>Panel de administracion</li>
+                    </ul>
+                    <div class="price">Desde USD $400</div>
+                    <button class="cta-button" onclick="openPayment('chatbot')">Contratar Ahora</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>&#x1F4C8; Gestion de Redes Sociales</h3>
+                    <p>Gestion integral de TikTok con estrategia hacia la monetizacion. Creacion de contenido viral y crecimiento organico.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Estrategia de contenido profesional</li>
+                        <li>Edicion y publicacion de videos</li>
+                        <li>Analisis de metricas</li>
+                        <li>Camino a la monetizacion</li>
+                    </ul>
+                    <div class="price">USD $200/mes</div>
+                    <button class="cta-button" onclick="openPayment('social-media')">Contratar Ahora</button>
+                </div>
+
+                <div class="service-card">
+                    <h3>&#x26A1; Automatizaciones</h3>
+                    <p>Automatizacion de procesos empresariales para ahorrar tiempo y aumentar la eficiencia operativa.</p>
+                    <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                        <li>Integracion de herramientas (Zapier, Make)</li>
+                        <li>Automatizacion de emails y reportes</li>
+                        <li>Flujos de trabajo personalizados</li>
+                        <li>Bots para tareas repetitivas</li>
+                    </ul>
+                    <div class="price">Desde USD $250</div>
+                    <button class="cta-button" onclick="openPayment('automation')">Contratar Ahora</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="sobre-mi">
+            <h2 class="section-title">Sobre Mi</h2>
+            <div class="about-section">
+                <h3 style="color: var(--primary-red); margin-bottom: 1rem;">Daniel Morales - @dmoralesllc</h3>
+                <p style="font-size: 1.2rem; margin-bottom: 2rem;">Especialista en soluciones digitales con mas de 15 anos de experiencia en gestion empresarial y tecnologia.</p>
+                <div style="text-align: center; margin: 2rem 0;">
+                    <img src="https://i.ibb.co/XcMHNbN/foto-de-perfil.png" alt="Daniel Morales" style="width: 200px; height: 200px; object-fit: cover; border: 4px solid var(--primary-red); border-radius: 50%; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);">
+                </div>
+                <div class="achievement">
+                    <h4 style="color: var(--primary-red); margin-bottom: 0.5rem;">&#x1F3C6; Ganador Startup Weekend Chaco 2023</h4>
+                    <p>Premio a la Innovacion Tecnologica en Inteligencia Artificial.</p>
+                </div>
+                <div class="achievement">
+                    <h4 style="color: var(--primary-red); margin-bottom: 0.5rem;">&#x1F4F1; Desarrollo de Apps Publicadas</h4>
+                    <p>Experiencia creando y publicando aplicaciones moviles en Google Play Store.</p>
+                </div>
+                <div class="achievement">
+                    <h4 style="color: var(--primary-red); margin-bottom: 0.5rem;">&#x1F4BC; 15 Anos en Supermercadismo</h4>
+                    <p>Gestion de servicios en empresa de consumo masivo.</p>
+                </div>
+                <div class="achievement">
+                    <h4 style="color: var(--primary-red); margin-bottom: 0.5rem;">&#x1F916; Experto en IA</h4>
+                    <p>Acompanamiento desde cero en el uso de herramientas de IA hasta las mas complejas para productividad y soluciones empresariales.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section payment-section">
+            <h2 class="section-title">Metodos de Pago</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 1rem;">Acepto pagos desde Argentina, Estados Unidos y Europa</p>
+            <div class="payment-buttons">
+                <button class="payment-btn mercadopago-btn" onclick="alert('Contacta por WhatsApp para coordinar pago con Mercado Pago')">
+                    &#x1F7E6; Mercado Pago (Argentina)
+                </button>
+                <button class="payment-btn stripe-btn" onclick="alert('Contacta para pago internacional\n\nEmail: contacto@dmorales.com.ar')">
+                    &#x1F310; Stripe/PayPal (USA/Europa)
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <footer id="contacto">
+        <h3>Contacto</h3>
+        <div class="contact-info">
+            <a href="https://www.tiktok.com/@dmoralesllc" target="_blank">TikTok</a>
+            <a href="https://linktr.ee/dmorales100" target="_blank">Links</a>
+            <a href="mailto:contacto@dmorales.com.ar">Email</a>
+            <a href="mailto:info@dmorales.com.ar">Info</a>
+            <a href="https://wa.me/5493624754346" target="_blank">WhatsApp</a>
+        </div>
+        <p style="margin-top: 2rem; color: var(--text-secondary);">&copy; 2025 Daniel Morales. Todos los derechos reservados.</p>
+        <p style="color: var(--text-secondary);">dmorales.com.ar</p>
+    </footer>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('contactModal').style.display='none'">&times;</span>
+            <h2 style="color: var(--primary-red); margin-bottom: 1rem;">Consulta Gratuita</h2>
+            <form id="contactForm">
+                <input type="text" placeholder="Nombre Completo" required>
+                <input type="email" placeholder="Email" required>
+                <input type="tel" placeholder="Telefono/WhatsApp" required>
+                <textarea placeholder="Cuentame sobre tu proyecto..." rows="5" required></textarea>
+                <button type="submit" class="cta-button" style="width: 100%; margin-top: 1rem;">Enviar Consulta</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openPayment(service) {
+            const services = {
+                'ia-consulting': 'Consultoria en IA',
+                'app-dev': 'Desarrollo de Apps Moviles',
+                'web-dev': 'Desarrollo Web',
+                'chatbot': 'Chatbots Personalizados',
+                'social-media': 'Gestion de Redes Sociales',
+                'automation': 'Automatizaciones'
+            };
+            alert('Servicio: ' + services[service] + '\n\nContactate:\nWhatsApp: +54 9 3624 754346\nEmail: contacto@dmorales.com.ar');
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Gracias! Me pondre en contacto a la brevedad.');
+            document.getElementById('contactModal').style.display = 'none';
+            this.reset();
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('contactModal');
+            if (event.target == modal) modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

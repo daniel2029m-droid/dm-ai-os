@@ -1,0 +1,37 @@
+{
+  "_comment": "Phase 9 — OpenAI Layer Security Configuration",
+  "version": "1.2.0-production",
+
+  "auth_mode": "both",
+
+  "modes": {
+    "none": "Accept all requests without authentication",
+    "bearer": "Require Authorization: Bearer <token>",
+    "api_key": "Require X-API-Key header",
+    "both": "Accept either Bearer or X-API-Key"
+  },
+
+  "require_auth": true,
+
+  "allowed_bearer_tokens": [
+    "dm-secret-key-v1",
+    "dm-production-key"
+  ],
+
+  "allowed_api_keys": [
+    "dm-secret-key-v1",
+    "dm-production-key"
+  ],
+
+  "error_format": "openai",
+
+  "rate_limiting": {
+    "enabled": false,
+    "requests_per_minute": 60
+  },
+
+  "cors": {
+    "allow_origins": ["*"],
+    "allow_credentials": true
+  }
+}

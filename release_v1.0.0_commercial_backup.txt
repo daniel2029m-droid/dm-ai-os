@@ -1,0 +1,34 @@
+# DM AI OS — Production Release Backup Manifest & State Snapshot
+Release Tag: v1.0.0-commercial
+Date: 2026-07-27
+
+===============================================================
+SYSTEM COMPONENT STATUS SNAPSHOT
+===============================================================
+
+1. Core Cognitive Engine (BrainPipeline) .............. CONGELADO / INTAC TO
+2. Multi-Tenant SaaS Isolation Adapter .................. OPERATIVO (13/13 PASS)
+3. Experience Learning Engine ........................... OPERATIVO (10/10 PASS)
+4. Autonomous Cognitive Scheduler ....................... OPERATIVO (17/17 PASS)
+5. Commercial Assistant Factory (22 Templates) .......... OPERATIVO (36/36 PASS)
+6. Billing Engine & Stripe Webhook ...................... OPERATIVO (11/11 PASS)
+7. Mercado Pago USD -> ARS Live Converter ............... OPERATIVO
+8. Super Admin Access & Control Panel (/admin/login) .... OPERATIVO (Argon2/Bcrypt + .env)
+9. Automated Specialist Workers (20 Workers) ............ OPERATIVO (36/36 PASS)
+10. Open Source Adapters (Phases A, B, C) ............... OPERATIVO (120/120 PASS)
+
+Total Tests Verified: 243 / 243 PASS (0 Regressions)
+
+===============================================================
+PRODUCTION DOMAIN & DEPLOYMENT CONFIGURATION
+===============================================================
+
+Official Domain: https://dmorales.site
+Alternative Domain: https://www.dmorales.site
+VPS IP: 62.171.169.50
+Frontend: Vercel (https://vercel.com/daniel-morales-projects-d095974e)
+Backend: VPS (FastAPI / Reverse Proxy / SSL / CORS / PWA)
+Stripe Payment Link: https://buy.stripe.com/9B68wQ5WMdF6gYsbCe8AE01
+Mercado Pago Alias: monetiza.dm
+Mercado Pago CVU: 0000003100044063397420
+Mercado Pago Titular: Daniel Alberto Morales

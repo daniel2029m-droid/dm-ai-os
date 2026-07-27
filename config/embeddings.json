@@ -1,0 +1,7 @@
+{
+  "provider": "ollama",
+  "model": "nomic-embed-text",
+  "fallback_model": "qwen2.5:0.5b",
+  "enabled": true,
+  "vector_dim": 768
+}

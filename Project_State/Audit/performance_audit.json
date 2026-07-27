@@ -1,0 +1,36 @@
+{
+  "capability_selector": {
+    "probe_latency_ms": 313.66,
+    "model_selection_latency_ms": 248.0925,
+    "models_discovered": [
+      "qwen2.5:1.5b",
+      "qwen2.5:0.5b"
+    ],
+    "selected_reasoning_model": "qwen2.5:1.5b"
+  },
+  "storage_layer": {
+    "cache_write_latency_ms": 0.5998,
+    "cache_read_latency_ms": 0.2152,
+    "sqlite_write_latency_ms": 4.9678,
+    "sqlite_search_latency_ms": 0.6421
+  },
+  "event_bus": {
+    "total_1k_events_latency_ms": 6.88,
+    "avg_latency_per_event_ms": 0.0069,
+    "events_received": 1000
+  },
+  "task_dag": {
+    "10_node_parallel_execution_ms": 15.67,
+    "completed": 10,
+    "failed": 0
+  },
+  "token_and_resource_summary": {
+    "base_memory_mb": 30.41,
+    "peak_memory_mb": 36.61,
+    "memory_delta_mb": 6.2,
+    "estimated_tokens_saved_per_cached_query": "~450 tokens",
+    "estimated_cost_saved_per_100_queries_usd": "$0.00 (100% Local Reasoning)",
+    "cached_query_response_time_ms": 0.2152,
+    "uncached_query_response_time_ms": "~1,500ms - 4,000ms (LLM Dependent)"
+  }
+}

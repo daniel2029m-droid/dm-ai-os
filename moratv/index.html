@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MoraTV | Premium Streaming</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="La mejor experiencia de TV en vivo con MoraTV. Canales premium en alta definición.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">MoraTV 🔥</div>
+        <div id="status" style="font-size: 12px; color: var(--text-secondary);">Cargando canales...</div>
+    </header>
+
+    <main>
+        <section class="hero" id="hero-section">
+            <div class="hero-content">
+                <p>BIENVENIDO A MORATV</p>
+                <h1>Entretenimiento Sin Límites</h1>
+                <p>Disfruta de tus canales favoritos en vivo, desde cualquier lugar y en cualquier dispositivo.</p>
+            </div>
+        </section>
+
+        <div id="player-wrapper" style="display: none; position: sticky; top: 60px; z-index: 900;">
+            <div id="player-container">
+                <div class="close-theater" onclick="toggleTheater(false)">✕</div>
+                <video id="player" playsinline webkit-playsinline></video>
+                <button class="fs-btn" onclick="goFullScreen()">PANTALLA COMPLETA</button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="search" class="search-bar" placeholder="Buscar canal o categoría...">
+        </div>
+
+        <div id="content">
+            <div class="loader">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+
+</body>
+</html>

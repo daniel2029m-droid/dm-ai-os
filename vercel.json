@@ -1,0 +1,33 @@
+# Vercel Configuration file for Static Frontend / SPA Deployment
+{
+  "version": 2,
+  "public": true,
+  "builds": [
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/v1/billing/(.*)",
+      "dest": "http://62.171.169.50:8000/v1/billing/$1"
+    },
+    {
+      "src": "/v1/admin/(.*)",
+      "dest": "http://62.171.169.50:8000/v1/admin/$1"
+    },
+    {
+      "src": "/checkout",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

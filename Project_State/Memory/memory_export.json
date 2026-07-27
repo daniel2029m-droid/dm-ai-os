@@ -1,0 +1,21 @@
+{
+  "profile": {
+    "user_id": "daniel",
+    "name": "Daniel",
+    "preferences": {
+      "language": "Spanish",
+      "content_style": "AI automation",
+      "favorite_tools": ["Ollama", "n8n", "CapCut"]
+    },
+    "projects": ["Multi-Agent AI Platform"],
+    "goals": ["Automate AI workflows locally"]
+  },
+  "long_term_memories": [
+    {
+      "id": 1,
+      "content": "El usuario prefiere la automatización con Ollama local y CapCut para videos.",
+      "category": "preference",
+      "importance": 1.0
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "DM AI OS",
+  "base_url": "https://test-tunnel.trycloudflare.com/v1",
+  "api_key": "dm-secret-key-v1",
+  "model": "dm-autonomous-brain"
+}

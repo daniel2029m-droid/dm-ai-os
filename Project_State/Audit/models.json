@@ -1,0 +1,13 @@
+﻿{
+    "GGUF_Files":  [
+
+                   ],
+    "LlamaCpp":  {
+                     "Paths":  [
+
+                               ],
+                     "CLI":  null,
+                     "Server":  null
+                 },
+    "Timestamp":  "2026-07-23T12:38:47"
+}

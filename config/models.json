@@ -1,0 +1,101 @@
+{
+  "_comment": "Phase 9 — Virtual Model Registry. All DM models route into BrainPipeline.",
+  "version": "1.2.0-production",
+
+  "virtual_models": [
+    {
+      "id": "dm-autonomous-brain",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Full autonomous orchestration: memory + agents + DAG + LLM",
+      "capabilities": ["chat", "tools", "streaming", "memory", "agents"],
+      "context_window": 32768,
+      "internal_capability": "reasoning"
+    },
+    {
+      "id": "dm-reasoner",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Deep reasoning and planning model",
+      "capabilities": ["chat", "tools", "streaming"],
+      "context_window": 32768,
+      "internal_capability": "reasoning"
+    },
+    {
+      "id": "dm-fast",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Fast summarization and quick responses",
+      "capabilities": ["chat", "streaming"],
+      "context_window": 8192,
+      "internal_capability": "summarization"
+    },
+    {
+      "id": "dm-memory",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Memory-augmented conversational model",
+      "capabilities": ["chat", "tools", "streaming", "memory"],
+      "context_window": 32768,
+      "internal_capability": "reasoning"
+    },
+    {
+      "id": "dm-browser",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Browser and web search augmented model",
+      "capabilities": ["chat", "tools", "streaming"],
+      "context_window": 16384,
+      "internal_capability": "general"
+    },
+    {
+      "id": "dm-research",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Deep research and knowledge synthesis model",
+      "capabilities": ["chat", "tools", "streaming"],
+      "context_window": 32768,
+      "internal_capability": "planning"
+    },
+    {
+      "id": "dm-media",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Media and image generation coordination model",
+      "capabilities": ["chat", "tools", "streaming"],
+      "context_window": 8192,
+      "internal_capability": "general"
+    },
+    {
+      "id": "dm-facebook",
+      "object": "model",
+      "created": 1720000000,
+      "owned_by": "dm-platform",
+      "description": "Social media content generation model",
+      "capabilities": ["chat", "tools", "streaming"],
+      "context_window": 8192,
+      "internal_capability": "general"
+    }
+  ],
+
+  "model_capability_map": {
+    "dm-autonomous-brain": "reasoning",
+    "dm-reasoner": "reasoning",
+    "dm-fast": "summarization",
+    "dm-memory": "reasoning",
+    "dm-browser": "general",
+    "dm-research": "planning",
+    "dm-media": "general",
+    "dm-facebook": "general"
+  },
+
+  "include_ollama_models": true,
+  "ollama_owned_by": "ollama"
+}

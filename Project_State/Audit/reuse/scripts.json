@@ -1,0 +1,287 @@
+﻿{
+    "Timestamp":  "2026-07-23T12:47:34",
+    "Scripts":  [
+                    {
+                        "Size_KB":  0.6,
+                        "Path":  "C:\\Users\\moral\\agent_browser.py",
+                        "Name":  "agent_browser.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  0.6,
+                        "Path":  "C:\\Users\\moral\\agent_browser2.py",
+                        "Name":  "agent_browser2.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  0.6,
+                        "Path":  "C:\\Users\\moral\\iniciar_agente.ps1",
+                        "Name":  "iniciar_agente.ps1",
+                        "Ext":  ".ps1"
+                    },
+                    {
+                        "Size_KB":  1801.1,
+                        "Path":  "C:\\Users\\moral\\.antigravity\\extensions\\golang.go-0.52.2-universal\\dist\\goMain.js",
+                        "Name":  "goMain.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  610,
+                        "Path":  "C:\\Users\\moral\\.antigravity\\extensions\\ms-python.python-2026.4.0-universal\\dist\\extension.browser.js",
+                        "Name":  "extension.browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1090.7,
+                        "Path":  "C:\\Users\\moral\\.antigravity\\extensions\\ms-python.python-2026.4.0-universal\\out\\client\\plainExec.worker.js",
+                        "Name":  "plainExec.worker.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1823.8,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\golang.go-0.56.0-universal\\dist\\goMain.js",
+                        "Name":  "goMain.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  61.6,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\mechatroner.rainbow-csv-3.24.1-universal\\rainbow_utils.js",
+                        "Name":  "rainbow_utils.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  23.7,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\mechatroner.rainbow-csv-3.24.1-universal\\rbql_core\\rbql\\rbql_main.py",
+                        "Name":  "rbql_main.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  0,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\mechatroner.rainbow-csv-3.24.1-universal\\rbql_core\\rbql\\__main__.py",
+                        "Name":  "__main__.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  610,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\ms-python.python-2026.4.0-universal\\dist\\extension.browser.js",
+                        "Name":  "extension.browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1090.7,
+                        "Path":  "C:\\Users\\moral\\.antigravity-ide\\extensions\\ms-python.python-2026.4.0-universal\\out\\client\\plainExec.worker.js",
+                        "Name":  "plainExec.worker.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  6,
+                        "Path":  "C:\\Users\\moral\\.bun\\install\\cache\\debug@4.4.3@@@1\\src\\browser.js",
+                        "Name":  "browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  0.7,
+                        "Path":  "C:\\Users\\moral\\.bun\\install\\cache\\inherits@2.0.4@@@1\\inherits_browser.js",
+                        "Name":  "inherits_browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2.7,
+                        "Path":  "C:\\Users\\moral\\.bun\\install\\cache\\pkce-challenge@5.0.1@@@1\\dist\\index.browser.js",
+                        "Name":  "index.browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1,
+                        "Path":  "C:\\Users\\moral\\.bun\\install\\cache\\yargs-parser@21.1.1@@@1\\browser.js",
+                        "Name":  "browser.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1396.9,
+                        "Path":  "C:\\Users\\moral\\.lingma\\bin\\2.5.18\\extension\\main.js",
+                        "Name":  "main.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2.8,
+                        "Path":  "C:\\Users\\moral\\.vscode\\extensions\\rangav.vscode-thunder-client-2.40.12\\webpack.jetbrains.js",
+                        "Name":  "webpack.jetbrains.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  115.2,
+                        "Path":  "C:\\Users\\moral\\.vscode\\extensions\\rangav.vscode-thunder-client-2.40.12\\dist\\main.bundle.js",
+                        "Name":  "main.bundle.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  54.1,
+                        "Path":  "C:\\Users\\moral\\.vscode\\extensions\\rangav.vscode-thunder-client-2.40.12\\dist\\modes\\ext-language_tools.js",
+                        "Name":  "ext-language_tools.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  5.7,
+                        "Path":  "C:\\Users\\moral\\Downloads\\asset-extraction\\scrape.js",
+                        "Name":  "scrape.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  23.5,
+                        "Path":  "C:\\Users\\moral\\Downloads\\chocoTV_extract\\contents\\assets\\wortise_mraid.js",
+                        "Name":  "wortise_mraid.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  49.2,
+                        "Path":  "C:\\Users\\moral\\Downloads\\chocoTV_extract\\contents\\assets\\ad-viewer\\mraid.0.0.6.js",
+                        "Name":  "mraid.0.0.6.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  8.6,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase1.js",
+                        "Name":  "agent-stack-phase1.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2.7,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase2.js",
+                        "Name":  "agent-stack-phase2.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1.9,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase3.js",
+                        "Name":  "agent-stack-phase3.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase4-fix.js",
+                        "Name":  "agent-stack-phase4-fix.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  7.9,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase4.js",
+                        "Name":  "agent-stack-phase4.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1.9,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase5-fix.js",
+                        "Name":  "agent-stack-phase5-fix.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2.6,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase5.js",
+                        "Name":  "agent-stack-phase5.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  0.9,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase6.js",
+                        "Name":  "agent-stack-phase6.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2.2,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase7.js",
+                        "Name":  "agent-stack-phase7.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  4,
+                        "Path":  "C:\\Users\\moral\\mysticia\\agent-stack-phase8.js",
+                        "Name":  "agent-stack-phase8.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  0.5,
+                        "Path":  "C:\\Users\\moral\\mysticia\\create_aider_script.js",
+                        "Name":  "create_aider_script.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  8.4,
+                        "Path":  "C:\\Users\\moral\\mysticia\\vps_mail_setup.py",
+                        "Name":  "vps_mail_setup.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  16,
+                        "Path":  "C:\\Users\\moral\\mysticia\\vps_subdomains.py",
+                        "Name":  "vps_subdomains.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  0.7,
+                        "Path":  "C:\\Users\\moral\\mysticia\\_check_ollama.js",
+                        "Name":  "_check_ollama.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  2,
+                        "Path":  "C:\\Users\\moral\\mysticia\\_deploy_ollama.js",
+                        "Name":  "_deploy_ollama.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1,
+                        "Path":  "C:\\Users\\moral\\mysticia\\_fix_ollama_bind.js",
+                        "Name":  "_fix_ollama_bind.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  1.3,
+                        "Path":  "C:\\Users\\moral\\mysticia\\_fix_ollama_gpu.js",
+                        "Name":  "_fix_ollama_gpu.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  0.8,
+                        "Path":  "C:\\Users\\moral\\mysticia\\_test_ollama.js",
+                        "Name":  "_test_ollama.js",
+                        "Ext":  ".js"
+                    },
+                    {
+                        "Size_KB":  0.4,
+                        "Path":  "C:\\Users\\moral\\OneDrive\\Desktop\\AI_Assistant.bat",
+                        "Name":  "AI_Assistant.bat",
+                        "Ext":  ".bat"
+                    },
+                    {
+                        "Size_KB":  11.5,
+                        "Path":  "C:\\Users\\moral\\youtube_automatizado\\main.py",
+                        "Name":  "main.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  6.3,
+                        "Path":  "C:\\Users\\moral\\youtube_automatizado\\prompts.py",
+                        "Name":  "prompts.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  14.8,
+                        "Path":  "C:\\Users\\moral\\youtube_automatizado\\backend\\main.py",
+                        "Name":  "main.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  9.2,
+                        "Path":  "C:\\Users\\moral\\youtube_automatizado\\backend\\agents\\browser_bot.py",
+                        "Name":  "browser_bot.py",
+                        "Ext":  ".py"
+                    },
+                    {
+                        "Size_KB":  7.3,
+                        "Path":  "C:\\Users\\moral\\youtube_automatizado\\pipeline\\llm_cliente.py",
+                        "Name":  "llm_cliente.py",
+                        "Ext":  ".py"
+                    }
+                ]
+}

@@ -1,0 +1,14 @@
+{
+  "grok_video": {
+    "node_type": "GrokVideoNode",
+    "required_params": ["model", "prompt", "resolution", "aspect_ratio", "duration", "seed", "steps"]
+  },
+  "kling_motion": {
+    "node_type": "KlingMotionControl",
+    "required_params": ["reference_image", "reference_video", "motion_prompt", "model"]
+  },
+  "nano_banana": {
+    "node_type": "GeminiNanoBanana2",
+    "required_params": ["images", "editing_prompt", "model", "resolution"]
+  }
+}

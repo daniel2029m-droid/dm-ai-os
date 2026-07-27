@@ -1,0 +1,6 @@
+{
+  "require_auth": true,
+  "allow_external_clients": true,
+  "api_key_env": "DM_API_KEY",
+  "default_api_key": "dm-secret-key-v1"
+}

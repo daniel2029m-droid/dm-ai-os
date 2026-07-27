@@ -1,0 +1,97 @@
+﻿{
+    "Timestamp":  "2026-07-23T12:47:34",
+    "Components":  {
+                       "open_webui":  [
+                                          "C:\\Users\\moral\\OneDrive\\Desktop\\Open WebUI (Daniel).lnk"
+                                      ],
+                       "mcp_servers":  [
+                                           "C:\\Users\\moral\\.cache\\chrome-devtools-mcp",
+                                           "C:\\Users\\moral\\.claude\\plugins\\marketplaces\\claude-plugins-official\\plugins\\mcp-server-dev",
+                                           "C:\\Users\\moral\\.docker\\mcp",
+                                           "C:\\Users\\moral\\.gemini\\antigravity\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md",
+                                           "C:\\Users\\moral\\.gemini\\antigravity\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.metadata.json",
+                                           "C:\\Users\\moral\\.gemini\\antigravity\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved",
+                                           "C:\\Users\\moral\\.gemini\\antigravity\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved.0",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-backup\\mcp_config.json",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.metadata.json",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved.0",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-browser-profile\\Profile 3\\Web Applications\\Manifest Resources\\ihngmcpdbnghinikifnilhlanjmckoof",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-ide\\mcp_config.json",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.metadata.json",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved",
+                                           "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\927dd7ec-8458-4ee5-9702-059db7172d62\\MCP_SETUP.md.resolved.0",
+                                           "C:\\Users\\moral\\.gemini\\config\\mcp_config.json",
+                                           "C:\\Users\\moral\\.lingma\\lingma_mcp.json",
+                                           "C:\\Users\\moral\\.lingma\\extension\\local\\mcp.json",
+                                           "C:\\Users\\moral\\.unity\\mcp",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.dll",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.dll.mvfrm",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.dll.mvfrm.rsp",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.pdb",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.ref.dll",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.rsp",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.rsp2",
+                                           "C:\\Users\\moral\\My project\\Library\\Bee\\artifacts\\1300b0aE.dag\\Unity.AI.MCP.Editor.UnityAdditionalFile.txt"
+                                       ],
+                       "workflow_files":  [
+                                              "C:\\Users\\moral\\.antigravity\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\workflows",
+                                              "C:\\Users\\moral\\.antigravity\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\instructions\\testing-workflow.instructions.md",
+                                              "C:\\Users\\moral\\.antigravity-ide\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\workflows",
+                                              "C:\\Users\\moral\\.antigravity-ide\\extensions\\ms-python.vscode-python-envs-1.20.1-universal\\.github\\instructions\\testing-workflow.instructions.md",
+                                              "C:\\Users\\moral\\.bun\\install\\cache\\fast-uri@3.1.2@@@1\\.github\\workflows",
+                                              "C:\\Users\\moral\\.bun\\install\\cache\\json-schema-traverse@1.0.0@@@1\\.github\\workflows",
+                                              "C:\\Users\\moral\\.gemini\\antigravity\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\comfyui_grok_workflow_1776919733449.png",
+                                              "C:\\Users\\moral\\.gemini\\antigravity\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\fix_workflow_selector_1776981298611.webp",
+                                              "C:\\Users\\moral\\.gemini\\antigravity\\scratch\\agent_bot\\workflows_schema.json",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\comfyui_grok_workflow_1776919733449.png",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-backup\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\fix_workflow_selector_1776981298611.webp",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-backup\\scratch\\agent_bot\\workflows_schema.json",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\comfyui_grok_workflow_1776919733449.png",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\41e03b7c-955c-4282-abae-4a037d4598ae\\fix_workflow_selector_1776981298611.webp",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\d4a8cf2a-29ea-4fb3-9799-3755b7d0274e\\comfyui_grok_workflow.json",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-ide\\brain\\d4a8cf2a-29ea-4fb3-9799-3755b7d0274e\\comfyui_grok_workflow.json.metadata.json",
+                                              "C:\\Users\\moral\\.gemini\\antigravity-ide\\scratch\\agent_bot\\workflows_schema.json",
+                                              "C:\\Users\\moral\\Downloads\\valeria_monetizacion_workflow.json",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.ai.inference@9a123aee5df7\\Documentation~\\understand-sentis-workflow.md",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.ai.inference@9a123aee5df7\\Documentation~\\workflow-example.md",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflow-Actions.md",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflow-Direct.md",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflow-PlayerInput.md",
+                                              "C:\\Users\\moral\\My project\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflows.md",
+                                              "C:\\Users\\moral\\mysticia\\node_modules\\ssh2\\.github\\workflows",
+                                              "C:\\Users\\moral\\OneDrive\\Desktop\\valeria_monetizacion_workflow.json",
+                                              "C:\\Users\\moral\\Setup Guide In-Editor Tutorial\\Library\\PackageCache\\com.unity.ai.inference@9a123aee5df7\\Documentation~\\understand-sentis-workflow.md",
+                                              "C:\\Users\\moral\\Setup Guide In-Editor Tutorial\\Library\\PackageCache\\com.unity.ai.inference@9a123aee5df7\\Documentation~\\workflow-example.md",
+                                              "C:\\Users\\moral\\Setup Guide In-Editor Tutorial\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflow-Actions.md",
+                                              "C:\\Users\\moral\\Setup Guide In-Editor Tutorial\\Library\\PackageCache\\com.unity.inputsystem@21a28c3a6c83\\Documentation~\\Workflow-Direct.md"
+                                          ],
+                       "comfyui":  [
+
+                                   ],
+                       "n8n":  {
+
+                               },
+                       "playwright":  [
+                                          "pip: Name: playwright\r\nVersion: 1.57.0\r\nSummary: A high-level API to automate web browsers\r\nHome-page: https://github.com/Microsoft/playwright-python\r\nAuthor: Microsoft Corporation\r\nAuthor-email: \r\nLicense-Expression: Apache-2.0\r\nLocation: C:\\Python313\\Lib\\site-packages\r\nRequires: greenlet, pyee\r\nRequired-by: \r\n",
+                                          "C:\\Users\\moral\\playwright_profile",
+                                          "C:\\Users\\moral\\playwright_test.py",
+                                          "C:\\Users\\moral\\.claude\\plugins\\marketplaces\\claude-plugins-official\\external_plugins\\playwright"
+                                      ],
+                       "docker_projects":  {
+
+                                           },
+                       "llama_cpp":  [
+                                         "C:\\Users\\moral\\.docker\\bin\\inference\\llama-mtmd-cli.exe",
+                                         "C:\\Users\\moral\\.docker\\bin\\inference\\llama.dll",
+                                         "C:\\Users\\moral\\.docker\\bin\\inference\\.llamacpp_version",
+                                         "C:\\Users\\moral\\OneDrive\\Desktop\\Llama3.bat",
+                                         "C:\\Users\\-7-\\OneDrive\\Desktop\\Llama3.bat",
+                                         "C:\\Users\\moral\\OneDrive\\Desktop\\Llama3.bat",
+                                         "C:\\work\\LlamaLogger",
+                                         "C:\\work\\LlamaSDKConfig"
+                                     ]
+                   }
+}

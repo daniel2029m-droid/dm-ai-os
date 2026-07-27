@@ -1,0 +1,42 @@
+﻿{
+    "ReuseDir":  "C:\\Users\\moral\\.gemini\\antigravity-ide\\scratch\\Project_State\\Audit\\reuse",
+    "Timestamp":  "2026-07-23T12:47:34",
+    "Files":  [
+                  {
+                      "File":  "component_search.json",
+                      "Size_KB":  11.2
+                  },
+                  {
+                      "File":  "d_drive.json",
+                      "Size_KB":  0.2
+                  },
+                  {
+                      "File":  "existing_projects.json",
+                      "Size_KB":  17.2
+                  },
+                  {
+                      "File":  "lmstudio.json",
+                      "Size_KB":  0.2
+                  },
+                  {
+                      "File":  "node_projects.json",
+                      "Size_KB":  77.2
+                  },
+                  {
+                      "File":  "pinokio.json",
+                      "Size_KB":  0.3
+                  },
+                  {
+                      "File":  "python_reuse.json",
+                      "Size_KB":  3
+                  },
+                  {
+                      "File":  "scripts.json",
+                      "Size_KB":  13.3
+                  },
+                  {
+                      "File":  "venvs.json",
+                      "Size_KB":  0.1
+                  }
+              ]
+}

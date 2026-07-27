@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\moral\.gemini\antigravity\scratch\agent_bot\bot.py", line 14, in <module>
+    sys.stdout.reconfigure(encoding='utf-8')
+    ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'reconfigure'

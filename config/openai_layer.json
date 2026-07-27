@@ -1,0 +1,46 @@
+{
+  "_comment": "Phase 9 — OpenAI Compatibility Layer Configuration",
+  "version": "1.2.0-production",
+
+  "base_url": "http://localhost:8000/v1",
+  "default_model": "dm-autonomous-brain",
+
+  "ollama_url": "http://localhost:11434",
+
+  "max_tokens_default": 4096,
+  "temperature_default": 0.7,
+  "stream_chunk_delay_ms": 0,
+
+  "enable_streaming": true,
+  "enable_tool_calls": true,
+  "enable_responses_endpoint": true,
+  "enable_debug_mode": false,
+  "debug_headers": true,
+
+  "pipeline_stages": [
+    "authentication",
+    "cache",
+    "identity_manager",
+    "memory_retrieval",
+    "knowledge_retrieval",
+    "context_builder",
+    "tool_selector",
+    "workflow_engine",
+    "task_dag",
+    "agent_router",
+    "llm_router",
+    "ollama",
+    "memory_writer",
+    "artifact_storage",
+    "audit_logger",
+    "openai_formatter"
+  ],
+
+  "phase10_reserved": {
+    "embeddings": "/v1/embeddings",
+    "images": "/v1/images",
+    "audio_transcriptions": "/v1/audio/transcriptions",
+    "audio_speech": "/v1/audio/speech",
+    "files": "/v1/files"
+  }
+}

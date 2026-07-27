@@ -1,0 +1,496 @@
+=============================================================================
+           MANUAL TÉCNICO Y DE USUARIO - SISTEMA DE AGENTES IA
+                 AGENCIA "VALERIA MONTESANO DIGITAL"
+=============================================================================
+
+1. VISIÓN GENERAL DEL SISTEMA
+-----------------------------------------------------------------------------
+Este sistema es una arquitectura de "Agencia de Marketing Autónoma" diseñada 
+específicamente para gestionar la cuenta de fitness "Valeria Montesano Digital".
+Permite operar modelos de IA de forma local y controlar herramientas en la nube 
+directamente desde Telegram, optimizando el tiempo y los recursos.
+
+Arquitectura de 3 Capas:
+- Capa 1 (Interfaz): Bot de Telegram (@valeriaMontesano_bot).
+- Capa 2 (Cerebro): Modelo LLM local (Qwen 2.5:1.5b) ejecutado vía Ollama.
+- Capa 3 (Ejecución): Scripts de automatización en Python (Playwright) para 
+  controlar ComfyUI Cloud, Grok y Kling.
+
+
+2. DETALLES TÉCNICOS Y COMPONENTES
+-----------------------------------------------------------------------------
+Ubicación del Proyecto: C:\Users\moral\.gemini\antigravity\scratch\agent_bot\
+
+Archivos Principales:
+* start_agency.bat:
+  El script de arranque principal. Configura las variables de entorno, asegura
+  que Ollama esté corriendo en el Disco C, verifica Python, y lanza el bot en 
+  un bucle (loop) infinito para que se reinicie automáticamente si ocurre un error.
+
+* bot.py:
+  El núcleo del sistema. Escrito en Python usando 'python-telegram-bot' y 'httpx'.
+  - Es 100% asíncrono para evitar cuellos de botella con la IA.
+  - Gestiona la recepción de mensajes, imágenes y videos.
+  - Se comunica con la API local de Ollama (http://localhost:11434).
+  - Incluye un sistema de cifrado (Fernet) para proteger contraseñas de cuentas.
+
+* agents.py:
+  Define las "personalidades" y directrices del sistema:
+  - MARKETING_EXPERT: Estratega de contenido para la cuenta de fitness.
+  - AI_ENGINEER: Especialista técnico en prompts para ComfyUI y Kling.
+  - SOFTWARE_AUTOMATION: Ejecutor de clics en el navegador.
+
+* automation.py:
+  Módulo de automatización web basado en Playwright. Permite abrir un navegador
+  oculto o visible, iniciar sesión en plataformas y ejecutar generaciones en lote
+  (ej. 30 videos de una vez).
+
+* config.py:
+  Contiene credenciales, rutas (Disco C) y configuraciones de seguridad.
+
+
+3. MANUAL DE USO (DÍA A DÍA)
+-----------------------------------------------------------------------------
+¿Cómo encender el sistema?
+1. Ve a la carpeta del bot: C:\Users\moral\.gemini\antigravity\scratch\agent_bot\
+2. Haz doble clic en "start_agency.bat".
+3. Se abrirá una ventana negra. Déjala abierta. El bot ya está escuchando.
+
+¿Cómo interactuar con Valeria (el Bot)?
+- Abre Telegram en tu móvil o PC.
+- Busca tu bot (@valeriaMontesano_bot).
+- Para pedir ideas: Simplemente escribe tu solicitud. Ejemplo: "Dame una idea 
+  para un reel de glúteos en el gimnasio".
+- Para generar contenido: Envía una foto o video de referencia al bot. 
+  El bot te responderá con botones para elegir el escenario (1 video, 30 videos, etc.).
+
+Gestión de Cuentas Desechables:
+Si quieres que el bot opere en ComfyUI por ti, envíale las credenciales con 
+este formato exacto:
+tu_correo@gmail.com : tu_contraseña
+El bot cifrará estos datos y los usará para iniciar sesión en la nube automáticamente.
+
+¿Cómo apagar el sistema?
+Simplemente cierra la ventana negra del "start_agency.bat" en tu PC, o 
+envía el comando /kill por Telegram.
+
+
+4. RESOLUCIÓN DE PROBLEMAS (TROUBLESHOOTING)
+-----------------------------------------------------------------------------
+A. El bot no responde en Telegram:
+   - Verifica que "start_agency.bat" esté corriendo.
+   - Revisa si hay errores en la terminal negra.
+   - Comprueba que Ollama esté activo (el icono de la llama en la barra de tareas).
+
+B. Ollama se queda pensando infinitamente:
+   - Ollama usa el Disco C por defecto. Si en algún momento conectas otro disco
+     y falla, ejecuta este comando en PowerShell para limpiar la ruta:
+     [Environment]::SetEnvironmentVariable("OLLAMA_MODELS", "", "User")
+
+C. Conflicto de "getUpdates" (Conflict: terminated by other request):
+   - Significa que tienes dos ventanas del bot abiertas al mismo tiempo.
+   - Cierra todas, y abre solo una vez "start_agency.bat".
+
+D. Caracteres raros en la consola:
+   - Ya está solucionado forzando codificación UTF-8 en bot.py, pero si ocurre,
+     no afecta el funcionamiento interno del bot.
+
+
+=============================================================================
+                     SISTEMA BLINDADO Y OPTIMIZADO
+=============================================================================
+
+5. DETALLE DE LOS ESCENARIOS DE PRODUCCIÓN
+-----------------------------------------------------------------------------
+Cuando envías una foto o video a Valeria, el bot te presentará 4 botones. 
+Cada uno dispara una automatización distinta utilizando Playwright (control 
+de navegador oculto) hacia plataformas de IA en la nube:
+
+* Escenario 1 (1 Video): 
+  - Propósito: Crear un reel o short rápido de 6 segundos.
+  - Flujo: El bot toma tu referencia, genera un prompt optimizado usando Qwen 
+    y automatiza la entrada en la herramienta correspondiente (ej. Grok Video) 
+    usando la cuenta de Google vinculada.
+
+* Escenario 2 (30 Videos Bulk):
+  - Propósito: Producción masiva para programar un mes de contenido de un golpe.
+  - Flujo: Similar al escenario 1, pero el bot automatiza 30 clicks en el botón 
+    de "Run" (Generar) en ComfyUI Cloud/Kling con iteraciones del prompt.
+
+* Escenario 3 (30 Variaciones Nano Banana):
+  - Propósito: Fotos para el feed de Facebook manteniendo la estética realista
+    y la iluminación de un "iPhone 11".
+  - Flujo: El Agente AI_ENGINEER mantiene constante el estilo visual en el prompt
+    mientras la automatización (Playwright) orquesta las 30 generaciones.
+
+* Escenario 4 (Kling Motion Control):
+  - Propósito: Clonar el movimiento exacto de un video de referencia (ej. una 
+    rutina de sentadillas).
+  - Flujo: Sube tu video a Kling, inyecta el prompt para estilizarlo y ejecuta 
+    la animación.
+
+
+6. MANTENIMIENTO Y EXTENSIÓN DEL SISTEMA
+-----------------------------------------------------------------------------
+
+6.1  Actualizar el Modelo Local (Ollama)
+------------------------------------------
+  Si en el futuro deseas usar un modelo más inteligente o especializado, solo
+  debes editar el archivo "config.py" y cambiar la variable del modelo:
+
+    OLLAMA_MODEL = "llama3"           # ejemplo: usar LLaMA 3 (8B)
+    OLLAMA_MODEL = "mistral"          # ejemplo: usar Mistral 7B
+    OLLAMA_MODEL = "qwen2.5:7b"       # ejemplo: saltar a Qwen 2.5 de 7B
+
+  Luego abre una terminal nueva (CMD o PowerShell) y descarga el modelo:
+    ollama pull llama3
+    ollama pull mistral
+
+  RECOMENDACIONES DE MODELOS POR CASO DE USO:
+  ┌─────────────────────────────┬──────────────────────────────────────────┐
+  │ Modelo                      │ Ideal para                               │
+  ├─────────────────────────────┼──────────────────────────────────────────┤
+  │ qwen2.5:1.5b (actual)       │ Respuesta rápida, mínima RAM (4 GB)      │
+  │ qwen2.5:7b                  │ Mejor redacción; requiere ~8 GB RAM       │
+  │ mistral:7b                  │ Buen balance velocidad/calidad            │
+  │ llama3:8b                   │ Excelente para textos creativos en ES     │
+  │ llava:7b                    │ Análisis de imágenes directamente         │
+  └─────────────────────────────┴──────────────────────────────────────────┘
+
+  NOTA: Si el bot ya está corriendo, recuerda reiniciarlo después de cambiar
+  el modelo en config.py (cierra la ventana negra y vuelve a abrir start_agency.bat).
+
+
+6.2  Añadir más Agentes de IA
+------------------------------------------
+  Puedes crear nuevos agentes editando el archivo "agents.py". Solo tienes que
+  añadir un nuevo bloque con su nombre y su "system_prompt" (comportamiento base).
+  El bot lo reconocerá automáticamente gracias a la función de Orquestación.
+
+  Estructura de un nuevo agente en agents.py:
+
+    NUEVO_AGENTE = {
+        "name": "NOMBRE_AGENTE",
+        "system_prompt": """
+    Eres [descripción del rol]. Tu objetivo es [objetivo específico].
+    Responde siempre en español, de forma concisa y profesional.
+    Cuando se te pida [acción], debes [comportamiento esperado].
+        """
+    }
+
+  Ejemplos de agentes que podrías añadir en el futuro:
+  - COPY_WRITER:   Redacción de epígrafes y textos para publicaciones de Facebook.
+  - SEO_EXPERT:    Generación de hashtags y palabras clave para cada post.
+  - ANALYTICS:     Interpretación de estadísticas de alcance e interacción.
+  - SCHEDULER:     Propuesta de calendario editorial mensual basado en tendencias.
+
+
+6.3  Copias de Seguridad (Backup)
+------------------------------------------
+  Archivos CRÍTICOS que debes respaldar:
+  ┌──────────────────┬───────────────────────────────────────────────────────┐
+  │ Archivo          │ Contenido                                             │
+  ├──────────────────┼───────────────────────────────────────────────────────┤
+  │ secret.key       │ Clave maestra de cifrado Fernet. SIN este archivo,    │
+  │                  │ las contraseñas almacenadas son irrecuperables.        │
+  │ accounts.json    │ Credenciales cifradas de todas las cuentas Google      │
+  │                  │ desechables. Depende de secret.key para descifrarse.   │
+  │ config.py        │ Token del bot, IDs de usuario y rutas personalizadas.  │
+  │ .env (si existe) │ Variables de entorno sensibles.                        │
+  └──────────────────┴───────────────────────────────────────────────────────┘
+
+  PROCEDIMIENTO DE BACKUP RECOMENDADO:
+  1. Comprime la carpeta completa del proyecto en un .zip.
+  2. Guarda una copia en Google Drive o en un disco externo.
+  3. Realiza un backup cada vez que añadas o modifiques credenciales de cuentas.
+  4. NUNCA compartas el archivo "secret.key" por Telegram o correo electrónico.
+
+
+6.4  Actualización del Código Fuente
+------------------------------------------
+  Para modificar el comportamiento del bot sin romper nada, sigue este orden:
+
+  1. Haz un backup antes de editar cualquier archivo .py.
+  2. Edita el archivo correspondiente con un editor de texto (VS Code recomendado).
+  3. Guarda el archivo.
+  4. Reinicia el bot (cierra y vuelve a abrir start_agency.bat).
+  5. Prueba el cambio enviando un mensaje de prueba desde Telegram.
+
+  Si el bot falla al reiniciar, la ventana negra mostrará el error exacto en rojo.
+  Lee el mensaje y busca la línea del archivo Python que lo generó.
+
+
+=============================================================================
+                   7. FLUJOS DE TRABAJO AVANZADOS
+=============================================================================
+
+7.1  Flujo Completo de Producción de Contenido (Mes Completo)
+------------------------------------------
+  FASE 1 - Planificación (5 minutos):
+  → Abre Telegram.
+  → Escribe: "Crea un calendario editorial para el mes de [mes] con 30 posts
+    de fitness, variando entre consejos, motivación y rutinas de glúteos."
+  → Guarda el calendario que te dé el bot.
+
+  FASE 2 - Generación Masiva de Imágenes (15 minutos):
+  → Envía al bot una foto de referencia (iluminación, estilo visual).
+  → Selecciona el botón: "30 Variaciones Nano Banana".
+  → El bot pedirá confirmar el número de lote. Confirma.
+  → Deja el navegador abierto en segundo plano. Las 30 imágenes se generarán solas.
+
+  FASE 3 - Generación de Videos (20 minutos):
+  → Envía al bot un video corto de referencia (5-10 segundos).
+  → Selecciona: "30 Videos Bulk" o "Kling Motion Control" según el efecto deseado.
+  → El bot automatizará la subida, el prompt y el clic en "Generar".
+
+  FASE 4 - Redacción de Copies (5 minutos):
+  → Por cada post, envía al bot: "Escribe el texto para este post: [descripción breve]"
+  → El agente MARKETING_EXPERT generará el copy con emojis, tono motivacional y CTA.
+
+  FASE 5 - Programación (10 minutos):
+  → Descarga el contenido generado desde ComfyUI/Kling.
+  → Programa las publicaciones en Meta Business Suite para los próximos 30 días.
+
+  TOTAL: Aproximadamente 55 minutos para un mes completo de contenido visual.
+
+
+7.2  Flujo de Operación Rápida (Post Urgente)
+------------------------------------------
+  Cuando necesitas publicar algo hoy:
+  1. Foto rápida de referencia → Bot → "1 Video (Grok)"
+  2. En paralelo: Escribe al bot "Dame 3 copies para un post urgente sobre [tema]"
+  3. Descarga el video cuando esté listo (~3-6 minutos).
+  4. Publica combinando el video + copy del bot.
+
+  Tiempo estimado: 10-15 minutos desde cero hasta publicado.
+
+
+7.3  Uso del Bot como Consultor de Estrategia
+------------------------------------------
+  El bot no solo genera contenido: también puede actuar como estratega.
+  Ejemplos de prompts útiles que puedes enviar:
+
+  - "¿Qué tipo de contenido tiene más alcance en Facebook para fitness en 2025?"
+  - "Analiza este post [descripción] y dime cómo mejorarlo."
+  - "¿Cuáles son las mejores horas para publicar en Facebook según el algoritmo?"
+  - "Dame 10 ideas de contenido basadas en la tendencia de [nombre tendencia]."
+  - "Genera 5 variaciones del copy: [texto original]."
+
+
+=============================================================================
+                   8. SEGURIDAD Y BUENAS PRÁCTICAS
+=============================================================================
+
+8.1  Protección de Credenciales
+------------------------------------------
+  El sistema usa cifrado Fernet (AES-128 en modo CBC) para proteger contraseñas.
+  El proceso de seguridad es el siguiente:
+
+  ① El usuario envía: correo@gmail.com : contraseña  →  via Telegram (cifrado TLS)
+  ② bot.py intercepta el mensaje antes de procesarlo con la IA.
+  ③ La contraseña se cifra con la clave de secret.key y se almacena en accounts.json.
+  ④ El texto original (con contraseña en claro) es eliminado de la memoria.
+  ⑤ Para usar las credenciales, automation.py las descifra en tiempo de ejecución.
+
+  REGLAS DE SEGURIDAD OBLIGATORIAS:
+  ● Nunca compartas "secret.key" por ningún medio digital.
+  ● Usa cuentas de Google DESECHABLES, no tu cuenta personal.
+  ● Activa la autenticación en dos pasos (2FA) para el propio bot de Telegram.
+  ● No dejes el bot corriendo en una PC pública o compartida.
+
+
+8.2  Control de Acceso al Bot
+------------------------------------------
+  El bot está configurado para responder SOLO al usuario autorizado (tu Telegram ID).
+  Esta restricción está en config.py:
+
+    AUTHORIZED_USER_ID = 123456789   # ← Tu ID numérico de Telegram
+
+  Para encontrar tu Telegram ID, envía un mensaje al bot @userinfobot en Telegram.
+  Si alguien más intenta usar el bot, simplemente no recibirá respuesta.
+
+  Si deseas autorizar a otra persona (ej. un asistente), añade su ID:
+    AUTHORIZED_USERS = [123456789, 987654321]
+  Y ajusta la lógica de verificación en bot.py para aceptar una lista.
+
+
+8.3  Privacidad en el Uso de Imágenes
+------------------------------------------
+  Las imágenes que envías al bot para análisis son procesadas localmente por Qwen
+  (si el modelo tiene capacidad multimodal) o enviadas a la API de ComfyUI Cloud.
+
+  - Ollama local: Las imágenes NO salen de tu PC. Privacidad total.
+  - ComfyUI Cloud / Kling / Grok: Las imágenes SE SUBEN a servidores externos.
+
+  Recomendación: Para referencias de rostros o contenido personal, usa modelos
+  locales. Para producciones en lote con fotos de stock o poses, usa la nube.
+
+
+8.4  Rotación de Cuentas Desechables
+------------------------------------------
+  Para evitar bloqueos por uso intensivo de las plataformas en la nube:
+
+  1. Crea cuentas de Google nuevas cada 30-60 días de uso intensivo.
+  2. Usa nombres genéricos y correos temporales (ej. con SimpleLogin o Proton).
+  3. Para añadir una nueva cuenta, simplemente envíala al bot con el formato:
+       nuevacuenta@gmail.com : contraseña
+  4. El bot la cifrará y la añadirá a la rotación automática.
+  5. Para eliminar una cuenta antigua, edita manualmente "accounts.json" o
+     implementa el comando /remove_account en bot.py.
+
+
+=============================================================================
+              9. REFERENCIA RÁPIDA DE COMANDOS DEL BOT
+=============================================================================
+
+  COMANDOS ESPECIALES (empiezan con /):
+  ┌──────────────────────────┬──────────────────────────────────────────────┐
+  │ Comando                  │ Acción                                       │
+  ├──────────────────────────┼──────────────────────────────────────────────┤
+  │ /start                   │ Muestra mensaje de bienvenida y opciones.    │
+  │ /help                    │ Lista los comandos disponibles.              │
+  │ /status                  │ Verifica si Ollama y el bot están activos.   │
+  │ /kill                    │ Apaga el bot de forma segura.                │
+  │ /clear                   │ Limpia el historial de conversación local.   │
+  │ /agent [nombre]          │ Cambia el agente activo (ej. /agent AI_ENG)  │
+  └──────────────────────────┴──────────────────────────────────────────────┘
+
+  INTERACCIONES CON MEDIOS:
+  ┌──────────────────────────┬──────────────────────────────────────────────┐
+  │ Acción                   │ Resultado                                    │
+  ├──────────────────────────┼──────────────────────────────────────────────┤
+  │ Enviar foto              │ Bot muestra 4 botones de escenario.          │
+  │ Enviar video             │ Bot ofrece escenarios de video/motion.       │
+  │ Enviar texto libre       │ Bot responde con la IA (Qwen local).         │
+  │ Enviar credenciales      │ Bot las cifra y almacena automáticamente.    │
+  └──────────────────────────┴──────────────────────────────────────────────┘
+
+  BOTONES INLINE (aparecen al enviar una imagen/video):
+  ┌──────────────────────────────┬────────────────────────────────────────────┐
+  │ Botón                        │ Automatización que dispara                 │
+  ├──────────────────────────────┼────────────────────────────────────────────┤
+  │ 🎬 1 Video (Grok)            │ Genera 1 video corto en Grok               │
+  │ 📦 30 Videos Bulk            │ Genera 30 videos en ComfyUI Cloud          │
+  │ 🍌 30 Fotos Nano Banana      │ Genera 30 imágenes realistas en ComfyUI    │
+  │ 🎮 Kling Motion Control      │ Clona el movimiento del video de referencia│
+  └──────────────────────────────┴────────────────────────────────────────────┘
+
+
+=============================================================================
+                   10. HOJA DE RUTA Y MEJORAS FUTURAS
+=============================================================================
+
+  Las siguientes funcionalidades están identificadas para fases futuras del sistema:
+
+  FASE 2 (Próximas Mejoras):
+  ──────────────────────────
+  [ ] Integración con Meta Graph API:
+      Publicación automática en Facebook directamente desde el bot, sin necesidad
+      de programar manualmente en Meta Business Suite.
+
+  [ ] Análisis de rendimiento de posts:
+      El bot consulta las estadísticas de la página de Facebook y genera un
+      resumen semanal con los posts de mejor y peor rendimiento.
+
+  [ ] Sistema de plantillas de prompts:
+      Biblioteca de prompts pre-aprobados para cada tipo de contenido (glúteos,
+      cardio, motivacional, nutrición) que el bot selecciona automáticamente.
+
+  [ ] Panel web de control:
+      Dashboard web con contraseña para gestionar el bot, ver logs en tiempo
+      real, revisar el calendario de contenido y aprobar publicaciones.
+
+  [ ] Notificaciones proactivas:
+      El bot te avisa en Telegram cuando una generación termina, cuando una
+      cuenta desechable se acerca al límite de uso, o cuando hay tendencias
+      nuevas en fitness.
+
+  FASE 3 (Visión a Largo Plazo):
+  ────────────────────────────────
+  [ ] Agente de voz: Control del sistema por mensajes de voz en Telegram.
+  [ ] Multicliente: Replicar el sistema para gestionar más cuentas de fitness.
+  [ ] Monetización: Panel para que clientes contraten el servicio de forma autónoma.
+  [ ] Soporte a Instagram y TikTok: Expandir la publicación automática.
+
+
+=============================================================================
+                   GLOSARIO DE TÉRMINOS TÉCNICOS
+=============================================================================
+
+  Término          │ Definición
+  ─────────────────┼─────────────────────────────────────────────────────────
+  Ollama           │ Aplicación que ejecuta modelos de IA grandes de forma
+                   │ local en tu PC, sin enviar datos a la nube.
+  LLM              │ Large Language Model. El "cerebro" de IA que interpreta
+                   │ y genera texto. Aquí se usa Qwen 2.5.
+  Playwright       │ Librería Python para controlar un navegador web de forma
+                   │ automática (clics, formularios, esperas).
+  Fernet           │ Estándar de cifrado simétrico AES-128. Usado para
+                   │ proteger las contraseñas en accounts.json.
+  ComfyUI Cloud    │ Plataforma en la nube para ejecutar flujos de generación
+                   │ de imágenes y videos con IA (Stable Diffusion, etc.).
+  Kling            │ Plataforma de IA especializada en generación de video y
+                   │ control de movimiento (Motion Control).
+  Grok             │ Modelo multimodal de xAI (Elon Musk) con capacidad para
+                   │ generar texto e imágenes. Aquí se usa para video corto.
+  Nano Banana      │ Flujo/template específico en ComfyUI para generación de
+                   │ fotos realistas con iluminación estilo iPhone 11.
+  System Prompt    │ Instrucciones iniciales que definen el rol y comportamiento
+                   │ de un agente de IA antes de la conversación.
+  Callback Query   │ En Telegram, la respuesta que se genera cuando el usuario
+                   │ pulsa un botón inline en un mensaje del bot.
+  Bulk Generation  │ Generación masiva de contenido en lote. En este sistema,
+                   │ hasta 30 unidades en una sola sesión automatizada.
+  TLS              │ Transport Layer Security. Protocolo que cifra la conexión
+                   │ entre Telegram y el bot, protegiendo los mensajes en tránsito.
+
+
+=============================================================================
+         ANEXO A - ESTRUCTURA COMPLETA DE ARCHIVOS DEL PROYECTO
+=============================================================================
+
+  C:\Users\moral\.gemini\antigravity\scratch\agent_bot\
+  │
+  ├── start_agency.bat        ← Script de arranque principal (ejecutar esto)
+  ├── bot.py                  ← Núcleo del bot de Telegram
+  ├── agents.py               ← Definición de personalidades de agentes IA
+  ├── automation.py           ← Control de navegador (Playwright)
+  ├── config.py               ← Credenciales, rutas y configuración global
+  │
+  ├── secret.key              ← [CRÍTICO] Clave maestra de cifrado
+  ├── accounts.json           ← [CRÍTICO] Cuentas desechables cifradas
+  │
+  ├── logs\                   ← Carpeta de logs (se crea automáticamente)
+  │   └── bot_YYYY-MM-DD.log  ← Log diario con errores y actividad
+  │
+  └── Manual_Agencia_Valeria.txt  ← Este documento
+
+
+=============================================================================
+         ANEXO B - CHECKLIST DE INICIO RÁPIDO (PRIMERA VEZ)
+=============================================================================
+
+  Marca cada paso al completarlo:
+
+  [ ] 1. Verificar que Ollama está instalado en el Disco C.
+  [ ] 2. Comprobar que el modelo Qwen 2.5:1.5b está descargado:
+          → Abrir CMD y ejecutar: ollama list
+  [ ] 3. Verificar que Python 3.10+ está instalado:
+          → En CMD: python --version
+  [ ] 4. Instalar dependencias del proyecto:
+          → En CMD: cd C:\Users\moral\.gemini\antigravity\scratch\agent_bot
+          → pip install -r requirements.txt  (si existe)
+          → pip install python-telegram-bot httpx cryptography playwright
+          → playwright install chromium
+  [ ] 5. Editar config.py y confirmar que el TOKEN del bot es correcto.
+  [ ] 6. Confirmar que AUTHORIZED_USER_ID tiene tu ID de Telegram.
+  [ ] 7. Hacer doble clic en start_agency.bat y esperar el mensaje "Bot iniciado".
+  [ ] 8. Abrir Telegram y enviar /start al bot.
+  [ ] 9. Enviar una foto de prueba y verificar que aparecen los 4 botones.
+  [ ] 10. ¡Sistema operativo! Comenzar producción de contenido.
+
+
+=============================================================================
+    FIN DEL MANUAL TÉCNICO - VALERIA MONTESANO DIGITAL IA OPERATIONS
+            Versión 2.0 | Abril 2026 | Uso Interno Confidencial
+=============================================================================

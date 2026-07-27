@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMORALES | Agencia Digital IA</title>
+    <style>
+        :root {
+            --primary-red: #FF0000;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --border-red: rgba(255, 0, 0, 0.3);
+            --text-main: #ffffff;
+            --text-dim: #888888;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at top right, #330000, #0a0a0a);
+        }
+
+        #login-screen {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-red);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 2rem; margin-bottom: 2rem; color: var(--primary-red); }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border-red);
+            color: white;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #cc0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
+        }
+
+        #dashboard {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 30px;
+            border: 1px solid var(--border-red);
+            padding: 2rem;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--border-red);
+            padding-right: 1rem;
+        }
+
+        .nav-item {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 0, 0, 0.2);
+            color: var(--primary-red);
+        }
+
+        .main-content {
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-red);
+            text-align: center;
+        }
+
+        .stat-value { font-size: 2rem; font-weight: bold; color: var(--primary-red); }
+        .stat-label { font-size: 0.8rem; color: var(--text-dim); }
+
+        .form-section {
+            background: rgba(0,0,0,0.3);
+            padding: 2rem;
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🦾</div>
+        <h1>AGENCIA DIGITAL IA</h1>
+        <p style="color: var(--text-dim); margin-bottom: 2rem;">Acceso Restringido - Daniel Morales</p>
+        <input type="text" id="username" placeholder="Usuario">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button onclick="login()">INGRESAR AL SISTEMA</button>
+        <div id="error-msg" style="color: red; margin-top: 15px; display: none;">Acceso Denegado</div>
+    </div>
+
+    <div id="dashboard">
+        <div class="sidebar">
+            <div style="font-size: 1.5rem; color: var(--primary-red); margin-bottom: 2rem; font-weight: bold;">DMORALES AI</div>
+            <div class="nav-item active">🏠 Panel Principal</div>
+            <div class="nav-item">🎬 Generador Bulk</div>
+            <div class="nav-item">🍌 Nano Banana</div>
+            <div class="nav-item">📈 Estadísticas</div>
+            <div class="nav-item" style="margin-top: auto; color: #ff4444;" onclick="logout()">🚪 Cerrar Sesión</div>
+        </div>
+        <div class="main-content">
+            <h2>Bienvenido, Daniel</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">401</div>
+                    <div class="stat-label">CRÉDITOS COMFYUI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">VIDEOS GENERADOS HOY</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">Activo</div>
+                    <div class="stat-label">ESTADO DEL BOT AGENTE</div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>🚀 Nueva Tarea de Producción</h3>
+                <label>Escenario de Ejecución</label>
+                <select style="width: 100%; padding: 10px; background: black; color: white; border: 1px solid var(--primary-red); margin-top: 10px;">
+                    <option>Escenario 1: Video Individual</option>
+                    <option>Escenario 2: Lote Masivo (30 Videos)</option>
+                    <option>Escenario 3: Variaciones Estilo iPhone 11</option>
+                </select>
+                <input type="text" placeholder="Escribe el Prompt Técnico o Idea..." style="margin-top: 20px;">
+                <button style="margin-top: 10px;">INICIAR PROCESAMIENTO AUTÓNOMO</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            // Credenciales autorizadas por Daniel (puedes cambiarlas aquí)
+            if (user === "daniel" && pass === "dmorales2025") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'grid';
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "chat_request_captured": true,
+    "chat_response_captured": true,
+    "chat_http_status": 200,
+    "result": "PASS"
+  },
+  "network_logs": [
+    {
+      "event": "REQUEST",
+      "url": "http://127.0.0.1:8000/v1/chat/completions",
+      "method": "POST",
+      "headers": {
+        "sec-ch-ua-platform": "\"iOS\"",
+        "referer": "http://127.0.0.1:8000/connect",
+        "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+        "sec-ch-ua": "\"HeadlessChrome\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+        "content-type": "application/json",
+        "x-api-key": "dm-secret-key-v1",
+        "sec-ch-ua-mobile": "?1"
+      },
+      "body": "{\"model\":\"dm-autonomous-brain\",\"messages\":[{\"role\":\"user\",\"content\":\"Hola DM AI OS, prueba de integracion movil real desde iPhone\"}]}"
+    },
+    {
+      "event": "RESPONSE",
+      "url": "http://127.0.0.1:8000/v1/chat/completions",
+      "status": 200,
+      "ok": true
+    }
+  ],
+  "console_logs": []
+}

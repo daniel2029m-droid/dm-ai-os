@@ -1,0 +1,33 @@
+2026-07-25T01:19:39Z INF Thank you for trying Cloudflare Tunnel. Doing so, without a Cloudflare account, is a quick way to experiment and try it out. However, be aware that these account-less Tunnels have no uptime guarantee, are subject to the Cloudflare Online Services Terms of Use (https://www.cloudflare.com/website-terms/), and Cloudflare reserves the right to investigate your use of Tunnels for violations of such terms. If you intend to use Tunnels in production you should use a pre-created named tunnel by following: https://developers.cloudflare.com/cloudflare-one/connections/connect-apps
+2026-07-25T01:19:39Z INF Requesting new quick Tunnel on trycloudflare.com...
+2026-07-25T01:19:44Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T01:19:44Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-07-25T01:19:44Z INF |  https://opened-accomplished-doug-cheaper.trycloudflare.com                                |
+2026-07-25T01:19:44Z INF +--------------------------------------------------------------------------------------------+
+2026-07-25T01:19:44Z INF Cannot determine default configuration path. No file [config.yml config.yaml] in [~/.cloudflared ~/.cloudflare-warp ~/cloudflare-warp]
+2026-07-25T01:19:44Z INF Version 2026.3.0 (Checksum 59b12880b24af581cf5b1013db601c7d843b9b097e9c78aa5957c7f39f741885)
+2026-07-25T01:19:44Z INF GOOS: windows, GOVersion: go1.24.13, GoArch: amd64
+2026-07-25T01:19:44Z INF Settings: map[ha-connections:1 protocol:quic url:http://127.0.0.1:8000]
+2026-07-25T01:19:44Z INF cloudflared will not automatically update on Windows systems.
+2026-07-25T01:19:44Z INF Generated Connector ID: b6df77d7-129c-417f-a3c7-491b06b45e0f
+2026-07-25T01:19:44Z INF Initial protocol quic
+2026-07-25T01:19:44Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T01:19:44Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T01:19:44Z INF cloudflared does not support loading the system root certificate pool on Windows. Please use --origin-ca-pool <PATH> to specify the path to the certificate pool
+2026-07-25T01:19:44Z INF ICMP proxy will use 192.168.1.100 as source for IPv4
+2026-07-25T01:19:44Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.192.37
+2026-07-25T01:19:44Z INF ICMP proxy will use ::1 in zone Loopback Pseudo-Interface 1 as source for IPv6
+2026-07-25T01:19:44Z INF Starting metrics server on 127.0.0.1:20241/metrics
+2026-07-25T01:19:45Z INF Registered tunnel connection connIndex=0 connection=8eb83928-1566-4b82-9a2a-916fc7def839 event=0 ip=198.41.192.37 location=gru07 protocol=quic
+2026-07-26T01:17:58Z WRN Your version 2026.3.0 is outdated. We recommend upgrading it to 2026.7.3
+2026-07-26T19:56:18Z ERR failed to accept incoming stream requests error="failed to accept QUIC stream: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:18Z ERR failed to run the datagram handler error="timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:18Z ERR failed to serve tunnel connection error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:18Z ERR Serve tunnel error error="accept stream listener encountered a failure while serving" connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:18Z INF Retrying connection in up to 1s connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:19Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:24Z ERR Failed to dial a quic connection error="failed to dial to edge with quic: timeout: no recent network activity" connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:24Z INF Retrying connection in up to 4s connIndex=0 event=0 ip=198.41.200.13
+2026-07-26T19:56:25Z INF Tunnel connection curve preferences: [X25519MLKEM768 CurveP256] connIndex=0 event=0 ip=198.41.200.63
+2026-07-26T19:56:25Z INF Registered tunnel connection connIndex=0 connection=539b7fb9-ecec-4949-bfa0-b0e5766c6adf event=0 ip=198.41.200.63 location=eze01 protocol=quic
+2026-07-27T01:17:58Z WRN Your version 2026.3.0 is outdated. We recommend upgrading it to 2026.7.3

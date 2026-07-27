@@ -1,0 +1,331 @@
+﻿{
+    "Timestamp":  "2026-07-23T12:47:34",
+    "Projects":  [
+                     {
+                         "Path":  "C:\\Users\\moral\\Agente_Resultados",
+                         "PackageJson":  null,
+                         "Files":  [
+
+                                   ],
+                         "Stack":  {
+                                       "HasRequirements":  false,
+                                       "Python":  false,
+                                       "JavaScript":  false,
+                                       "HasPackageJson":  false,
+                                       "HasVenv":  null,
+                                       "HasDocker":  null
+                                   },
+                         "Name":  "Agente_Resultados",
+                         "Found":  true,
+                         "README":  null,
+                         "Has":  {
+                                     "N8N":  false,
+                                     "Agent":  false,
+                                     "Prompts":  false,
+                                     "MCP":  false
+                                 },
+                         "FileCount":  0,
+                         "Size_GB":  0,
+                         "Requirements":  [
+
+                                          ]
+                     },
+                     {
+                         "Path":  "C:\\Users\\moral\\.gemini\\antigravity\\scratch\\agent_bot",
+                         "PackageJson":  null,
+                         "Files":  [
+                                       {
+                                           "RelPath":  "__pycache__",
+                                           "Name":  "__pycache__",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "agents.py",
+                                           "Name":  "agents.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "agent_browser.py",
+                                           "Name":  "agent_browser.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "automation.py",
+                                           "Name":  "automation.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "bot.py",
+                                           "Name":  "bot.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "bot_err.txt",
+                                           "Name":  "bot_err.txt",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "bot_log.txt",
+                                           "Name":  "bot_log.txt",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "comfy_api.py",
+                                           "Name":  "comfy_api.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "config.py",
+                                           "Name":  "config.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "debug_comfy.py",
+                                           "Name":  "debug_comfy.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "Documentacion_Tecnica_Agencia_Valeria.txt",
+                                           "Name":  "Documentacion_Tecnica_Agencia_Valeria.txt",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "Manual_Agencia_Valeria.txt",
+                                           "Name":  "Manual_Agencia_Valeria.txt",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "open_comfy.py",
+                                           "Name":  "open_comfy.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "optimize.py",
+                                           "Name":  "optimize.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "record_comfy.py",
+                                           "Name":  "record_comfy.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "run_bot.bat",
+                                           "Name":  "run_bot.bat",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "secret.key",
+                                           "Name":  "secret.key",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "start_agency.bat",
+                                           "Name":  "start_agency.bat",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "workflows_schema.json",
+                                           "Name":  "workflows_schema.json",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\agents.cpython-313.pyc",
+                                           "Name":  "agents.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\agent_browser.cpython-313.pyc",
+                                           "Name":  "agent_browser.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\automation.cpython-313.pyc",
+                                           "Name":  "automation.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\bot.cpython-313.pyc",
+                                           "Name":  "bot.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\comfy_api.cpython-313.pyc",
+                                           "Name":  "comfy_api.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\config.cpython-313.pyc",
+                                           "Name":  "config.cpython-313.pyc",
+                                           "IsDir":  false
+                                       }
+                                   ],
+                         "Stack":  {
+                                       "HasRequirements":  false,
+                                       "Python":  true,
+                                       "JavaScript":  false,
+                                       "HasPackageJson":  false,
+                                       "HasVenv":  null,
+                                       "HasDocker":  null
+                                   },
+                         "Name":  "agent_bot",
+                         "Found":  true,
+                         "README":  null,
+                         "Has":  {
+                                     "N8N":  true,
+                                     "Agent":  true,
+                                     "Prompts":  false,
+                                     "MCP":  false
+                                 },
+                         "FileCount":  25,
+                         "Size_GB":  0.013,
+                         "Requirements":  [
+
+                                          ]
+                     },
+                     {
+                         "Path":  "C:\\Users\\moral\\.gemini\\antigravity\\scratch\\multi_agent_system",
+                         "PackageJson":  null,
+                         "Files":  [
+                                       {
+                                           "RelPath":  "__pycache__",
+                                           "Name":  "__pycache__",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "agent_core.py",
+                                           "Name":  "agent_core.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "orchestrator.py",
+                                           "Name":  "orchestrator.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "test_run.py",
+                                           "Name":  "test_run.py",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\agent_core.cpython-313.pyc",
+                                           "Name":  "agent_core.cpython-313.pyc",
+                                           "IsDir":  false
+                                       },
+                                       {
+                                           "RelPath":  "__pycache__\\orchestrator.cpython-313.pyc",
+                                           "Name":  "orchestrator.cpython-313.pyc",
+                                           "IsDir":  false
+                                       }
+                                   ],
+                         "Stack":  {
+                                       "HasRequirements":  false,
+                                       "Python":  true,
+                                       "JavaScript":  false,
+                                       "HasPackageJson":  false,
+                                       "HasVenv":  null,
+                                       "HasDocker":  null
+                                   },
+                         "Name":  "multi_agent_system",
+                         "Found":  true,
+                         "README":  null,
+                         "Has":  {
+                                     "N8N":  false,
+                                     "Agent":  true,
+                                     "Prompts":  false,
+                                     "MCP":  false
+                                 },
+                         "FileCount":  6,
+                         "Size_GB":  0,
+                         "Requirements":  [
+
+                                          ]
+                     },
+                     {
+                         "Path":  "C:\\Users\\moral\\.agents",
+                         "PackageJson":  null,
+                         "Files":  [
+                                       {
+                                           "RelPath":  "skills",
+                                           "Name":  "skills",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "skills\\pinokio",
+                                           "Name":  "pinokio",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "skills\\pinokio\\SKILL.md",
+                                           "Name":  "SKILL.md",
+                                           "IsDir":  false
+                                       }
+                                   ],
+                         "Stack":  {
+                                       "HasRequirements":  false,
+                                       "Python":  false,
+                                       "JavaScript":  false,
+                                       "HasPackageJson":  false,
+                                       "HasVenv":  null,
+                                       "HasDocker":  null
+                                   },
+                         "Name":  ".agents",
+                         "Found":  true,
+                         "README":  null,
+                         "Has":  {
+                                     "N8N":  false,
+                                     "Agent":  false,
+                                     "Prompts":  false,
+                                     "MCP":  false
+                                 },
+                         "FileCount":  3,
+                         "Size_GB":  0,
+                         "Requirements":  [
+
+                                          ]
+                     },
+                     {
+                         "Path":  "C:\\Users\\moral\\.bito\\codeReviewAgent",
+                         "PackageJson":  null,
+                         "Files":  [
+                                       {
+                                           "RelPath":  "PROD",
+                                           "Name":  "PROD",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "PROD\\jb",
+                                           "Name":  "jb",
+                                           "IsDir":  true
+                                       },
+                                       {
+                                           "RelPath":  "PROD\\jb\\Android Studio",
+                                           "Name":  "Android Studio",
+                                           "IsDir":  true
+                                       }
+                                   ],
+                         "Stack":  {
+                                       "HasRequirements":  false,
+                                       "Python":  false,
+                                       "JavaScript":  false,
+                                       "HasPackageJson":  false,
+                                       "HasVenv":  null,
+                                       "HasDocker":  null
+                                   },
+                         "Name":  "codeReviewAgent",
+                         "Found":  true,
+                         "README":  null,
+                         "Has":  {
+                                     "N8N":  false,
+                                     "Agent":  false,
+                                     "Prompts":  false,
+                                     "MCP":  false
+                                 },
+                         "FileCount":  3,
+                         "Size_GB":  0,
+                         "Requirements":  [
+
+                                          ]
+                     }
+                 ]
+}

@@ -1,0 +1,58 @@
+﻿{
+    "Browsers":  {
+                     "Opera":  false,
+                     "Edge":  true,
+                     "Firefox":  true,
+                     "Brave":  false,
+                     "Chrome":  true
+                 },
+    "OpenWebUI":  {
+                      "Paths":  [
+
+                                ],
+                      "Found":  false
+                  },
+    "ComfyUI":  {
+                    "Paths":  [
+
+                              ],
+                    "Found":  false
+                },
+    "WSL":  {
+                "Distros":  [
+                                "\u0000P\u0000a\u0000r\u0000a\u0000 \u0000r\u0000e\u0000s\u0000o\u0000l\u0000v\u0000e\u0000r\u0000l\u0000o\u0000,\u0000 \u0000i\u0000n\u0000s\u0000t\u0000a\u0000l\u0000e\u0000 \u0000u\u0000n\u0000a\u0000 \u0000d\u0000i\u0000s\u0000t\u0000r\u0000i\u0000b\u0000u\u0000c\u0000i\u0000ó\u0000n\u0000 \u0000c\u0000o\u0000n\u0000 \u0000l\u0000a\u0000s\u0000 \u0000i\u0000n\u0000s\u0000t\u0000r\u0000u\u0000c\u0000c\u0000i\u0000o\u0000n\u0000e\u0000s\u0000 \u0000s\u0000i\u0000g\u0000u\u0000i\u0000e\u0000n\u0000t\u0000e\u0000s\u0000:\u0000\r\u0000",
+                                "\u0000\r\u0000",
+                                "\u0000U\u0000s\u0000e\u0000 \u0000\u0027\u0000w\u0000s\u0000l\u0000.\u0000e\u0000x\u0000e\u0000 \u0000-\u0000-\u0000l\u0000i\u0000s\u0000t\u0000 \u0000-\u0000-\u0000o\u0000n\u0000l\u0000i\u0000n\u0000e\u0000\u0027\u0000 \u0000p\u0000a\u0000r\u0000a\u0000 \u0000e\u0000n\u0000u\u0000m\u0000e\u0000r\u0000a\u0000r\u0000 \u0000l\u0000a\u0000s\u0000 \u0000d\u0000i\u0000s\u0000t\u0000r\u0000i\u0000b\u0000u\u0000c\u0000i\u0000o\u0000n\u0000e\u0000s\u0000 \u0000d\u0000i\u0000s\u0000p\u0000o\u0000n\u0000i\u0000b\u0000l\u0000e\u0000s\u0000\r\u0000",
+                                "\u0000y\u0000 \u0000\"\u0000w\u0000s\u0000l\u0000.\u0000e\u0000x\u0000e\u0000 \u0000-\u0000-\u0000i\u0000n\u0000s\u0000t\u0000a\u0000l\u0000l\u0000 \u0000\u003c\u0000D\u0000i\u0000s\u0000t\u0000r\u0000o\u0000\u003e\u0000\"\u0000 \u0000p\u0000a\u0000r\u0000a\u0000 \u0000i\u0000n\u0000s\u0000t\u0000a\u0000l\u0000a\u0000r\u0000.\u0000\r\u0000",
+                                "\u0000"
+                            ]
+            },
+    "PowerShell":  {
+                       "Version":  "5.1.26100.6899"
+                   },
+    "N8N":  {
+                "Version":  null,
+                "CLI_Found":  false
+            },
+    "Timestamp":  "2026-07-23T12:38:47",
+    "Docker":  {
+                   "Found":  false
+               },
+    "MCP":  {
+
+            },
+    "VSCode":  {
+                   "Found":  true,
+                   "Path":  "C:\\Users\\moral\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code.cmd",
+                   "Extensions":  [
+                                      "ms-dotnettools.csdevkit\nms-dotnettools.csharp\nms-dotnettools.vscode-dotnet-runtime\nqwenlm.qwen-code-vscode-ide-companion\nrangav.vscode-thunder-client\nrooveterinaryinc.roo-cline"
+                                  ]
+               },
+    "Git":  {
+                "Email":  "moradalimpieza@gmail.com",
+                "Found":  true,
+                "Path":  "C:\\Program Files\\Git\\cmd\\git.exe",
+                "User":  "Mr-Q8",
+                "Version":  "git version 2.52.0.windows.1"
+            }
+}

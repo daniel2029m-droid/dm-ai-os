@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "max_context_tokens": 8000,
+  "auto_save": true,
+  "vector_search": true,
+  "user_memory": true
+}

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agencia Digital IA | Daniel Morales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            background: radial-gradient(ellipse at top right, #1a0000 0%, #000000 60%);
+        }
+
+        /* LOGIN */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            padding: 3rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,0,0,0.25);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,0,0,0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            animation: fadeUp 0.6s ease-out;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .login-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+
+        .login-card h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #FF0000;
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+        .login-card p { color: #666; margin-bottom: 2rem; font-size: 0.9rem; }
+
+        .form-group { position: relative; margin-bottom: 1rem; }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,0,0,0.25);
+            color: white;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus { border-color: #FF0000; box-shadow: 0 0 0 3px rgba(255,0,0,0.15); }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #FF0000, #aa0000);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            margin-top: 1.5rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,0,0,0.4);
+        }
+
+        .error-msg {
+            display: none;
+            color: #ff4444;
+            margin-top: 1rem;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(255,0,0,0.1);
+            border: 1px solid rgba(255,0,0,0.3);
+            font-size: 0.9rem;
+        }
+
+        .back-link { display: block; margin-top: 1.5rem; color: #555; font-size: 0.85rem; text-decoration: none; transition: color 0.3s; }
+        .back-link:hover { color: #FF0000; }
+
+        /* DASHBOARD */
+        #dashboard {
+            display: none;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .dash-header {
+            background: rgba(0,0,0,0.9);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+        }
+
+        .dash-logo { color: #FF0000; font-weight: 900; font-size: 1.3rem; letter-spacing: 1px; }
+
+        .dash-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .btn-logout {
+            padding: 6px 16px;
+            background: rgba(255,0,0,0.15);
+            color: #ff4444;
+            border: 1px solid rgba(255,0,0,0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover { background: rgba(255,0,0,0.3); }
+
+        .dash-body {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: calc(100vh - 65px);
+        }
+
+        .sidebar {
+            background: rgba(0,0,0,0.6);
+            border-right: 1px solid rgba(255,0,0,0.15);
+            padding: 2rem 1rem;
+        }
+
+        .sidebar-menu { list-style: none; }
+
+        .sidebar-menu li {
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            color: #aaa;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-menu li:hover { background: rgba(255,0,0,0.1); color: white; }
+        .sidebar-menu li.active { background: rgba(255,0,0,0.2); color: #FF0000; font-weight: 600; }
+
+        .main-panel { padding: 2rem; overflow-y: auto; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,0,0,0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover { border-color: rgba(255,0,0,0.5); transform: translateY(-3px); }
+
+        .stat-value { font-size: 2.2rem; font-weight: 900; color: #FF0000; display: block; }
+        .stat-label { font-size: 0.8rem; color: #666; margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+        .panel-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,0,0,0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel-card h3 { font-size: 1.3rem; margin-bottom: 1.5rem; color: #FF0000; }
+
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,0,0,0.25);
+            color: white;
+            border-radius: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus { border-color: #FF0000; }
+
+        select option { background: #1a0000; }
+
+        .btn-execute {
+            padding: 14px 2rem;
+            background: linear-gradient(135deg, #FF0000, #aa0000);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1rem;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-execute:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,0,0,0.4); }
+
+        .status-bar {
+            display: none;
+            padding: 12px 16px;
+            background: rgba(255,0,0,0.1);
+            border: 1px solid rgba(255,0,0,0.3);
+            border-radius: 10px;
+            margin-top: 1rem;
+            color: #ff9999;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .dash-body { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- PANTALLA DE LOGIN -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-icon">&#x1F916;</div>
+        <h1>AGENCIA IA</h1>
+        <p>Acceso Restringido &mdash; Solo Personal Autorizado</p>
+
+        <div class="form-group">
+            <input type="text" id="username" placeholder="Usuario" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <input type="password" id="password" placeholder="Contrasena" onkeypress="if(event.key==='Enter') login()">
+        </div>
+
+        <button class="btn-login" onclick="login()">INGRESAR AL SISTEMA</button>
+
+        <div class="error-msg" id="error-msg">&#x26A0; Acceso Denegado. Credenciales incorrectas.</div>
+
+        <a href="index.html" class="back-link">&#x2190; Volver al sitio principal</a>
+    </div>
+</div>
+
+<!-- DASHBOARD PRINCIPAL -->
+<div id="dashboard">
+    <header class="dash-header">
+        <div class="dash-logo">&#x1F916; DMORALES IA AGENCY</div>
+        <div class="dash-user">
+            <span id="welcome-name">Bienvenido, Daniel</span>
+            <button class="btn-logout" onclick="logout()">&#x1F6AA; Salir</button>
+        </div>
+    </header>
+
+    <div class="dash-body">
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="active" onclick="setTab(this)">&#x1F3E0; Panel Principal</li>
+                <li onclick="setTab(this)">&#x1F3AC; Generador de Videos</li>
+                <li onclick="setTab(this)">&#x1F34C; Nano Banana</li>
+                <li onclick="setTab(this)">&#x1F4C4; Cuentas ComfyUI</li>
+                <li onclick="setTab(this)">&#x1F4CA; Estadisticas</li>
+                <li onclick="setTab(this)" style="margin-top: 2rem; color: #FF0000;">&#x1F6D1; Kill Switch Bot</li>
+            </ul>
+        </aside>
+
+        <main class="main-panel">
+            <h2 style="margin-bottom: 2rem; font-weight: 700;">Panel de Control &mdash; Agencia Digital IA</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-value">401</span>
+                    <span class="stat-label">Creditos ComfyUI</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value" id="bot-status">&#x1F7E2; ON</span>
+                    <span class="stat-label">Estado del Bot</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">0</span>
+                    <span class="stat-label">Videos Generados Hoy</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-value">Valeria</span>
+                    <span class="stat-label">Agente Activo</span>
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <h3>&#x1F680; Nueva Tarea de Produccion</h3>
+
+                <label style="color: #888; font-size: 0.85rem; margin-bottom: 6px; display: block;">Escenario de Ejecucion</label>
+                <select id="scenario">
+                    <option value="1">Escenario 1: Video Individual (1 imagen + prompt)</option>
+                    <option value="2">Escenario 2: Lote Masivo (30 videos de una vez)</option>
+                    <option value="3">Escenario 3: Variaciones Nano Banana (30 imagenes estilo iPhone 11)</option>
+                    <option value="4">Escenario 4: Kling Motion Control (replica de movimiento)</option>
+                </select>
+
+                <label style="color: #888; font-size: 0.85rem; margin-bottom: 6px; display: block;">Motor de Generacion</label>
+                <select id="engine">
+                    <option value="grok">Grok Video (grok-imagine-video-beta)</option>
+                    <option value="kling">Kling Motion Control v3</option>
+                    <option value="nano">Nano Banana 2 (Gemini Flash)</option>
+                </select>
+
+                <label style="color: #888; font-size: 0.85rem; margin-bottom: 6px; display: block;">Prompt Tecnico</label>
+                <textarea id="prompt-input" rows="4" placeholder="Ej: realizando ejercicios de zona de gluteos, leve movimiento de pierna, zoom orbital, sin emitir voz..."></textarea>
+
+                <button class="btn-execute" onclick="executeTask()">
+                    &#x26A1; INICIAR PROCESAMIENTO AUTONOMO
+                </button>
+
+                <div class="status-bar" id="status-bar">
+                    &#x23F3; Conectando con el Agente... El bot tomara el control de ComfyUI.
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <h3>&#x1F4AC; Chat Rapido con Valeria</h3>
+                <textarea id="chat-input" rows="3" placeholder="Pregunta algo a tu equipo de agentes expertos..."></textarea>
+                <button class="btn-execute" style="background: rgba(255,0,0,0.3); box-shadow: none;" onclick="sendChat()">
+                    &#x1F4AC; Enviar Consulta
+                </button>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    // CREDENCIALES (cambialas cuando quieras)
+    const VALID_USER = "daniel";
+    const VALID_PASS = "dmorales2025";
+
+    function login() {
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value;
+        if (user === VALID_USER && pass === VALID_PASS) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        } else {
+            const err = document.getElementById('error-msg');
+            err.style.display = 'block';
+            setTimeout(() => err.style.display = 'none', 3000);
+        }
+    }
+
+    function logout() {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('password').value = '';
+    }
+
+    function setTab(el) {
+        document.querySelectorAll('.sidebar-menu li').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function executeTask() {
+        const bar = document.getElementById('status-bar');
+        bar.style.display = 'block';
+        const scenario = document.getElementById('scenario').value;
+        const engine = document.getElementById('engine').value;
+        bar.innerHTML = '&#x23F3; Escenario ' + scenario + ' iniciado con motor ' + engine.toUpperCase() + '. El bot esta operando en ComfyUI...';
+        setTimeout(() => {
+            bar.innerHTML = '&#x2705; Tarea enviada al agente. Revisa Telegram para recibir los resultados.';
+        }, 3000);
+    }
+
+    function sendChat() {
+        const input = document.getElementById('chat-input').value;
+        if (input.trim()) {
+            alert('Mensaje enviado al bot Valeria: "' + input + '"\n\nRevisa Telegram para la respuesta del equipo de expertos.');
+            document.getElementById('chat-input').value = '';
+        }
+    }
+</script>
+</body>
+</html>

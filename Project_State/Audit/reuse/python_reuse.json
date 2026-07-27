@@ -1,0 +1,74 @@
+﻿{
+    "TotalPackages":  128,
+    "Timestamp":  "2026-07-23T12:47:34",
+    "RelevantPackages":  [
+                             {
+                                 "Version":  "3.14.1",
+                                 "Name":  "aiohttp"
+                             },
+                             {
+                                 "Version":  "0.116.1",
+                                 "Name":  "fastapi"
+                             },
+                             {
+                                 "Version":  "3.1.2",
+                                 "Name":  "Flask"
+                             },
+                             {
+                                 "Version":  "6.0.2",
+                                 "Name":  "flask-cors"
+                             },
+                             {
+                                 "Version":  "0.28.1",
+                                 "Name":  "httpx"
+                             },
+                             {
+                                 "Version":  "20250625",
+                                 "Name":  "openai-whisper"
+                             },
+                             {
+                                 "Version":  "10.4.0",
+                                 "Name":  "pillow"
+                             },
+                             {
+                                 "Version":  "1.57.0",
+                                 "Name":  "playwright"
+                             },
+                             {
+                                 "Version":  "2.11.7",
+                                 "Name":  "pydantic"
+                             },
+                             {
+                                 "Version":  "2.33.2",
+                                 "Name":  "pydantic_core"
+                             },
+                             {
+                                 "Version":  "2.32.4",
+                                 "Name":  "requests"
+                             },
+                             {
+                                 "Version":  "0.12.0",
+                                 "Name":  "tiktoken"
+                             },
+                             {
+                                 "Version":  "2.10.0",
+                                 "Name":  "torch"
+                             },
+                             {
+                                 "Version":  "2.10.0",
+                                 "Name":  "torchaudio"
+                             },
+                             {
+                                 "Version":  "0.24.1",
+                                 "Name":  "torchvision"
+                             },
+                             {
+                                 "Version":  "4.45.0",
+                                 "Name":  "transformers"
+                             },
+                             {
+                                 "Version":  "0.35.0",
+                                 "Name":  "uvicorn"
+                             }
+                         ]
+}

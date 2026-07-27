@@ -1,0 +1,41 @@
+﻿{
+    "BIOS":  {
+                 "Version":  "P10.10",
+                 "Manufacturer":  "American Megatrends Inc."
+             },
+    "Disk":  [
+                 {
+                     "Drive":  "C:",
+                     "Size_GB":  237.63,
+                     "Free_GB":  13.04
+                 }
+             ],
+    "Timestamp":  "2026-07-23T12:38:47",
+    "RAM":  {
+                "Total_GB":  15.37,
+                "Free_GB":  4.97
+            },
+    "CPU":  {
+                "Threads":  12,
+                "MaxMHz":  3701,
+                "Name":  "AMD Ryzen 5 4600G with Radeon Graphics",
+                "Cores":  6
+            },
+    "Motherboard":  {
+                        "Manufacturer":  "ASRock",
+                        "Product":  "B450M-HDV R4.0"
+                    },
+    "OS":  {
+               "Caption":  "Microsoft Windows 11 Pro",
+               "Arch":  "64 bits",
+               "Build":  "26100",
+               "Version":  "10.0.26100"
+           },
+    "GPU":  [
+                {
+                    "Name":  "AMD Radeon(TM) Graphics",
+                    "VRAM_MB":  512,
+                    "Driver":  "31.0.21923.11000"
+                }
+            ]
+}
