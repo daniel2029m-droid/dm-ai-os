@@ -27,3 +27,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+
+[tool.vercel]
+entrypoint = "src.api.server:app"
+
