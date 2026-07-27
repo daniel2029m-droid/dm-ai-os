@@ -51,10 +51,21 @@ def verify_admin_token(credentials: HTTPAuthorizationCredentials = Security(secu
 
 # ── Public Commercial Endpoints ───────────────────────────────────────────────
 
+@commercial_router.get("/", response_class=HTMLResponse)
+async def main_landing_page():
+    """Serves main platform UI."""
+    try:
+        with open("public/index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return get_commercial_checkout_html()
+
+
 @commercial_router.get("/checkout", response_class=HTMLResponse)
 async def checkout_page():
     """Renders the public Commercial SaaS Checkout & Pricing page."""
     return get_commercial_checkout_html()
+
 
 
 @commercial_router.get("/v1/billing/mp-details")
