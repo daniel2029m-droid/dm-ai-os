@@ -6,8 +6,8 @@ Adds commercial SaaS endpoints to FastAPI application without altering existing 
 - GET  /v1/billing/mp-details (Live ARS conversion)
 - POST /v1/billing/stripe-webhook (Stripe `checkout.session.completed` handler)
 - POST /v1/billing/submit-mp-proof (Mercado Pago proof handler)
-- GET  /owner/login, /admin/login & POST /v1/owner/login, /v1/admin/login
-- GET  /owner/dashboard, /admin/dashboard (Super Admin Panel)
+- GET  /panel/owner & POST /v1/auth/owner-login (Super Admin / Owner authentication)
+- GET  /panel/dashboard (Super Admin Control Panel)
 - GET  /v1/owner/transactions & POST /v1/owner/transactions/{tx_id}/approve|reject
 """
 
@@ -94,13 +94,15 @@ async def submit_mp_proof(req: MPProofRequest):
 
 # ── Owner / Admin Auth & Dashboard Endpoints ─────────────────────────────────
 
+@commercial_router.get("/panel/owner", response_class=HTMLResponse)
 @commercial_router.get("/owner/login", response_class=HTMLResponse)
 @commercial_router.get("/admin/login", response_class=HTMLResponse)
 async def admin_login_page():
-    """Renders the Super Admin / Owner Login Page."""
+    """Renders the Super Admin / Owner Access Page."""
     return get_admin_login_html()
 
 
+@commercial_router.post("/v1/auth/owner-login")
 @commercial_router.post("/v1/owner/login")
 @commercial_router.post("/v1/admin/login")
 async def admin_login_api(req: AdminLoginRequest):
@@ -110,6 +112,7 @@ async def admin_login_api(req: AdminLoginRequest):
     raise HTTPException(status_code=401, detail="Contraseña de administrador incorrecta")
 
 
+@commercial_router.get("/panel/dashboard", response_class=HTMLResponse)
 @commercial_router.get("/owner/dashboard", response_class=HTMLResponse)
 @commercial_router.get("/admin/dashboard", response_class=HTMLResponse)
 async def admin_dashboard_page():

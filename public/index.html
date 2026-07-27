@@ -154,7 +154,7 @@
             if(!password) return alert('Por favor ingresa tu contraseña de dueño');
 
             try {
-                const res = await fetch('/v1/owner/login', {
+                const res = await fetch('/v1/auth/owner-login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ password })
@@ -163,7 +163,7 @@
                     const data = await res.json();
                     localStorage.setItem('admin_token', data.access_token);
                     alert('¡Acceso concedido como Dueño! Redirigiendo al panel...');
-                    window.location.href = '/owner/dashboard';
+                    window.location.href = '/panel/dashboard';
                 } else {
                     alert('Contraseña incorrecta');
                 }
@@ -171,6 +171,7 @@
                 alert('Error al conectar con el servidor.');
             }
         }
+
 
 
         async function openMPModal(plan, usd) {

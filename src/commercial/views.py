@@ -3,7 +3,7 @@ DM AI OS — Commercial SaaS & Admin HTML UI (Fase 20 / Commercial)
 ===================================================================
 Provides high-aesthetic web interfaces for:
 1. Public Checkout & Pricing (Stripe + Mercado Pago ARS converter)
-2. Super Admin Login & Dashboard (/admin/login & /admin/dashboard)
+2. Super Admin Login & Dashboard (/panel/owner & /panel/dashboard)
 3. Mercado Pago Proof Submission Modal & Admin Approvals
 """
 
@@ -203,12 +203,12 @@ def get_admin_dashboard_html() -> str:
 
     <script>
         const token = localStorage.getItem('admin_token');
-        if(!token) window.location.href = '/owner/login';
+        if(!token) window.location.href = '/panel/owner';
 
         async function loadAdminData() {
             const headers = { 'Authorization': 'Bearer ' + token };
             const resTx = await fetch('/v1/owner/transactions', { headers });
-            if(resTx.status === 401) window.location.href = '/owner/login';
+            if(resTx.status === 401) window.location.href = '/panel/owner';
             const txs = await resTx.json();
 
             let txHtml = '';
@@ -284,7 +284,7 @@ def get_admin_login_html() -> str:
     <script>
         async function loginAdmin() {
             const password = document.getElementById('adminPassword').value;
-            const res = await fetch('/v1/owner/login', {
+            const res = await fetch('/v1/auth/owner-login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ password })
@@ -292,7 +292,7 @@ def get_admin_login_html() -> str:
             if(res.ok) {
                 const data = await res.json();
                 localStorage.setItem('admin_token', data.access_token);
-                window.location.href = '/owner/dashboard';
+                window.location.href = '/panel/dashboard';
             } else {
                 alert('Contraseña incorrecta');
             }
@@ -300,4 +300,3 @@ def get_admin_login_html() -> str:
     </script>
 </body>
 </html>"""
-
