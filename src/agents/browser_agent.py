@@ -16,7 +16,10 @@ import time
 import asyncio
 import logging
 from typing import Dict, Any, List, Optional
-from playwright.async_api import async_playwright
+try:
+    from playwright.async_api import async_playwright
+except ImportError:
+    async_playwright = None
 
 from ..core.event_bus import bus
 from ..core.plugin_manager import BasePlugin, plugin_manager

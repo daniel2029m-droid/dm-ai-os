@@ -1,5 +1,0 @@
-{
-  "created_at": 1785103850.151813,
-  "ttl": 86400,
-  "payload": "The local AI model (Ollama) is currently offline or unreachable. Please start Ollama and ensure a model is loaded, then try again. (Attempted model: qwen2.5:0.5b)"
-}

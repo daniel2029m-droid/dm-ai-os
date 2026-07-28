@@ -16,13 +16,28 @@ log = logging.getLogger("cache_layer")
 class CacheLayer:
     def __init__(self, cache_dir: Optional[str] = None, default_ttl_sec: int = 86400):
         if not cache_dir:
-            cache_dir = os.path.join(
-                os.path.expanduser("~"),
-                ".gemini", "antigravity-ide", "scratch", "Project_State", "Cache"
-            )
+            cache_dir = os.getenv("DM_CACHE_DIR")
+        if not cache_dir:
+            base_storage = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if base_storage:
+                cache_dir = os.path.join(base_storage, "Cache")
+            elif os.getenv("VERCEL"):
+                cache_dir = "/tmp/cache"
+            else:
+                cache_dir = os.path.join(
+                    os.path.expanduser("~"),
+                    ".gemini", "antigravity-ide", "scratch", "Project_State", "Cache"
+                )
         self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.default_ttl = default_ttl_sec
+
+    def _ensure_dir(self):
+        """Lazy creation of cache directory with fallback to /tmp/cache for Vercel/read-only environments."""
+        try:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.cache_dir = Path("/tmp/cache")
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     def _hash_key(self, prefix: str, key_data: Any) -> str:
         serialized = json.dumps(key_data, sort_keys=True)
@@ -32,8 +47,10 @@ class CacheLayer:
     def get(self, prefix: str, key_data: Any) -> Optional[Any]:
         """Retrieve cached payload if it exists and has not expired."""
         cache_id = self._hash_key(prefix, key_data)
-        file_path = self.cache_dir / f"{cache_id}.json"
+        if not self.cache_dir.exists():
+            return None
 
+        file_path = self.cache_dir / f"{cache_id}.json"
         if not file_path.exists():
             return None
 
@@ -57,6 +74,7 @@ class CacheLayer:
 
     def set(self, prefix: str, key_data: Any, payload: Any, ttl_sec: Optional[int] = None):
         """Store payload in SHA-256 hash cache."""
+        self._ensure_dir()
         cache_id = self._hash_key(prefix, key_data)
         file_path = self.cache_dir / f"{cache_id}.json"
 
@@ -75,9 +93,11 @@ class CacheLayer:
 
     def clear(self):
         """Delete all cached files in the cache directory."""
+        if not self.cache_dir.exists():
+            return
         for f in self.cache_dir.glob("*.json"):
             f.unlink(missing_ok=True)
         log.info("[CacheLayer] Cleared all cache entries.")
 
-# Singleton
+# Lazy Singleton Instance (no filesystem side-effects at import time)
 cache = CacheLayer()

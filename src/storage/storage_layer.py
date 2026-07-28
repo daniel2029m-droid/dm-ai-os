@@ -20,21 +20,33 @@ log = logging.getLogger("storage_layer")
 class StorageLayer:
     def __init__(self, base_dir: Optional[str] = None):
         if not base_dir:
-            base_dir = os.path.join(
-                os.path.expanduser("~"),
-                ".gemini", "antigravity-ide", "scratch", "Project_State"
-            )
+            base_dir = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+        if not base_dir:
+            if os.getenv("VERCEL"):
+                base_dir = "/tmp/Project_State"
+            else:
+                base_dir = os.path.join(
+                    os.path.expanduser("~"),
+                    ".gemini", "antigravity-ide", "scratch", "Project_State"
+                )
         self.base_dir = Path(base_dir)
-        self.base_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize sub-stores
+        # Initialize sub-stores without immediate unhandled mkdir errors
+        cache_path = os.getenv("DM_CACHE_DIR") or str(self.base_dir / "Cache")
         self.sqlite_db = KnowledgeBase(db_path=str(self.base_dir / "Storage" / "knowledge.db"))
-        self.cache = CacheLayer(cache_dir=str(self.base_dir / "Cache"))
+        self.cache = CacheLayer(cache_dir=cache_path)
         self.artifacts_dir = self.base_dir / "Artifacts"
-        self.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    def _ensure_artifacts_dir(self):
+        try:
+            self.artifacts_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.artifacts_dir = Path("/tmp/Project_State/Artifacts")
+            self.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     # --- Filesystem operations ---
     def save_artifact(self, filename: str, content: str) -> str:
+        self._ensure_artifacts_dir()
         file_path = self.artifacts_dir / filename
         file_path.write_text(content, encoding="utf-8")
         log.info(f"[StorageLayer] Artifact saved: {filename}")

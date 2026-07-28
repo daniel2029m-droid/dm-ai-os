@@ -34,3 +34,28 @@ logs/*.log
 *.db-shm
 
 .vercel
+# Runtime state / local generated data
+Project_State/
+cloudflared.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+
+# Env / secrets
+.env
+.env.*
+!.env.example

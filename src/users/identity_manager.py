@@ -11,12 +11,32 @@ log = logging.getLogger("identity_manager")
 class IdentityManager:
     def __init__(self, db_path: Optional[str] = None):
         if not db_path:
-            db_dir = Path(os.path.expanduser("~")) / ".gemini" / "antigravity-ide" / "scratch" / "Project_State" / "Storage"
-            db_dir.mkdir(parents=True, exist_ok=True)
+            db_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if db_dir_env:
+                db_dir = Path(db_dir_env) / "Storage"
+            elif os.getenv("VERCEL"):
+                db_dir = Path("/tmp/Project_State/Storage")
+            else:
+                db_dir = Path(os.path.expanduser("~")) / ".gemini" / "antigravity-ide" / "scratch" / "Project_State" / "Storage"
             db_path = str(db_dir / "users.db")
             
         self.db_path = db_path
+        self._db_initialized = False
+
+    def _ensure_db(self):
+        """Lazy creation of database file and tables."""
+        if self._db_initialized:
+            return
+        db_dir = Path(self.db_path).parent
+        try:
+            db_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            db_dir = Path("/tmp/Project_State/Storage")
+            db_dir.mkdir(parents=True, exist_ok=True)
+            self.db_path = str(db_dir / "users.db")
+
         self._init_db()
+        self._db_initialized = True
 
     def _init_db(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -32,12 +52,21 @@ class IdentityManager:
             conn.commit()
             
         # Ensure default user 'daniel' exists with full name Daniel Morales
-        profile = self.get_profile("daniel")
-        if not profile or profile.name != "Daniel Morales":
-            default_profile = UserProfile(user_id="daniel", name="Daniel Morales")
-            self.save_profile(default_profile)
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT data_json FROM users WHERE user_id = ?", ("daniel",))
+            row = cursor.fetchone()
+            if not row:
+                default_profile = UserProfile(user_id="daniel", name="Daniel Morales")
+                data_str = json.dumps(default_profile.to_dict(), ensure_ascii=False)
+                cursor.execute("""
+                    INSERT OR REPLACE INTO users (user_id, name, data_json, updated_at)
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+                """, (default_profile.user_id, default_profile.name, data_str))
+                conn.commit()
 
     def get_profile(self, user_id: str = "daniel") -> Optional[UserProfile]:
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT data_json FROM users WHERE user_id = ?", (user_id,))
@@ -48,6 +77,7 @@ class IdentityManager:
         return None
 
     def save_profile(self, profile: UserProfile) -> bool:
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             data_str = json.dumps(profile.to_dict(), ensure_ascii=False)

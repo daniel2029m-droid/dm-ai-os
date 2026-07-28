@@ -14,15 +14,35 @@ log = logging.getLogger("knowledge_base")
 class KnowledgeBase:
     def __init__(self, db_path: Optional[str] = None):
         if not db_path:
-            db_dir = os.path.join(
-                os.path.expanduser("~"),
-                ".gemini", "antigravity-ide", "scratch", "Project_State", "Storage"
-            )
-            os.makedirs(db_dir, exist_ok=True)
+            db_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if db_dir_env:
+                db_dir = os.path.join(db_dir_env, "Storage")
+            elif os.getenv("VERCEL"):
+                db_dir = "/tmp/Project_State/Storage"
+            else:
+                db_dir = os.path.join(
+                    os.path.expanduser("~"),
+                    ".gemini", "antigravity-ide", "scratch", "Project_State", "Storage"
+                )
             db_path = os.path.join(db_dir, "knowledge.db")
 
         self.db_path = db_path
+        self._db_initialized = False
+
+    def _ensure_db(self):
+        """Lazy database creation and table initialization."""
+        if self._db_initialized:
+            return
+        db_dir = os.path.dirname(self.db_path)
+        try:
+            os.makedirs(db_dir, exist_ok=True)
+        except Exception:
+            db_dir = "/tmp/Project_State/Storage"
+            os.makedirs(db_dir, exist_ok=True)
+            self.db_path = os.path.join(db_dir, "knowledge.db")
+
         self._init_db()
+        self._db_initialized = True
 
     def _init_db(self):
         """Initialize SQLite schema for structured knowledge persistence."""
@@ -50,6 +70,7 @@ class KnowledgeBase:
 
     def save_record(self, category: str, title: str, content: str, tags: List[str] = None) -> int:
         """Store a structured knowledge record into SQLite."""
+        self._ensure_db()
         tags_str = ",".join(tags) if tags else ""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
@@ -63,6 +84,7 @@ class KnowledgeBase:
 
     def search_records(self, query: str, category: str = None) -> List[Dict[str, Any]]:
         """Query structured records matching substring or category."""
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
@@ -79,5 +101,5 @@ class KnowledgeBase:
             rows = cursor.fetchall()
             return [dict(r) for r in rows]
 
-# Singleton
+# Lazy Singleton
 kb = KnowledgeBase()

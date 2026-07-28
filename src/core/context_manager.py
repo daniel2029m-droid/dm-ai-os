@@ -14,14 +14,25 @@ log = logging.getLogger("context_manager")
 class ContextManager:
     def __init__(self, project_state_dir: Optional[str] = None):
         if not project_state_dir:
-            project_state_dir = os.path.join(
-                os.path.expanduser("~"),
-                ".gemini", "antigravity-ide", "scratch", "Project_State"
-            )
+            project_state_dir = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+        if not project_state_dir:
+            if os.getenv("VERCEL"):
+                project_state_dir = "/tmp/Project_State"
+            else:
+                project_state_dir = os.path.join(
+                    os.path.expanduser("~"),
+                    ".gemini", "antigravity-ide", "scratch", "Project_State"
+                )
         self.state_dir = Path(project_state_dir)
-        self.state_dir.mkdir(parents=True, exist_ok=True)
         self.active_tasks: Dict[str, Dict[str, Any]] = {}
         self.conversation_history: List[Dict[str, str]] = []
+
+    def _ensure_dir(self):
+        try:
+            self.state_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.state_dir = Path("/tmp/Project_State")
+            self.state_dir.mkdir(parents=True, exist_ok=True)
 
     def read_state_file(self, filename: str) -> str:
         """Read any markdown or JSON file from Project_State/."""
@@ -32,6 +43,7 @@ class ContextManager:
 
     def write_state_file(self, filename: str, content: str) -> bool:
         """Write or update a file inside Project_State/."""
+        self._ensure_dir()
         try:
             file_path = self.state_dir / filename
             file_path.write_text(content, encoding="utf-8")

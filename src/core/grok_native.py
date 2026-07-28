@@ -120,8 +120,15 @@ def detect_grok_build() -> Dict[str, Any]:
 
 def get_grok_config_path() -> Path:
     """Return path to user's ~/.grok/config.toml."""
-    home_grok = Path(os.path.expanduser("~/.grok"))
-    home_grok.mkdir(parents=True, exist_ok=True)
+    if os.getenv("VERCEL"):
+        home_grok = Path("/tmp/.grok")
+    else:
+        home_grok = Path(os.path.expanduser("~/.grok"))
+    try:
+        home_grok.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        home_grok = Path("/tmp/.grok")
+        home_grok.mkdir(parents=True, exist_ok=True)
     return home_grok / "config.toml"
 
 

@@ -51,10 +51,16 @@ def verify_admin_token(credentials: HTTPAuthorizationCredentials = Security(secu
 
 # ── Public Commercial Endpoints ───────────────────────────────────────────────
 
+from pathlib import Path
+
+_PUBLIC_INDEX = Path(__file__).parent.parent.parent / "public" / "index.html"
+
 @commercial_router.get("/", response_class=HTMLResponse)
 async def main_landing_page():
     """Serves main platform UI."""
     try:
+        if _PUBLIC_INDEX.exists():
+            return _PUBLIC_INDEX.read_text(encoding="utf-8")
         with open("public/index.html", "r", encoding="utf-8") as f:
             return f.read()
     except Exception:

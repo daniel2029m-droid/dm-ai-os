@@ -10,12 +10,32 @@ log = logging.getLogger("long_term_memory")
 class LongTermMemory:
     def __init__(self, db_path: Optional[str] = None):
         if not db_path:
-            db_dir = Path(os.path.expanduser("~")) / ".gemini" / "antigravity-ide" / "scratch" / "Project_State" / "Memory"
-            db_dir.mkdir(parents=True, exist_ok=True)
+            db_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if db_dir_env:
+                db_dir = Path(db_dir_env) / "Memory"
+            elif os.getenv("VERCEL"):
+                db_dir = Path("/tmp/Project_State/Memory")
+            else:
+                db_dir = Path(os.path.expanduser("~")) / ".gemini" / "antigravity-ide" / "scratch" / "Project_State" / "Memory"
             db_path = str(db_dir / "memory.db")
             
         self.db_path = db_path
+        self._db_initialized = False
+
+    def _ensure_db(self):
+        """Lazy database creation and schema setup."""
+        if self._db_initialized:
+            return
+        db_dir = Path(self.db_path).parent
+        try:
+            db_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            db_dir = Path("/tmp/Project_State/Memory")
+            db_dir.mkdir(parents=True, exist_ok=True)
+            self.db_path = str(db_dir / "memory.db")
+
         self._init_db()
+        self._db_initialized = True
 
     def _init_db(self):
         with sqlite3.connect(self.db_path) as conn:
@@ -79,6 +99,7 @@ class LongTermMemory:
                 log.info(f"[LongTermMemory] Ensured memory: '{content[:60]}...'")
 
     def store(self, content: str, category: str = "general", importance: float = 1.0, embedding: Optional[List[float]] = None, metadata: Optional[Dict[str, Any]] = None) -> int:
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -95,6 +116,7 @@ class LongTermMemory:
             return cursor.lastrowid
 
     def get_all(self, category: Optional[str] = None) -> List[Dict[str, Any]]:
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             if category:
@@ -117,6 +139,7 @@ class LongTermMemory:
             ]
 
     def forget(self, memory_id: int) -> bool:
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM memories WHERE id = ?", (memory_id,))
@@ -124,6 +147,7 @@ class LongTermMemory:
             return cursor.rowcount > 0
 
     def clear_all(self):
+        self._ensure_db()
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM memories")

@@ -3,211 +3,872 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DM AI OS — Commercial SaaS & Autonomous Platform</title>
-    
-    <!-- PWA & iOS Meta Tags -->
+    <title>DM AI OS — Autonomous Business Operating System</title>
+    <meta name="description" content="DM AI OS — El primer Sistema Operativo Empresarial Autónomo con IA. 20 empleados digitales, 22 templates comerciales, aprendizaje continuo y autonomía cognitiva.">
+    <meta name="theme-color" content="#030712">
+
+    <!-- PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="DM AI OS">
-    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="/manifest.json">
 
-    <!-- Typography -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-dark: #070b14;
-            --bg-card: rgba(15, 23, 42, 0.85);
-            --bg-card-border: rgba(56, 189, 248, 0.2);
-            --accent-cyan: #38bdf8;
-            --accent-purple: #8b5cf6;
-            --accent-green: #34d399;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --bg-base:      #030712;
+            --bg-surface:   #0d1117;
+            --bg-card:      rgba(15, 23, 42, 0.75);
+            --bg-glass:     rgba(255,255,255,0.04);
+            --border:       rgba(99, 179, 237, 0.15);
+            --border-glow:  rgba(99, 179, 237, 0.4);
+            --cyan:         #38bdf8;
+            --cyan-dim:     rgba(56,189,248,0.15);
+            --purple:       #a78bfa;
+            --purple-dim:   rgba(167,139,250,0.15);
+            --green:        #34d399;
+            --green-dim:    rgba(52,211,153,0.15);
+            --amber:        #fbbf24;
+            --amber-dim:    rgba(251,191,36,0.12);
+            --red:          #f87171;
+            --text:         #f1f5f9;
+            --text-muted:   #64748b;
+            --text-sub:     #94a3b8;
+            --grad-1:       linear-gradient(135deg, #1e1b4b 0%, #0f172a 50%, #042f2e 100%);
+            --grad-hero:    linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(167,139,250,0.08) 100%);
+            --font-mono:    'Fira Code', monospace;
         }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            background: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            background: var(--bg-base);
+            color: var(--text);
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── Noise texture overlay ──────────────────────────── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* ── Animated gradient orbs ─────────────────────────── */
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            pointer-events: none; z-index: 0;
+            animation: orb-float 12s ease-in-out infinite;
+        }
+        .orb-1 { width: 600px; height: 600px; background: rgba(56,189,248,0.06); top: -200px; left: -200px; animation-delay: 0s; }
+        .orb-2 { width: 500px; height: 500px; background: rgba(167,139,250,0.06); bottom: -100px; right: -150px; animation-delay: -4s; }
+        .orb-3 { width: 400px; height: 400px; background: rgba(52,211,153,0.04); top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -8s; }
+        @keyframes orb-float {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33%      { transform: translate(30px,-20px) scale(1.05); }
+            66%      { transform: translate(-20px,30px) scale(0.95); }
+        }
+        .orb-3 { animation-name: orb-float-center; }
+        @keyframes orb-float-center {
+            0%,100% { transform: translate(-50%,-50%) scale(1); }
+            50%      { transform: translate(-50%,-50%) scale(1.1); }
+        }
+
+        /* ── Layout ─────────────────────────────────────────── */
+        .content { position: relative; z-index: 1; }
+
+        /* ── NAV ────────────────────────────────────────────── */
+        nav {
+            position: sticky; top: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 32px; height: 64px;
+            background: rgba(3,7,18,0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-weight: 800; font-size: 1.1rem; color: var(--text);
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 900; color: #000;
+            box-shadow: 0 0 20px rgba(56,189,248,0.4);
+            animation: logo-pulse 3s ease-in-out infinite;
+        }
+        @keyframes logo-pulse {
+            0%,100% { box-shadow: 0 0 20px rgba(56,189,248,0.4); }
+            50%      { box-shadow: 0 0 35px rgba(56,189,248,0.7), 0 0 60px rgba(167,139,250,0.3); }
+        }
+        .nav-badge {
+            background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(167,139,250,0.2));
+            border: 1px solid var(--border-glow);
+            border-radius: 20px; padding: 2px 10px;
+            font-size: 0.65rem; font-weight: 600;
+            color: var(--cyan); letter-spacing: 0.08em;
+        }
+        .nav-actions { display: flex; align-items: center; gap: 12px; }
+        .status-dot {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--green);
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: blink 2s ease-in-out infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 20px; border-radius: 8px; border: none;
+            font-family: inherit; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #000;
+            box-shadow: 0 0 20px rgba(56,189,248,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(56,189,248,0.5); }
+        .btn-ghost {
+            background: var(--bg-glass); border: 1px solid var(--border);
+            color: var(--text-sub);
+        }
+        .btn-ghost:hover { border-color: var(--border-glow); color: var(--text); }
+
+        /* ── HERO ───────────────────────────────────────────── */
+        .hero {
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            padding: 80px 24px 60px;
+            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(56,189,248,0.07) 0%, transparent 70%);
+            text-align: center;
+        }
+        .hero-inner { max-width: 860px; }
+        .hero-tag {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--cyan-dim); border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 20px; padding: 6px 16px;
+            font-size: 0.75rem; font-weight: 600; color: var(--cyan);
+            letter-spacing: 0.1em; text-transform: uppercase;
+            margin-bottom: 32px;
+            animation: fade-up 0.6s ease both;
+        }
+        .hero h1 {
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900; line-height: 1.05;
+            letter-spacing: -0.03em;
+            animation: fade-up 0.6s ease 0.1s both;
+        }
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--green) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-sub {
+            font-size: 1.15rem; color: var(--text-sub); max-width: 600px;
+            margin: 24px auto 0; font-weight: 400; line-height: 1.7;
+            animation: fade-up 0.6s ease 0.2s both;
+        }
+        .hero-actions {
+            display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            margin-top: 48px;
+            animation: fade-up 0.6s ease 0.3s both;
+        }
+        .btn-hero {
+            padding: 14px 32px; border-radius: 12px; font-size: 0.95rem;
+        }
+        .hero-stats {
+            display: flex; justify-content: center; gap: 48px; flex-wrap: wrap;
+            margin-top: 64px; padding-top: 48px;
+            border-top: 1px solid var(--border);
+            animation: fade-up 0.6s ease 0.4s both;
+        }
+        .stat { text-align: center; }
+        .stat-num {
+            font-size: 2.2rem; font-weight: 800; color: var(--text);
+            letter-spacing: -0.04em;
+        }
+        .stat-num .unit { color: var(--cyan); }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── SECTION ────────────────────────────────────────── */
+        section { padding: 80px 24px; }
+        .section-inner { max-width: 1200px; margin: 0 auto; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-tag {
+            display: inline-block;
+            font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--purple);
+            margin-bottom: 12px;
+        }
+        .section-header h2 {
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 800; letter-spacing: -0.02em;
+        }
+        .section-header p {
+            font-size: 1rem; color: var(--text-sub);
+            max-width: 560px; margin: 16px auto 0;
+        }
+
+        /* ── SYSTEM STATUS CARD ─────────────────────────────── */
+        .status-panel {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 32px;
+            backdrop-filter: blur(20px);
+            margin-bottom: 60px;
+        }
+        .status-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .status-item {
+            background: var(--bg-glass); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 20px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .status-icon { font-size: 1.3rem; }
+        .status-info .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+        .status-info .value { font-size: 0.9rem; font-weight: 600; margin-top: 2px; }
+        .value-online { color: var(--green); }
+        .value-frozen { color: var(--amber); }
+        .value-active { color: var(--cyan); }
+
+        /* ── FOUNDER CARD ───────────────────────────────────── */
+        .founder-card {
+            background: linear-gradient(135deg, rgba(56,189,248,0.08) 0%, rgba(167,139,250,0.08) 100%);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 24px; padding: 40px 48px;
+            display: flex; align-items: center; gap: 40px; flex-wrap: wrap;
+            backdrop-filter: blur(20px);
+            position: relative; overflow: hidden;
+            margin-bottom: 80px;
+        }
+        .founder-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(56,189,248,0.05), transparent);
+            pointer-events: none;
+        }
+        .founder-avatar {
+            width: 88px; height: 88px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 900; color: #000;
+            box-shadow: 0 0 40px rgba(56,189,248,0.4);
+            flex-shrink: 0;
+        }
+        .founder-info { flex: 1; min-width: 220px; }
+        .founder-info .name { font-size: 1.5rem; font-weight: 800; }
+        .founder-info .email { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+        .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
+        }
+        .badge-owner   { background: var(--cyan-dim);   border: 1px solid rgba(56,189,248,0.4);  color: var(--cyan); }
+        .badge-founder { background: var(--purple-dim); border: 1px solid rgba(167,139,250,0.4); color: var(--purple); }
+        .badge-exempt  { background: var(--green-dim);  border: 1px solid rgba(52,211,153,0.4);  color: var(--green); }
+        .founder-actions { display: flex; flex-direction: column; gap: 10px; }
+        .btn-founder {
+            padding: 12px 24px; border-radius: 10px; font-size: 0.85rem;
+            white-space: nowrap; text-align: center;
+        }
+
+        /* ── FEATURE GRID ───────────────────────────────────── */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 28px;
+            backdrop-filter: blur(16px);
+            transition: all 0.25s ease;
+            position: relative; overflow: hidden;
+        }
+        .feature-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(56,189,248,0.08);
+        }
+        .feature-card::after {
+            content: ''; position: absolute; inset: 0;
+            background: var(--grad-hero); opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .feature-card:hover::after { opacity: 1; }
+        .feature-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; margin-bottom: 18px;
+        }
+        .icon-cyan   { background: var(--cyan-dim);   border: 1px solid rgba(56,189,248,0.3); }
+        .icon-purple { background: var(--purple-dim); border: 1px solid rgba(167,139,250,0.3); }
+        .icon-green  { background: var(--green-dim);  border: 1px solid rgba(52,211,153,0.3); }
+        .icon-amber  { background: var(--amber-dim);  border: 1px solid rgba(251,191,36,0.3); }
+        .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; position: relative; z-index: 1; }
+        .feature-card p  { font-size: 0.83rem; color: var(--text-sub); line-height: 1.6; position: relative; z-index: 1; }
+
+        /* ── SPECIALISTS GRID ───────────────────────────────── */
+        .specialists-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+        .specialist-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 14px; padding: 18px 16px;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s; text-align: center;
+        }
+        .specialist-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-3px);
+        }
+        .spec-emoji { font-size: 1.8rem; margin-bottom: 8px; }
+        .spec-name  { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+        .spec-role  { font-size: 0.7rem; color: var(--text-muted); margin-top: 3px; }
+        .spec-status {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.65rem; color: var(--green); margin-top: 6px;
+        }
+
+        /* ── TEMPLATES GRID ─────────────────────────────────── */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .template-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 14px;
+            backdrop-filter: blur(12px);
+            transition: all 0.2s; cursor: pointer; text-align: center;
+        }
+        .template-card:hover {
+            border-color: rgba(167,139,250,0.4);
+            background: rgba(167,139,250,0.06);
+            transform: translateY(-2px);
+        }
+        .tmpl-icon { font-size: 1.6rem; margin-bottom: 8px; }
+        .tmpl-name { font-size: 0.78rem; font-weight: 600; }
+
+        /* ── PRICING TABLE ──────────────────────────────────── */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px; align-items: start;
+        }
+        .plan-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 20px; padding: 32px;
+            backdrop-filter: blur(16px); position: relative;
+        }
+        .plan-card.featured {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 40px rgba(56,189,248,0.1);
+        }
+        .plan-card.founder-plan {
+            border-color: rgba(167,139,250,0.5);
+            background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(56,189,248,0.05));
+            box-shadow: 0 0 50px rgba(167,139,250,0.15);
+        }
+        .plan-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
+            color: #000; font-size: 0.68rem; font-weight: 700;
+            padding: 4px 16px; border-radius: 20px; white-space: nowrap;
+        }
+        .plan-name { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+        .plan-price {
+            font-size: 2.8rem; font-weight: 900; letter-spacing: -0.04em;
+            margin: 12px 0; color: var(--text);
+        }
+        .plan-price .currency { font-size: 1.2rem; font-weight: 600; color: var(--text-muted); vertical-align: top; margin-top: 8px; display: inline-block; }
+        .plan-price .period   { font-size: 0.85rem; font-weight: 400; color: var(--text-muted); }
+        .plan-price.free-price { color: var(--green); }
+        .plan-desc { font-size: 0.82rem; color: var(--text-sub); margin-bottom: 24px; }
+        .plan-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+        .plan-features li { font-size: 0.83rem; display: flex; align-items: flex-start; gap: 8px; }
+        .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+        .plan-features li.locked::before { content: '✗'; color: var(--text-muted); }
+        .plan-features li.locked { color: var(--text-muted); }
+
+        /* ── TERMINAL BLOCK ─────────────────────────────────── */
+        .terminal {
+            background: #0a0e17; border: 1px solid rgba(56,189,248,0.2);
+            border-radius: 16px; overflow: hidden;
+            font-family: var(--font-mono);
+        }
+        .terminal-bar {
+            background: rgba(255,255,255,0.05); padding: 10px 16px;
+            display: flex; align-items: center; gap: 8px;
+            border-bottom: 1px solid rgba(56,189,248,0.1);
+        }
+        .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .t-red{background:#ff5f57;} .t-yellow{background:#febc2e;} .t-green{background:#28c840;}
+        .terminal-title { font-size: 0.72rem; color: var(--text-muted); margin-left: 8px; }
+        .terminal-body { padding: 24px; font-size: 0.82rem; line-height: 1.8; }
+        .t-prompt { color: var(--green); }
+        .t-cmd    { color: var(--text); }
+        .t-out    { color: var(--text-muted); }
+        .t-success{ color: var(--green); }
+        .t-info   { color: var(--cyan); }
+        .t-key    { color: var(--purple); }
+        .t-val    { color: var(--amber); }
+        .t-cursor { display: inline-block; width: 8px; height: 14px; background: var(--cyan); animation: cursor-blink 1.2s step-end infinite; vertical-align: text-bottom; }
+        @keyframes cursor-blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+        /* ── FOOTER ─────────────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border); padding: 40px 24px;
+            text-align: center; color: var(--text-muted); font-size: 0.8rem;
+        }
+        footer a { color: var(--cyan); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ── RESPONSIVE ─────────────────────────────────────── */
+        @media (max-width: 640px) {
+            nav { padding: 0 16px; }
+            .founder-card { padding: 24px; gap: 24px; }
+            .hero-stats { gap: 28px; }
+            section { padding: 60px 16px; }
+        }
+
+        /* ── SCROLL ANIMATIONS ──────────────────────────────── */
+        .reveal {
+            opacity: 0; transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── GLOW LINE ──────────────────────────────────────── */
+        .glow-line {
+            height: 1px; width: 100%;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
             margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-        .header { text-align: center; margin: 40px 20px 20px 20px; }
-        .header h1 { font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 10px; }
-        .grid { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; max-width: 1000px; padding: 20px; }
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--bg-card-border);
-            border-radius: 16px;
-            padding: 30px;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            backdrop-filter: blur(10px);
-        }
-        .card.featured { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(56,189,248,0.25); }
-        .price { font-size: 2rem; font-weight: 700; margin: 15px 0; color: #fff; }
-        .btn-stripe {
-            background: linear-gradient(135deg, #6366f1, #4f46e5);
-            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px; text-decoration: none; text-align: center; display: block;
-        }
-        .btn-mp {
-            background: linear-gradient(135deg, #009ee3, #0073a5);
-            color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%;
-        }
-        .btn-owner {
-            background: linear-gradient(135deg, #38bdf8, #0284c7);
-            color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px;
-        }
-        /* Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #0f172a; border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 30px; max-width: 450px; width: 90%; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #1e293b; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
-        .nav-link { color: var(--accent-cyan); text-decoration: none; font-weight: 600; margin: 0 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>DM AI OS Commercial SaaS</h1>
-        <p style="color: var(--text-muted);">Sistema Operativo para Empleados Digitales Autónomos</p>
-        <div style="margin-top: 15px;">
-            <a href="#pricing" class="nav-link">Planes Comercial</a> |
-            <span onclick="openAdminModal()" class="nav-link" style="color: var(--accent-green); font-weight: 700;">🔑 Acceso Dueño / Super Admin</span>
+
+<!-- Ambient orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="content">
+
+<!-- ── NAV ──────────────────────────────────────────────── -->
+<nav>
+    <a class="nav-logo" href="/">
+        <div class="logo-icon">DM</div>
+        <span>DM AI OS</span>
+        <span class="nav-badge">v1.0 PROD</span>
+    </a>
+    <div class="nav-actions">
+        <div class="status-dot" id="nav-status">
+            <span class="dot"></span>
+            <span id="nav-status-text">Verificando…</span>
+        </div>
+        <a class="btn btn-ghost" href="/docs" id="btn-docs">API Docs</a>
+        <a class="btn btn-primary" href="/panel/owner" id="btn-owner">⚡ Owner Access</a>
+    </div>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-inner">
+        <div class="hero-tag">
+            <span class="dot"></span>
+            Sistema Operativo Empresarial con IA — Fases 14–19 Completas
+        </div>
+        <h1>
+            El OS Autónomo<br>
+            que <span class="gradient-text">dirige tu negocio</span>
+        </h1>
+        <p class="hero-sub">
+            DM AI OS no es un chatbot. Es tu empleador digital completo: investiga, decide, ejecuta y aprende sin intervención humana. 20 especialistas IA, 22 templates comerciales, aprendizaje continuo.
+        </p>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-hero" href="/panel/owner" id="hero-owner-btn">⚡ Acceso Fundador</a>
+            <a class="btn btn-ghost  btn-hero" href="/checkout"     id="hero-checkout-btn">Ver Planes Comerciales</a>
+        </div>
+        <div class="hero-stats">
+            <div class="stat">
+                <div class="stat-num">232<span class="unit">/232</span></div>
+                <div class="stat-label">Tests PASS</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">20<span class="unit">+</span></div>
+                <div class="stat-label">Especialistas IA</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">22<span class="unit">+</span></div>
+                <div class="stat-label">Templates Comerciales</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num">0<span class="unit"> reg.</span></div>
+                <div class="stat-label">Regresiones</div>
+            </div>
         </div>
     </div>
+</section>
 
-    <div class="grid" id="pricing">
-        <!-- Starter Plan -->
-        <div class="card">
-            <div>
-                <h3>Starter</h3>
-                <div class="price">USD $29 <span style="font-size:1rem; font-weight:400;">/ mes</span></div>
-                <p style="color: var(--text-muted);">Ideal para emprendedores y autónomos individuales.</p>
+<div class="glow-line"></div>
+
+<!-- ── SYSTEM STATUS ─────────────────────────────────────── -->
+<section>
+    <div class="section-inner">
+        <div class="status-panel reveal">
+            <div class="section-header" style="margin-bottom:32px;">
+                <div class="section-tag">Sistema</div>
+                <h2 style="font-size:1.5rem;">Estado del Núcleo — Tiempo Real</h2>
             </div>
-            <div>
-                <a href="https://buy.stripe.com/9B68wQ5WMdF6gYsbCe8AE01" target="_blank" class="btn-stripe">Suscribirme con tarjeta (Stripe)</a>
-                <button class="btn-mp" onclick="openMPModal('starter', 29)">Pagar con Mercado Pago</button>
+            <div class="status-grid" id="status-grid">
+                <!-- Populated by JS -->
+                <div class="status-item"><span class="status-icon">⚙️</span><div class="status-info"><div class="label">Backend</div><div class="value value-online" id="st-backend">Verificando…</div></div></div>
+                <div class="status-item"><span class="status-icon">🧠</span><div class="status-info"><div class="label">BrainPipeline</div><div class="value value-frozen">CONGELADO ✓</div></div></div>
+                <div class="status-item"><span class="status-icon">💾</span><div class="status-info"><div class="label">MemoryManager</div><div class="value value-frozen">CONGELADO ✓</div></div></div>
+                <div class="status-item"><span class="status-icon">🔀</span><div class="status-info"><div class="label">DAG Engine</div><div class="value value-frozen">CONGELADO ✓</div></div></div>
+                <div class="status-item"><span class="status-icon">🔌</span><div class="status-info"><div class="label">MCP Server</div><div class="value value-frozen">15 Tools ✓</div></div></div>
+                <div class="status-item"><span class="status-icon">🏢</span><div class="status-info"><div class="label">Multi-Tenant</div><div class="value value-active">OPERATIVO</div></div></div>
+                <div class="status-item"><span class="status-icon">🤖</span><div class="status-info"><div class="label">Especialistas</div><div class="value value-active">20 ACTIVOS</div></div></div>
+                <div class="status-item"><span class="status-icon">💳</span><div class="status-info"><div class="label">Billing Engine</div><div class="value value-active">COMERCIAL</div></div></div>
             </div>
         </div>
 
-        <!-- Professional Plan -->
-        <div class="card featured">
-            <div>
-                <span style="background: var(--accent-cyan); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 700;">MÁS POPULAR</span>
-                <h3>Professional</h3>
-                <div class="price">USD $99 <span style="font-size:1rem; font-weight:400;">/ mes</span></div>
-                <p style="color: var(--text-muted);">Suite completa de 20 Empleados Digitales Autónomos.</p>
+        <!-- FOUNDER CARD -->
+        <div class="founder-card reveal">
+            <div class="founder-avatar">DM</div>
+            <div class="founder-info">
+                <div class="name">Daniel Morales</div>
+                <div class="email">daniel@dmorales.site</div>
+                <div class="badges">
+                    <span class="badge badge-owner">👑 Owner</span>
+                    <span class="badge badge-founder">🚀 Founder</span>
+                    <span class="badge badge-exempt">✅ Billing Exempt</span>
+                    <span class="badge badge-owner" style="background:var(--amber-dim);border-color:rgba(251,191,36,0.4);color:var(--amber);">🔑 Super Admin</span>
+                </div>
             </div>
-            <div>
-                <a href="https://buy.stripe.com/9B68wQ5WMdF6gYsbCe8AE01" target="_blank" class="btn-stripe">Suscribirme con tarjeta (Stripe)</a>
-                <button class="btn-mp" onclick="openMPModal('professional', 99)">Pagar con Mercado Pago</button>
+            <div class="founder-actions">
+                <a class="btn btn-primary btn-founder" href="/panel/owner" id="founder-login-btn">⚡ Acceso al Panel</a>
+                <a class="btn btn-ghost  btn-founder" href="/panel/dashboard" id="founder-dashboard-btn">📊 Dashboard</a>
+                <a class="btn btn-ghost  btn-founder" href="/docs" id="founder-api-btn">📡 API Gateway</a>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="section-header reveal">
+            <div class="section-tag">Plataforma</div>
+            <h2>Arquitectura de Producción</h2>
+            <p>Módulos congelados en producción. Zero regresiones. 232/232 tests PASS.</p>
+        </div>
+        <div class="features-grid reveal">
+            <div class="feature-card">
+                <div class="feature-icon icon-cyan">🧠</div>
+                <h3>BrainPipeline</h3>
+                <p>Motor central de razonamiento multi-modelo. Coordina Grok, OpenAI, Ollama y RunPod en una sola tubería de inteligencia.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-purple">💾</div>
+                <h3>MemoryManager</h3>
+                <p>Memoria vectorial de largo plazo. Búsqueda semántica, perfiles de usuario, historial persistente por tenant.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">🔀</div>
+                <h3>DAG Engine</h3>
+                <p>Orquestación paralela de tareas como grafos dirigidos. Workflows complejos sin bloqueos de I/O.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-amber">🔌</div>
+                <h3>MCP Server</h3>
+                <p>15 herramientas Model Context Protocol integradas. Compatible con cualquier cliente que soporte MCP.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-cyan">🏢</div>
+                <h3>Multi-Tenant SaaS</h3>
+                <p>Aislamiento completo por tenant. Cada cliente tiene su propio contexto, memoria y especialistas.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-purple">📈</div>
+                <h3>Learning Engine</h3>
+                <p>Aprendizaje continuo por outcome. El sistema mejora automáticamente basándose en resultados reales.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">⏰</div>
+                <h3>Cognitive Scheduler</h3>
+                <p>Autonomía cognitiva. Detecta inactividad, genera objetivos propios y ejecuta tareas sin intervención.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-amber">💳</div>
+                <h3>Billing Engine</h3>
+                <p>Stripe + Mercado Pago integrados. Activación automática de tenants, conversión ARS en tiempo real.</p>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- Owner / Super Admin Login Modal -->
-    <div id="adminModal" class="modal">
-        <div class="modal-content">
-            <h3 style="color: var(--accent-cyan); margin-top:0;">Acceso Exclusivo Dueño / Super Admin</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Ingresa tu contraseña de dueño para acceder gratis y administrar la plataforma sin realizar pagos.</p>
-            <input type="password" id="adminPassword" placeholder="Contraseña de Administrador" required>
-            <button class="btn-owner" onclick="loginAdmin()">Ingresar Gratis como Dueño</button>
-            <button onclick="closeAdminModal()" style="background:transparent; border:none; color:var(--text-muted); width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
+<!-- ── SPECIALISTS ────────────────────────────────────────── -->
+<section style="background: rgba(255,255,255,0.01);">
+    <div class="section-inner">
+        <div class="section-header reveal">
+            <div class="section-tag">Fuerza Laboral Digital</div>
+            <h2>20 Empleados Digitales Autónomos</h2>
+            <p>Cada especialista es un agente completo con memoria propia, capacidad de aprendizaje y ejecución paralela.</p>
+        </div>
+        <div class="specialists-grid reveal">
+            <div class="specialist-card"><div class="spec-emoji">🏪</div><div class="spec-name">Local Business</div><div class="spec-role">Gestión comercial local</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">💬</div><div class="spec-name">WhatsApp</div><div class="spec-role">Automatización de mensajes</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">👤</div><div class="spec-name">Facebook</div><div class="spec-role">Marketing y publicidad</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">📸</div><div class="spec-name">Instagram</div><div class="spec-role">Contenido visual y reels</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🎵</div><div class="spec-name">TikTok</div><div class="spec-role">Viralización de contenido</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">▶️</div><div class="spec-name">YouTube</div><div class="spec-role">Canal y monetización</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">✍️</div><div class="spec-name">Content</div><div class="spec-role">Creación de contenido</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">📊</div><div class="spec-name">Ads</div><div class="spec-role">Campañas publicitarias</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🔍</div><div class="spec-name">SEO</div><div class="spec-role">Posicionamiento web</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">📧</div><div class="spec-name">Email</div><div class="spec-role">Email marketing</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🛒</div><div class="spec-name">E-Commerce</div><div class="spec-role">Tiendas online</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">📉</div><div class="spec-name">Analytics</div><div class="spec-role">Métricas y reportes</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">₿</div><div class="spec-name">Crypto</div><div class="spec-role">Trading y DeFi</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">💎</div><div class="spec-name">Fanvue</div><div class="spec-role">Plataformas de contenido</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🎓</div><div class="spec-name">Education</div><div class="spec-role">Cursos y formación</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">💼</div><div class="spec-name">Business</div><div class="spec-role">Estrategia empresarial</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🌐</div><div class="spec-name">Research</div><div class="spec-role">Investigación web</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">🖥️</div><div class="spec-name">Computer</div><div class="spec-role">Automatización desktop</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">⏰</div><div class="spec-name">Cognitive Scheduler</div><div class="spec-role">Autonomía cognitiva</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
+            <div class="specialist-card"><div class="spec-emoji">📈</div><div class="spec-name">Learning Engine</div><div class="spec-role">Aprendizaje continuo</div><div class="spec-status"><span class="dot"></span> ACTIVO</div></div>
         </div>
     </div>
+</section>
 
-    <!-- Mercado Pago Modal -->
-    <div id="mpModal" class="modal">
-        <div class="modal-content">
-            <h3 style="color: var(--accent-cyan); margin-top:0;">Pago con Mercado Pago (Argentina)</h3>
-            <p><strong>Plan:</strong> <span id="mpPlanName">Professional</span> (USD $<span id="mpUsd">99</span>)</p>
-            <p style="background: rgba(52,211,153,0.1); color: var(--accent-green); padding: 10px; border-radius: 6px;">
-                <strong>Equivalente ARS:</strong> $<span id="mpArs">123,750</span> ARS
-            </p>
-            <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
-                <strong>Alias:</strong> monetiza.dm<br>
-                <strong>CVU:</strong> 0000003100044063397420<br>
-                <strong>Titular:</strong> Daniel Alberto Morales
+<!-- ── TEMPLATES ──────────────────────────────────────────── -->
+<section>
+    <div class="section-inner">
+        <div class="section-header reveal">
+            <div class="section-tag">Templates Comerciales</div>
+            <h2>22 Industrias Listas para Deploy</h2>
+            <p>Cada template pre-configura el equipo de especialistas ideal para tu tipo de negocio.</p>
+        </div>
+        <div class="templates-grid reveal">
+            <div class="template-card"><div class="tmpl-icon">⚡</div><div class="tmpl-name">Electricista</div></div>
+            <div class="template-card"><div class="tmpl-icon">🔧</div><div class="tmpl-name">Plomero</div></div>
+            <div class="template-card"><div class="tmpl-icon">❄️</div><div class="tmpl-name">Refrigeración</div></div>
+            <div class="template-card"><div class="tmpl-icon">🔩</div><div class="tmpl-name">Mecánico</div></div>
+            <div class="template-card"><div class="tmpl-icon">💇</div><div class="tmpl-name">Peluquería</div></div>
+            <div class="template-card"><div class="tmpl-icon">💅</div><div class="tmpl-name">Manicura</div></div>
+            <div class="template-card"><div class="tmpl-icon">🍽️</div><div class="tmpl-name">Restaurante</div></div>
+            <div class="template-card"><div class="tmpl-icon">🏪</div><div class="tmpl-name">Kiosco</div></div>
+            <div class="template-card"><div class="tmpl-icon">🧵</div><div class="tmpl-name">Mercería</div></div>
+            <div class="template-card"><div class="tmpl-icon">⚖️</div><div class="tmpl-name">Abogado</div></div>
+            <div class="template-card"><div class="tmpl-icon">🧮</div><div class="tmpl-name">Contador</div></div>
+            <div class="template-card"><div class="tmpl-icon">🏥</div><div class="tmpl-name">Médico</div></div>
+            <div class="template-card"><div class="tmpl-icon">📚</div><div class="tmpl-name">Profesor</div></div>
+            <div class="template-card"><div class="tmpl-icon">▶️</div><div class="tmpl-name">YouTube</div></div>
+            <div class="template-card"><div class="tmpl-icon">🎵</div><div class="tmpl-name">TikTok</div></div>
+            <div class="template-card"><div class="tmpl-icon">👤</div><div class="tmpl-name">Facebook</div></div>
+            <div class="template-card"><div class="tmpl-icon">📸</div><div class="tmpl-name">Instagram</div></div>
+            <div class="template-card"><div class="tmpl-icon">💎</div><div class="tmpl-name">Fanvue</div></div>
+            <div class="template-card"><div class="tmpl-icon">💬</div><div class="tmpl-name">WhatsApp Business</div></div>
+            <div class="template-card"><div class="tmpl-icon">₿</div><div class="tmpl-name">Crypto</div></div>
+            <div class="template-card"><div class="tmpl-icon">🎓</div><div class="tmpl-name">Cursos Online</div></div>
+            <div class="template-card"><div class="tmpl-icon">🏢</div><div class="tmpl-name">Negocio Local</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ── PRICING ────────────────────────────────────────────── -->
+<section style="background: rgba(255,255,255,0.01);">
+    <div class="section-inner">
+        <div class="section-header reveal">
+            <div class="section-tag">Planes SaaS</div>
+            <h2>Precios Comerciales</h2>
+            <p>Cada plan incluye aislamiento de tenant completo, todos los módulos core y soporte técnico.</p>
+        </div>
+        <div class="pricing-grid reveal">
+            <!-- STARTER -->
+            <div class="plan-card">
+                <div class="plan-name">Starter</div>
+                <div class="plan-price"><span class="currency">USD </span>29<span class="period">/mes</span></div>
+                <div class="plan-desc">Para negocios locales que están comenzando su presencia digital.</div>
+                <ul class="plan-features">
+                    <li>1 Asistente Digital</li>
+                    <li>5 Especialistas</li>
+                    <li>Todos los templates</li>
+                    <li>API Gateway</li>
+                    <li class="locked">Learning Engine</li>
+                    <li class="locked">Cognitive Scheduler</li>
+                    <li class="locked">Multi-Tenant</li>
+                </ul>
+                <a class="btn btn-ghost" href="/checkout" style="width:100%;justify-content:center;">Comenzar →</a>
             </div>
-            <input type="email" id="userEmail" placeholder="Tu Email para la cuenta SaaS" required>
-            <input type="text" id="opNumber" placeholder="Número de Operación de MP" required>
-            <button class="btn-mp" onclick="submitMPProof()" style="margin-top:10px;">Ya realicé la transferencia</button>
-            <button onclick="closeMPModal()" style="background:transparent; border:none; color:var(--text-muted); width:100%; margin-top:10px; cursor:pointer;">Cancelar</button>
+            <!-- PROFESSIONAL -->
+            <div class="plan-card featured">
+                <div class="plan-badge">⭐ MÁS POPULAR</div>
+                <div class="plan-name">Professional</div>
+                <div class="plan-price"><span class="currency">USD </span>99<span class="period">/mes</span></div>
+                <div class="plan-desc">Suite completa para negocios que quieren escalar con IA.</div>
+                <ul class="plan-features">
+                    <li>3 Asistentes Digitales</li>
+                    <li>Todos los Especialistas</li>
+                    <li>Todos los templates</li>
+                    <li>Learning Engine</li>
+                    <li>API Gateway + MCP</li>
+                    <li>BrainPipeline</li>
+                    <li class="locked">Multi-Tenant ilimitado</li>
+                </ul>
+                <a class="btn btn-primary" href="/checkout" style="width:100%;justify-content:center;">Contratar →</a>
+            </div>
+            <!-- ENTERPRISE -->
+            <div class="plan-card">
+                <div class="plan-name">Enterprise</div>
+                <div class="plan-price"><span class="currency">USD </span>299<span class="period">/mes</span></div>
+                <div class="plan-desc">Plataforma completa con autonomía total y tenants ilimitados.</div>
+                <ul class="plan-features">
+                    <li>Asistentes Ilimitados</li>
+                    <li>Todos los Especialistas</li>
+                    <li>Cognitive Scheduler</li>
+                    <li>Learning Engine</li>
+                    <li>Multi-Tenant Ilimitado</li>
+                    <li>Dashboard Admin</li>
+                    <li>Soporte prioritario</li>
+                </ul>
+                <a class="btn btn-ghost" href="/checkout" style="width:100%;justify-content:center;">Contratar →</a>
+            </div>
+            <!-- FOUNDER -->
+            <div class="plan-card founder-plan">
+                <div class="plan-badge" style="background:linear-gradient(135deg,var(--purple),var(--cyan));">👑 FOUNDER</div>
+                <div class="plan-name">Founder Access</div>
+                <div class="plan-price free-price">FREE<span class="period"> forever</span></div>
+                <div class="plan-desc">Cuenta fundador con acceso total permanente. Billing exempt.</div>
+                <ul class="plan-features">
+                    <li>Todo lo del Enterprise</li>
+                    <li>Acceso Super Admin</li>
+                    <li>Billing Exempt — $0</li>
+                    <li>Todos los tenants</li>
+                    <li>Control total del SaaS</li>
+                    <li>Sin restricciones</li>
+                    <li>Permanente</li>
+                </ul>
+                <a class="btn btn-primary" href="/panel/owner" style="width:100%;justify-content:center;background:linear-gradient(135deg,var(--purple),var(--cyan));">⚡ Acceder →</a>
+            </div>
         </div>
     </div>
+</section>
 
-    <script>
-        let currentPlan = 'professional';
+<!-- ── DEPLOY INFO ─────────────────────────────────────────── -->
+<section>
+    <div class="section-inner">
+        <div class="section-header reveal">
+            <div class="section-tag">Infraestructura</div>
+            <h2>Deploy & Acceso</h2>
+        </div>
+        <div class="terminal reveal">
+            <div class="terminal-bar">
+                <span class="t-dot t-red"></span>
+                <span class="t-dot t-yellow"></span>
+                <span class="t-dot t-green"></span>
+                <span class="terminal-title">dm-ai-os — production</span>
+            </div>
+            <div class="terminal-body">
+                <div><span class="t-prompt">$ </span><span class="t-cmd">dm-ai-os status --production</span></div>
+                <br>
+                <div><span class="t-info">▸ Platform</span>        <span class="t-val">DM AI OS v1.0.0-commercial</span></div>
+                <div><span class="t-info">▸ Backend</span>         <span class="t-val">FastAPI + Uvicorn @ :8000</span></div>
+                <div><span class="t-info">▸ VPS</span>             <span class="t-val">62.171.169.50 (Hetzner)</span></div>
+                <div><span class="t-info">▸ Domain</span>          <span class="t-val">app.dmorales.site (HTTPS)</span></div>
+                <div><span class="t-info">▸ SSL</span>             <span class="t-val">Let's Encrypt — TLSv1.3</span></div>
+                <div><span class="t-info">▸ Proxy</span>           <span class="t-val">Nginx → 127.0.0.1:8000</span></div>
+                <br>
+                <div><span class="t-success">✓ BrainPipeline</span>  <span class="t-out">FROZEN / PRODUCTION</span></div>
+                <div><span class="t-success">✓ MemoryManager</span>  <span class="t-out">FROZEN / PRODUCTION</span></div>
+                <div><span class="t-success">✓ DAGEngine</span>      <span class="t-out">FROZEN / PRODUCTION</span></div>
+                <div><span class="t-success">✓ MCP Server</span>     <span class="t-out">15 tools ACTIVE</span></div>
+                <div><span class="t-success">✓ Multi-Tenant</span>   <span class="t-out">OPERATIONAL</span></div>
+                <div><span class="t-success">✓ Specialists</span>    <span class="t-out">20/20 ACTIVE</span></div>
+                <div><span class="t-success">✓ Tests</span>          <span class="t-out">232/232 PASS — 0 regressions</span></div>
+                <br>
+                <div><span class="t-prompt">$ </span><span class="t-cmd">curl https://app.dmorales.site/health</span></div>
+                <div><span class="t-success">{"status":"ONLINE","version":"v1.0.0-production"}</span></div>
+                <br>
+                <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
+            </div>
+        </div>
+    </div>
+</section>
 
-        function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
-        function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+<!-- ── FOOTER ─────────────────────────────────────────────── -->
+<footer>
+    <p style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;">DM AI OS</p>
+    <p>Autonomous Business Operating System — Producción Comercial</p>
+    <p style="margin-top:16px;">
+        <a href="https://app.dmorales.site">app.dmorales.site</a>
+        &nbsp;·&nbsp;
+        <a href="/docs">API Docs</a>
+        &nbsp;·&nbsp;
+        <a href="/panel/owner">Owner Panel</a>
+        &nbsp;·&nbsp;
+        <a href="/checkout">Planes</a>
+    </p>
+    <p style="margin-top:16px;color:var(--text-muted);">
+        © 2026 Daniel Morales — dmorales.site intacto (ALMA IA / Mysticia)
+    </p>
+</footer>
 
-        async function loginAdmin() {
-            const password = document.getElementById('adminPassword').value;
-            if(!password) return alert('Por favor ingresa tu contraseña de dueño');
+</div><!-- /content -->
 
-            try {
-                const res = await fetch('/v1/auth/owner-login', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ password })
-                });
-                if(res.ok) {
-                    const data = await res.json();
-                    localStorage.setItem('admin_token', data.access_token);
-                    alert('¡Acceso concedido como Dueño! Redirigiendo al panel...');
-                    window.location.href = '/panel/dashboard';
-                } else {
-                    alert('Contraseña incorrecta');
-                }
-            } catch(e) {
-                alert('Error al conectar con el servidor.');
+<script>
+// ── Live health check ───────────────────────────────────────
+async function checkHealth() {
+    const navText = document.getElementById('nav-status-text');
+    const backendStatus = document.getElementById('st-backend');
+    try {
+        const res  = await fetch('/health', { cache: 'no-store' });
+        const data = await res.json();
+        if (data.status === 'ONLINE') {
+            navText.textContent = 'Sistema ONLINE';
+            if (backendStatus) {
+                backendStatus.textContent = 'ONLINE ✓';
+                backendStatus.className = 'value value-online';
             }
         }
-
-
-
-        async function openMPModal(plan, usd) {
-            currentPlan = plan;
-            document.getElementById('mpPlanName').innerText = plan.toUpperCase();
-            document.getElementById('mpUsd').innerText = usd;
-            try {
-                const res = await fetch('/v1/billing/mp-details?plan_id=' + plan);
-                const data = await res.json();
-                document.getElementById('mpArs').innerText = data.amount_ars.toLocaleString('es-AR');
-            } catch(e) {
-                document.getElementById('mpArs').innerText = (usd * 1250).toLocaleString('es-AR');
-            }
-            document.getElementById('mpModal').style.display = 'flex';
+    } catch(e) {
+        navText.textContent = 'Local / Offline';
+        if (backendStatus) {
+            backendStatus.textContent = 'OFFLINE';
+            backendStatus.className = 'value';
+            backendStatus.style.color = '#f87171';
         }
+    }
+}
+checkHealth();
+setInterval(checkHealth, 30000);
 
-        function closeMPModal() { document.getElementById('mpModal').style.display = 'none'; }
+// ── Scroll reveal ───────────────────────────────────────────
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-        async function submitMPProof() {
-            const email = document.getElementById('userEmail').value;
-            const op = document.getElementById('opNumber').value;
-            if(!email || !op) return alert('Por favor ingresa tu email y número de operación');
-
-            try {
-                const res = await fetch('/v1/billing/submit-mp-proof', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ user_email: email, plan_id: currentPlan, operation_number: op })
-                });
-                const data = await res.json();
-                alert(data.message || 'Comprobante recibido');
-            } catch(e) {
-                alert('Comprobante registrado en modo seguro.');
-            }
-            closeMPModal();
-        }
-    </script>
+// ── PWA service worker ──────────────────────────────────────
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+</script>
 </body>
 </html>

@@ -21,6 +21,7 @@ Each assistant:
   - Uses all tools the user already owns (Grok, OpenAI, RunPod, Ollama, etc.)
 """
 
+import os
 import json
 import logging
 import sqlite3
@@ -30,7 +31,21 @@ from typing import Any, Dict, List, Optional
 
 log = logging.getLogger("assistant_factory")
 
-_DEFAULT_DB = Path(__file__).parent.parent.parent / "Project_State" / "assistant_factory.db"
+
+def _get_default_db() -> Path:
+    base_storage = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+    if base_storage:
+        base = Path(base_storage)
+    elif os.getenv("VERCEL"):
+        base = Path("/tmp/Project_State")
+    else:
+        base = Path(__file__).parent.parent.parent / "Project_State"
+    try:
+        base.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        base = Path("/tmp/Project_State")
+        base.mkdir(parents=True, exist_ok=True)
+    return base / "assistant_factory.db"
 
 
 # ── Business Templates ─────────────────────────────────────────────────────────
@@ -186,8 +201,12 @@ class AssistantFactory:
     """
 
     def __init__(self, db_path: Optional[Path] = None):
-        self.db_path = db_path or _DEFAULT_DB
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        self.db_path = db_path or _get_default_db()
+        try:
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.db_path = Path("/tmp/Project_State") / "assistant_factory.db"
+            self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
     def _init_db(self):

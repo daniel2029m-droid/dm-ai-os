@@ -1,4 +1,4 @@
-﻿"""
+"""
 VectorBackend — P5 Open Source Integration (Fase B)
 ====================================================
 Capa de abstraccion intercambiable para almacenamiento vectorial.
@@ -102,27 +102,46 @@ class JsonVectorBackend(VectorBackend):
 
     def __init__(self, vectors_dir: Optional[str] = None):
         if not vectors_dir:
-            vectors_dir = (
-                Path(os.path.expanduser("~"))
-                / ".gemini" / "antigravity-ide" / "scratch"
-                / "Project_State" / "Memory" / "vectors"
-            )
+            vectors_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if vectors_dir_env:
+                vectors_dir = Path(vectors_dir_env) / "Memory" / "vectors"
+            elif os.getenv("VERCEL"):
+                vectors_dir = Path("/tmp/Project_State/Memory/vectors")
+            else:
+                vectors_dir = (
+                    Path(os.path.expanduser("~"))
+                    / ".gemini" / "antigravity-ide" / "scratch"
+                    / "Project_State" / "Memory" / "vectors"
+                )
         self.vectors_dir = Path(vectors_dir)
-        self.vectors_dir.mkdir(parents=True, exist_ok=True)
         self.index_file = self.vectors_dir / "vector_index.json"
+        self._initialized = False
+
+    def _ensure_store(self):
+        if self._initialized:
+            return
+        try:
+            self.vectors_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.vectors_dir = Path("/tmp/Project_State/Memory/vectors")
+            self.vectors_dir.mkdir(parents=True, exist_ok=True)
+            self.index_file = self.vectors_dir / "vector_index.json"
         self._init_store()
+        self._initialized = True
 
     def _init_store(self):
         if not self.index_file.exists():
             self.index_file.write_text(json.dumps({"items": []}), encoding="utf-8")
 
     def _load(self) -> Dict[str, Any]:
+        self._ensure_store()
         try:
             return json.loads(self.index_file.read_text(encoding="utf-8"))
         except Exception:
             return {"items": []}
 
     def _save(self, data: Dict[str, Any]):
+        self._ensure_store()
         self.index_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
     def save_vector(
@@ -217,11 +236,17 @@ class ChromaVectorBackend(VectorBackend):
 
     def __init__(self, persist_dir: Optional[str] = None):
         if not persist_dir:
-            persist_dir = str(
-                Path(os.path.expanduser("~"))
-                / ".gemini" / "antigravity-ide" / "scratch"
-                / "Project_State" / "Memory" / "chroma_db"
-            )
+            persist_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if persist_dir_env:
+                persist_dir = str(Path(persist_dir_env) / "Memory" / "chroma_db")
+            elif os.getenv("VERCEL"):
+                persist_dir = "/tmp/Project_State/Memory/chroma_db"
+            else:
+                persist_dir = str(
+                    Path(os.path.expanduser("~"))
+                    / ".gemini" / "antigravity-ide" / "scratch"
+                    / "Project_State" / "Memory" / "chroma_db"
+                )
         self.persist_dir = persist_dir
         self._client = None
         self._collection = None
@@ -330,20 +355,38 @@ class FaissVectorBackend(VectorBackend):
 
     def __init__(self, index_dir: Optional[str] = None):
         if not index_dir:
-            index_dir = str(
-                Path(os.path.expanduser("~"))
-                / ".gemini" / "antigravity-ide" / "scratch"
-                / "Project_State" / "Memory" / "faiss_db"
-            )
+            index_dir_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if index_dir_env:
+                index_dir = str(Path(index_dir_env) / "Memory" / "faiss_db")
+            elif os.getenv("VERCEL"):
+                index_dir = "/tmp/Project_State/Memory/faiss_db"
+            else:
+                index_dir = str(
+                    Path(os.path.expanduser("~"))
+                    / ".gemini" / "antigravity-ide" / "scratch"
+                    / "Project_State" / "Memory" / "faiss_db"
+                )
         self.index_dir = Path(index_dir)
-        self.index_dir.mkdir(parents=True, exist_ok=True)
         self.index_file = self.index_dir / "faiss.index"
         self.meta_file = self.index_dir / "faiss_meta.json"
         self._index = None
         self._meta: Dict[str, Dict[str, Any]] = {}
         self._ids: List[str] = []  # ordered list matching FAISS internal indices
         self._dim: Optional[int] = None
+        self._initialized = False
+
+    def _ensure_dir(self):
+        if self._initialized:
+            return
+        try:
+            self.index_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.index_dir = Path("/tmp/Project_State/Memory/faiss_db")
+            self.index_dir.mkdir(parents=True, exist_ok=True)
+            self.index_file = self.index_dir / "faiss.index"
+            self.meta_file = self.index_dir / "faiss_meta.json"
         self._load()
+        self._initialized = True
 
     @staticmethod
     def _is_available() -> bool:
@@ -388,6 +431,7 @@ class FaissVectorBackend(VectorBackend):
         vector: List[float],
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
+        self._ensure_dir()
         import numpy as np
         dim = len(vector)
 

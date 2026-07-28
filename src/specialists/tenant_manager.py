@@ -1,4 +1,4 @@
-﻿"""
+"""
 TenantManager — Multi-Tenant SaaS Isolation & Credential Vault (Fase 14.1)
 ==========================================================================
 Provides complete commercial isolation for each client installation.
@@ -29,17 +29,27 @@ class TenantContext:
         self.tenant_id = tenant_id
         self.name = name
         self.base_dir = base_dir / tenant_id
-        self.base_dir.mkdir(parents=True, exist_ok=True)
-
         self.docs_dir = self.base_dir / "documents"
         self.vectors_dir = self.base_dir / "vectors"
         self.workflows_dir = self.base_dir / "workflows"
         self.secrets_file = self.base_dir / "credentials.json"
+        self._dirs_created = False
 
-        for d in [self.docs_dir, self.vectors_dir, self.workflows_dir]:
-            d.mkdir(parents=True, exist_ok=True)
-
-        self._secrets: Dict[str, Any] = self._load_secrets()
+    def _ensure_dirs(self):
+        if self._dirs_created:
+            return
+        try:
+            for d in [self.base_dir, self.docs_dir, self.vectors_dir, self.workflows_dir]:
+                d.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.base_dir = Path("/tmp/Project_State/Tenants") / self.tenant_id
+            self.docs_dir = self.base_dir / "documents"
+            self.vectors_dir = self.base_dir / "vectors"
+            self.workflows_dir = self.base_dir / "workflows"
+            self.secrets_file = self.base_dir / "credentials.json"
+            for d in [self.base_dir, self.docs_dir, self.vectors_dir, self.workflows_dir]:
+                d.mkdir(parents=True, exist_ok=True)
+        self._dirs_created = True
 
     def _load_secrets(self) -> Dict[str, Any]:
         if self.secrets_file.exists():
@@ -51,13 +61,16 @@ class TenantContext:
 
     def save_secret(self, key: str, value: Any) -> None:
         """Save a credential or API key for this tenant."""
-        self._secrets[key] = value
-        self.secrets_file.write_text(json.dumps(self._secrets, indent=2), encoding="utf-8")
+        self._ensure_dirs()
+        secrets = self._load_secrets()
+        secrets[key] = value
+        self.secrets_file.write_text(json.dumps(secrets, indent=2), encoding="utf-8")
         log.info(f"[TenantContext:{self.tenant_id}] Saved credential key: '{key}'")
 
     def get_secret(self, key: str, default: Any = None) -> Any:
         """Retrieve a credential or API key for this tenant."""
-        return self._secrets.get(key, default)
+        secrets = self._load_secrets()
+        return secrets.get(key, default)
 
     def get_active_providers(self) -> List[str]:
         """
@@ -87,15 +100,32 @@ class TenantManager:
 
     def __init__(self, storage_root: Optional[str] = None):
         if not storage_root:
-            storage_root = str(
-                Path(os.path.expanduser("~"))
-                / ".gemini" / "antigravity-ide" / "scratch"
-                / "Project_State" / "Tenants"
-            )
+            storage_root_env = os.getenv("DM_STORAGE_DIR") or os.getenv("DM_DATA_DIR")
+            if storage_root_env:
+                storage_root = str(Path(storage_root_env) / "Tenants")
+            elif os.getenv("VERCEL"):
+                storage_root = "/tmp/Project_State/Tenants"
+            else:
+                storage_root = str(
+                    Path(os.path.expanduser("~"))
+                    / ".gemini" / "antigravity-ide" / "scratch"
+                    / "Project_State" / "Tenants"
+                )
         self.storage_root = Path(storage_root)
-        self.storage_root.mkdir(parents=True, exist_ok=True)
         self.db_file = self.storage_root / "tenants.db"
+        self._db_initialized = False
+
+    def _ensure_db(self):
+        if self._db_initialized:
+            return
+        try:
+            self.storage_root.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            self.storage_root = Path("/tmp/Project_State/Tenants")
+            self.storage_root.mkdir(parents=True, exist_ok=True)
+            self.db_file = self.storage_root / "tenants.db"
         self._init_db()
+        self._db_initialized = True
 
     def _init_db(self):
         with sqlite3.connect(str(self.db_file)) as conn:
@@ -108,11 +138,17 @@ class TenantManager:
             """)
             conn.commit()
 
-        # Ensure default tenant 'default_user' exists
-        self.get_or_create_tenant("daniel", "Daniel Morales")
+        # Ensure default tenant 'daniel' exists
+        with sqlite3.connect(str(self.db_file)) as conn:
+            conn.execute(
+                "INSERT OR IGNORE INTO tenants (tenant_id, name) VALUES (?, ?)",
+                ("daniel", "Daniel Morales")
+            )
+            conn.commit()
 
     def get_or_create_tenant(self, tenant_id: str, name: str = "Client") -> TenantContext:
         """Get or create isolated TenantContext for tenant_id."""
+        self._ensure_db()
         with sqlite3.connect(str(self.db_file)) as conn:
             conn.execute(
                 "INSERT OR IGNORE INTO tenants (tenant_id, name) VALUES (?, ?)",
