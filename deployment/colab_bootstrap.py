@@ -139,6 +139,19 @@ def start_cloudflare_tunnel(port: int = 8188) -> str:
 def register_worker_with_dmaios(dmaios_url: str, worker_id: str, session_id: str, tunnel_url: str, gpu_info: dict) -> dict:
     """Sends registration payload to DM AI OS."""
     reg_url = f"{dmaios_url.rstrip('/')}/api/v1/workers/register"
+    
+    # Detect physically installed models
+    comfy_dir = Path("/content/ComfyUI") if Path("/content").exists() else Path("./ComfyUI")
+    installed_models = ["sd15_base"]
+    if (comfy_dir / "models" / "unet" / "flux-2-klein-4b-fp8.safetensors").exists():
+        installed_models.append("flux2_klein")
+    if (comfy_dir / "models" / "unet" / "wan2.2_i2v_480p_14B_fp8_scaled.safetensors").exists():
+        installed_models.append("wan22_i2v")
+
+    capabilities = ["image"]
+    if "wan22_i2v" in installed_models:
+        capabilities.append("video")
+
     payload = {
         "worker_id": worker_id,
         "session_id": session_id,
@@ -149,8 +162,8 @@ def register_worker_with_dmaios(dmaios_url: str, worker_id: str, session_id: str
         "gpu_name": gpu_info.get("name", "Tesla T4"),
         "vram_gb": gpu_info.get("vram_gb", 16.0),
         "comfy_version": "0.3.18",
-        "models": ["flux2_klein", "sd15_base", "wan22_i2v"],
-        "capabilities": ["image", "video"]
+        "models": installed_models,
+        "capabilities": capabilities
     }
 
     req = urllib.request.Request(
