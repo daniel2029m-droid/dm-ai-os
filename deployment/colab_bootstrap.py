@@ -194,9 +194,15 @@ def run_bootstrap():
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     sd15_file = ckpt_dir / "v1-5-pruned-emaonly-fp16.safetensors"
-    if not sd15_file.exists() or sd15_file.stat().st_size < 1_500_000_000:
-        log_step("📥", "Descargando modelo SD 1.5 FP16 (~2.1 GB)...", "v1-5-pruned-emaonly-fp16.safetensors")
-        sd15_url = "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
+    if sd15_file.exists() and sd15_file.stat().st_size < 1_500_000_000:
+        try:
+            sd15_file.unlink()
+        except Exception:
+            pass
+
+    if not sd15_file.exists():
+        log_step("📥", "Descargando modelo SD 1.5 FP16 (~2.13 GB)...", "v1-5-pruned-emaonly-fp16.safetensors")
+        sd15_url = "https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
         subprocess.run(["wget", "-c", "--show-progress", "-q", sd15_url, "-O", str(sd15_file)], check=False)
 
     if not sd15_file.exists() or sd15_file.stat().st_size < 1_500_000_000:
