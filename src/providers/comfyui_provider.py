@@ -74,6 +74,21 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             })
         return models
 
+    async def chat(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
+        """Chat wrapper that generates image or video based on messages."""
+        prompt = ""
+        for m in reversed(messages):
+            if m.get("role") == "user":
+                prompt = m.get("content", "")
+                break
+        if not prompt and messages:
+            prompt = messages[-1].get("content", "")
+
+        model = kwargs.get("model") or "flux2_klein"
+        if "video" in str(model).lower() or "i2v" in str(model).lower() or kwargs.get("media_type") == "video":
+            return await self.generate_video(prompt=prompt, **kwargs)
+        return await self.generate_image(prompt=prompt, **kwargs)
+
     async def generate_image(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """
         Executes workflow-first image generation on ComfyUI (Tesla T4) via CreativeEngine.
@@ -84,7 +99,14 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         if not active_worker or active_worker.get("status") != WorkerStatus.READY.value:
             raise RuntimeError("ComfyUI remote worker (Google Colab) is OFFLINE. Fallback triggered.")
 
-        workflow_template = kwargs.get("workflow") or kwargs.get("template") or "flux2_klein_txt2img"
+        model_req = kwargs.get("model", "")
+        if "flux" in str(model_req).lower():
+            workflow_template = "flux2_klein_txt2img"
+        elif "sd15" in str(model_req).lower():
+            workflow_template = "sd15_txt2img"
+        else:
+            workflow_template = kwargs.get("workflow") or kwargs.get("template") or "sd15_txt2img"
+
         parameters = kwargs.copy()
 
         log.info(f"[ComfyUIProvider] Executing '{workflow_template}' on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")

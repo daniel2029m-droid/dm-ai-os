@@ -996,7 +996,7 @@ class ProviderManager:
         if image_url and not is_image and is_video:
             return await self.route_video(prompt=prompt, preferred_provider="higgsfield", **kwargs)
 
-        if preferred_provider == "higgsfield" or (preferred_provider == "auto" and (is_video or is_image)):
+        if preferred_provider in ("higgsfield", "comfyui") or (preferred_provider == "auto" and (is_video or is_image)):
             if is_video:
                 return await self.route_video(prompt=prompt, preferred_provider=preferred_provider, **kwargs)
             else:

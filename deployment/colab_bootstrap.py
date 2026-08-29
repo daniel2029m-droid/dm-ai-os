@@ -191,6 +191,14 @@ def run_bootstrap():
         if req_file.exists():
             subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(req_file)], check=False)
 
+    ckpt_dir = comfy_dir / "models" / "checkpoints"
+    ckpt_dir.mkdir(parents=True, exist_ok=True)
+    sd15_file = ckpt_dir / "v1-5-pruned-emaonly-fp16.safetensors"
+    if not sd15_file.exists():
+        log_step("📥", "Descargando modelo SD 1.5 FP16...", "v1-5-pruned-emaonly-fp16.safetensors")
+        sd15_url = "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
+        subprocess.run(["wget", "-c", "-q", sd15_url, "-O", str(sd15_file)], check=False)
+
     # 3. Launch ComfyUI in Background
     log_step("⚡", "Arrancando servidor ComfyUI...", f"Puerto {COMFY_PORT}")
     comfy_cmd = [

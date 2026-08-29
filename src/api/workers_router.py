@@ -127,6 +127,7 @@ async def worker_heartbeat(req: WorkerHeartbeatRequest):
     """
     Heartbeat ping from Colab bootstrap daemon.
     Updates worker heartbeat timestamp and prevents expiration.
+    Automatically re-evaluates ComfyHealthProbe if worker is degraded or reconnecting.
     """
     ok = worker_registry.record_heartbeat(
         worker_id=req.worker_id,
@@ -139,6 +140,16 @@ async def worker_heartbeat(req: WorkerHeartbeatRequest):
         raise HTTPException(status_code=404, detail=f"Worker '{req.worker_id}' not found. Please register first.")
 
     worker = worker_registry.get_worker(req.worker_id)
+    if worker and worker.get("status") in (WorkerStatus.DEGRADED.value, WorkerStatus.RECONNECTING.value):
+        # Auto-recover degraded worker if ComfyUI health probe now succeeds
+        # Apply minimal backoff: at most once every 10s
+        now = time.time()
+        last_check = worker.get("last_health_check") or 0.0
+        if (now - last_check) >= 10.0:
+            log.info(f"[WorkersRouter] Retrying health probe for degraded worker '{req.worker_id}' on heartbeat...")
+            await comfy_health_probe.verify_and_update_worker(req.worker_id)
+            worker = worker_registry.get_worker(req.worker_id)
+
     return JSONResponse(content={
         "status": "OK",
         "worker_id": req.worker_id,
