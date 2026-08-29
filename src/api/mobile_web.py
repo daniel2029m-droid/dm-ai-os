@@ -1041,7 +1041,10 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                 const extracted = extractMediaFromData(data);
                 let answerText = "";
 
-                if (data.choices && data.choices[0] && data.choices[0].message && typeof data.choices[0].message.content === 'string') {{
+                if (!res.ok) {{
+                    const detail = data.detail || data.error || data.message || (typeof data === 'string' ? data : JSON.stringify(data));
+                    answerText = `⚠️ **Error de API (${{res.status}}):** ${{typeof detail === 'object' ? JSON.stringify(detail) : detail}}`;
+                }} else if (data.choices && data.choices[0] && data.choices[0].message && typeof data.choices[0].message.content === 'string') {{
                     answerText = data.choices[0].message.content;
                 }} else if (data.message && typeof data.message === 'object' && typeof data.message.content === 'string') {{
                     answerText = data.message.content;

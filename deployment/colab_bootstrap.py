@@ -194,10 +194,16 @@ def run_bootstrap():
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
     sd15_file = ckpt_dir / "v1-5-pruned-emaonly-fp16.safetensors"
-    if not sd15_file.exists():
-        log_step("📥", "Descargando modelo SD 1.5 FP16...", "v1-5-pruned-emaonly-fp16.safetensors")
+    if not sd15_file.exists() or sd15_file.stat().st_size < 1_500_000_000:
+        log_step("📥", "Descargando modelo SD 1.5 FP16 (~2.1 GB)...", "v1-5-pruned-emaonly-fp16.safetensors")
         sd15_url = "https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
-        subprocess.run(["wget", "-c", "-q", sd15_url, "-O", str(sd15_file)], check=False)
+        subprocess.run(["wget", "-c", "--show-progress", "-q", sd15_url, "-O", str(sd15_file)], check=False)
+
+    if not sd15_file.exists() or sd15_file.stat().st_size < 1_500_000_000:
+        print(f"\033[1;31m[ERROR] Checkpoint SD 1.5 incompleto ({sd15_file.stat().st_size if sd15_file.exists() else 0} bytes). Abortando registro.\033[0m")
+        return
+
+    print(f"   Checkpoint Verificado: \033[1;32m{sd15_file.name} ({round(sd15_file.stat().st_size / (1024**3), 2)} GB)\033[0m")
 
     # 3. Launch ComfyUI in Background
     log_step("⚡", "Arrancando servidor ComfyUI...", f"Puerto {COMFY_PORT}")
@@ -216,6 +222,20 @@ def run_bootstrap():
     if not wait_for_port(COMFY_PORT, timeout=45):
         print("\033[1;31m[ERROR] ComfyUI no respondió en el puerto 8188.\033[0m")
         return
+
+    # Validar que ComfyUI haya indexado el checkpoint
+    for _ in range(10):
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{COMFY_PORT}/object_info/CheckpointLoaderSimple")
+            with urllib.request.urlopen(req, timeout=5) as r:
+                data = json.loads(r.read().decode())
+                ckpts = data.get("CheckpointLoaderSimple", {}).get("input", {}).get("required", {}).get("ckpt_name", [[]])[0]
+                if "v1-5-pruned-emaonly-fp16.safetensors" in ckpts:
+                    print("   Checkpoint ComfyUI: \033[1;32mv1-5-pruned-emaonly-fp16.safetensors INDEXADO\033[0m")
+                    break
+        except Exception:
+            pass
+        time.sleep(2)
 
     # 4. Start Tunnel
     tunnel_url = start_cloudflare_tunnel(COMFY_PORT)
