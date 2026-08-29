@@ -91,6 +91,10 @@ def start_cloudflare_tunnel(port: int = 8188) -> str:
     else:
         cloudflared_bin = "/content/cloudflared"
 
+    # Cleanup any previous cloudflared instances
+    subprocess.run(["pkill", "-9", "-f", "cloudflared"], check=False)
+    time.sleep(1.0)
+
     log_step("🌐", "Iniciando túnel seguro Cloudflare...", f"Puerto {port}")
     cmd = [cloudflared_bin, "tunnel", "--url", f"http://127.0.0.1:{port}"]
     log_file = open("/content/cloudflared.log", "w") if Path("/content").exists() else open("cloudflared.log", "w")
@@ -113,6 +117,21 @@ def start_cloudflare_tunnel(port: int = 8188) -> str:
                         break
         if tunnel_url:
             break
+
+    if tunnel_url:
+        log_step("⏳", "Esperando propagación del túnel Cloudflare...", tunnel_url)
+        for _ in range(20):
+            try:
+                req = urllib.request.Request(
+                    f"{tunnel_url}/system_stats",
+                    headers={"User-Agent": "DM-AI-OS-Colab-Bootstrap/1.5.1"}
+                )
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    if resp.status == 200:
+                        print("   Túnel Verificado: \033[1;32mONLINE (200 OK)\033[0m")
+                        break
+            except Exception:
+                time.sleep(1.5)
 
     return tunnel_url or ""
 
@@ -345,6 +364,8 @@ def run_bootstrap():
         return
 
     # 3. Launch ComfyUI in Background
+    subprocess.run(["pkill", "-9", "-f", "main.py"], check=False)
+    time.sleep(1.0)
     log_step("⚡", "Arrancando servidor ComfyUI...", f"Puerto {COMFY_PORT}")
     comfy_cmd = [
         sys.executable, str(comfy_dir / "main.py"),
