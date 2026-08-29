@@ -168,6 +168,151 @@ def start_heartbeat_thread(dmaios_url: str, worker_id: str, session_id: str, int
     return t
 
 
+def is_valid_safetensors(file_path: Path, min_bytes: int = 2_000_000_000) -> bool:
+    """Validates that file exists, meets minimum size, and contains a valid safetensors header."""
+    if not file_path.exists():
+        return False
+    size = file_path.stat().st_size
+    if size < min_bytes:
+        return False
+    try:
+        with open(file_path, "rb") as f:
+            header_bytes = f.read(16)
+            if len(header_bytes) < 16:
+                return False
+            # Safetensors starts with uint64 header length (8 bytes) followed by JSON
+            header_len = int.from_bytes(header_bytes[:8], byteorder="little")
+            if header_len <= 0 or header_len > 100_000_000:
+                return False
+            # Check JSON start
+            if header_bytes[8:9] != b"{":
+                return False
+        return True
+    except Exception:
+        return False
+
+
+def download_and_validate_checkpoint(ckpt_dir: Path) -> bool:
+    """Downloads SD 1.5 FP16 checkpoint with full physical diagnostics and validation."""
+    sd15_url = "https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
+    expected_size = 2_132_696_762
+    sd15_file = ckpt_dir / "v1-5-pruned-emaonly-fp16.safetensors"
+
+    print("\n" + "=" * 65)
+    print("=== CHECKPOINT DOWNLOAD DIAGNOSTIC ===")
+    print(f"URL:             {sd15_url}")
+    print(f"DESTINATION:     {sd15_file}")
+    print(f"EXPECTED SIZE:   {expected_size:,} bytes (~2.13 GB)")
+
+    # Disk Free Check
+    import shutil
+    stat_dir = ckpt_dir.parent if ckpt_dir.exists() else Path("/content") if Path("/content").exists() else Path(".")
+    total_b, used_b, free_b = shutil.disk_usage(str(stat_dir))
+    print(f"DISK FREE:       {round(free_b / (1024**3), 2)} GB")
+
+    file_exists_before = sd15_file.exists()
+    file_size_before = sd15_file.stat().st_size if file_exists_before else 0
+    print(f"FILE EXISTS BEFORE: {file_exists_before}")
+    print(f"FILE SIZE BEFORE:   {file_size_before:,} bytes")
+
+    # If already valid, skip re-download
+    if is_valid_safetensors(sd15_file, min_bytes=2_000_000_000):
+        print("\n✅ Checkpoint ya existe en disco y es un safetensors binario válido.")
+        print(f"FILE SIZE AFTER: {sd15_file.stat().st_size:,} bytes")
+        print("===================================================\n")
+        return True
+
+    # If corrupted or partial (< 2GB), remove it
+    if file_exists_before:
+        print("⚠️ Archivo existente inválido o incompleto. Eliminando para descarga limpia...")
+        try:
+            sd15_file.unlink()
+        except Exception as e:
+            print(f"Aviso al eliminar: {e}")
+
+    # Inspect Remote URL via HTTP HEAD
+    print("\n🔍 Consultando cabeceras HTTP del servidor remoto...")
+    final_url = sd15_url
+    http_status = 0
+    content_type = "unknown"
+    content_length = "unknown"
+    try:
+        req = urllib.request.Request(sd15_url, headers={"User-Agent": "DM-AI-OS-Colab-Bootstrap/1.5.1"})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            final_url = resp.geturl()
+            http_status = resp.status
+            content_type = resp.headers.get("Content-Type", "")
+            content_length = resp.headers.get("Content-Length", "")
+    except Exception as e:
+        print(f"Consulta HTTP directa: {e}")
+
+    print(f"FINAL URL:       {final_url}")
+    print(f"HTTP STATUS:     {http_status}")
+    print(f"CONTENT-TYPE:    {content_type}")
+    print(f"CONTENT-LENGTH:  {content_length}")
+
+    # Download with progress using wget or urllib
+    print("\n📥 Iniciando descarga binaria...")
+    download_success = False
+
+    # Try aria2c for accelerated multi-stream download if present
+    if subprocess.run(["which", "aria2c"], capture_output=True).returncode == 0:
+        print("DOWNLOAD METHOD: aria2c (16 streams)")
+        res = subprocess.run(
+            ["aria2c", "-c", "-x", "16", "-s", "16", "-k", "1M", sd15_url, "-d", str(ckpt_dir), "-o", sd15_file.name],
+            check=False
+        )
+        download_success = (res.returncode == 0) and is_valid_safetensors(sd15_file)
+
+    # Fallback to wget
+    if not download_success:
+        print("DOWNLOAD METHOD: wget --show-progress")
+        res = subprocess.run(
+            ["wget", "-c", "--show-progress", "-q", sd15_url, "-O", str(sd15_file)],
+            check=False
+        )
+        download_success = (res.returncode == 0) and is_valid_safetensors(sd15_file)
+
+    # Fallback to Python streaming
+    if not download_success:
+        print("DOWNLOAD METHOD: Python urllib chunked stream")
+        try:
+            req = urllib.request.Request(sd15_url, headers={"User-Agent": "DM-AI-OS-Colab-Bootstrap/1.5.1"})
+            with urllib.request.urlopen(req, timeout=300) as response, open(sd15_file, "wb") as out_file:
+                total_size = int(response.headers.get("Content-Length", expected_size))
+                downloaded = 0
+                block_size = 1024 * 1024 * 8  # 8MB chunks
+                while True:
+                    buffer = response.read(block_size)
+                    if not buffer:
+                        break
+                    downloaded += len(buffer)
+                    out_file.write(buffer)
+                    pct = int(downloaded / total_size * 100) if total_size > 0 else 0
+                    print(f"\r   Progreso: {downloaded:,} / {total_size:,} bytes ({pct}%)", end="", flush=True)
+                print()
+            download_success = is_valid_safetensors(sd15_file)
+        except Exception as e:
+            print(f"\n[ERROR] Descarga Python falló: {e}")
+
+    file_exists_after = sd15_file.exists()
+    file_size_after = sd15_file.stat().st_size if file_exists_after else 0
+    size_ratio = round(file_size_after / expected_size, 4) if expected_size > 0 else 0
+
+    print(f"\nFILE EXISTS AFTER:  {file_exists_after}")
+    print(f"FILE SIZE AFTER:    {file_size_after:,} bytes")
+    print(f"SIZE RATIO:         {size_ratio} (1.0 = completo)")
+
+    if is_valid_safetensors(sd15_file, min_bytes=2_000_000_000):
+        print("✅ VALIDACIÓN BINARIA: Cabecera safetensors válida y tamaño correcto.")
+        print("===================================================\n")
+        return True
+    else:
+        print("❌ VALIDACIÓN BINARIA: Archivo incompleto, corrupto o payload de error.")
+        print("===================================================\n")
+        return False
+
+
 def run_bootstrap():
     print("=" * 65)
     print("🚀 DM AI OS v1.5.1 — Google Colab Compute Worker Bootstrap")
@@ -193,23 +338,11 @@ def run_bootstrap():
 
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
-    sd15_file = ckpt_dir / "v1-5-pruned-emaonly-fp16.safetensors"
-    if sd15_file.exists() and sd15_file.stat().st_size < 1_500_000_000:
-        try:
-            sd15_file.unlink()
-        except Exception:
-            pass
 
-    if not sd15_file.exists():
-        log_step("📥", "Descargando modelo SD 1.5 FP16 (~2.13 GB)...", "v1-5-pruned-emaonly-fp16.safetensors")
-        sd15_url = "https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/resolve/main/v1-5-pruned-emaonly-fp16.safetensors"
-        subprocess.run(["wget", "-c", "--show-progress", "-q", sd15_url, "-O", str(sd15_file)], check=False)
-
-    if not sd15_file.exists() or sd15_file.stat().st_size < 1_500_000_000:
-        print(f"\033[1;31m[ERROR] Checkpoint SD 1.5 incompleto ({sd15_file.stat().st_size if sd15_file.exists() else 0} bytes). Abortando registro.\033[0m")
+    # Validar y descargar Checkpoint SD 1.5 con diagnóstico físico
+    if not download_and_validate_checkpoint(ckpt_dir):
+        print("\033[1;31m[ERROR FATAL] El checkpoint SD 1.5 no pudo validarse. Abortando registro.\033[0m")
         return
-
-    print(f"   Checkpoint Verificado: \033[1;32m{sd15_file.name} ({round(sd15_file.stat().st_size / (1024**3), 2)} GB)\033[0m")
 
     # 3. Launch ComfyUI in Background
     log_step("⚡", "Arrancando servidor ComfyUI...", f"Puerto {COMFY_PORT}")
