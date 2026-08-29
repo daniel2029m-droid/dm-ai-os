@@ -1,9 +1,12 @@
 """
-DM AI OS — iPhone Mobile Remote Client (PWA) v1.4.1
+DM AI OS — iPhone Mobile Remote Client (PWA) v1.5.0
 =====================================================
 Provides a touch-optimized, high-aesthetic presentation layer for iPhone.
-Consumes existing API Gateway endpoints (/v1/chat/completions, /agent/run, etc.)
-with 100% OpenAI-compliant payloads, dual Bearer/X-API-Key auth, and full multimodal support.
+Features:
+- AI Router Selector (Auto, Claude, Gemini, Grok, GPT OSS, Qwen Local, DeepSeek Local, Higgsfield AI)
+- Settings > AI Providers Panel (Status, Account, Latency, Test, Change Account, Logout)
+- Hardware Manager & Local Model Manager (Ollama, Whisper, XTTS, Piper)
+- Provider Call History Log
 """
 
 def get_mobile_html(api_url: str, tunnel_url: str) -> str:
@@ -35,6 +38,8 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             --accent-cyan: #38bdf8;
             --accent-purple: #8b5cf6;
             --accent-green: #34d399;
+            --accent-red: #f43f5e;
+            --accent-yellow: #fbbf24;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
@@ -46,6 +51,7 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }}
 
         body {{
@@ -99,79 +105,49 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
         }}
 
         .pulse-dot {{
-            width: 7px;
-            height: 7px;
-            background-color: #34d399;
+            width: 8px;
+            height: 8px;
+            background: #34d399;
             border-radius: 50%;
-            box-shadow: 0 0 8px #34d399;
-            animation: pulse 2s infinite;
+            animation: pulse 1.5s infinite;
         }}
 
         @keyframes pulse {{
-            0% {{ transform: scale(0.95); opacity: 0.8; }}
-            50% {{ transform: scale(1.2); opacity: 1; }}
-            100% {{ transform: scale(0.95); opacity: 0.8; }}
+            0% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }}
+            70% {{ transform: scale(1); box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }}
+            100% {{ transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }}
         }}
 
-        /* Navigation Bar (Bottom Tabs) */
-        .nav-tabs {{
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-top: 1px solid var(--bg-card-border);
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            padding-bottom: var(--safe-bottom);
-            z-index: 100;
-        }}
-
-        .tab-btn {{
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-            width: 25%;
-            transition: all 0.2s ease;
-        }}
-
-        .tab-btn.active {{
-            color: var(--accent-cyan);
-        }}
-
-        .tab-icon {{
-            font-size: 1.25rem;
-        }}
-
-        /* Content Area */
+        /* Main Container */
         .main-container {{
             flex: 1;
-            overflow: hidden;
             position: relative;
+            overflow: hidden;
         }}
 
         .tab-content {{
-            display: none;
-            height: 100%;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             overflow-y: auto;
             padding: 16px;
+            display: none;
             -webkit-overflow-scrolling: touch;
         }}
 
         .tab-content.active {{
-            display: flex;
-            flex-direction: column;
+            display: block;
         }}
 
         /* Chat Tab */
         #chat-tab {{
             padding: 0;
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }}
+
+        #chat-tab.active {{
+            display: flex;
         }}
 
         .chat-messages {{
@@ -180,22 +156,21 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }}
 
         .msg-bubble {{
-            max-width: 88%;
+            max-width: 85%;
             padding: 12px 16px;
             border-radius: 18px;
             font-size: 0.92rem;
             line-height: 1.45;
-            word-break: break-word;
-            position: relative;
-            animation: fadeIn 0.3s ease;
+            word-wrap: break-word;
+            animation: fadeIn 0.2s ease-out;
         }}
 
         @keyframes fadeIn {{
-            from {{ opacity: 0; transform: translateY(8px); }}
+            from {{ opacity: 0; transform: translateY(6px); }}
             to {{ opacity: 1; transform: translateY(0); }}
         }}
 
@@ -215,24 +190,6 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             border-bottom-left-radius: 4px;
         }}
 
-        .msg-meta {{
-            font-size: 0.68rem;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }}
-
-        .tts-btn {{
-            background: none;
-            border: none;
-            color: var(--accent-cyan);
-            font-size: 0.8rem;
-            cursor: pointer;
-            padding: 2px 6px;
-        }}
-
         /* Input Bar */
         .chat-input-area {{
             background: rgba(15, 23, 42, 0.9);
@@ -243,6 +200,26 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }}
+
+        .router-bar {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding-bottom: 2px;
+        }}
+
+        .router-select {{
+            background: rgba(7, 11, 20, 0.8);
+            border: 1px solid var(--bg-card-border);
+            color: var(--accent-cyan);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
         }}
 
         .quick-pills {{
@@ -302,12 +279,6 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             cursor: pointer;
             transition: all 0.2s;
             flex-shrink: 0;
-        }}
-
-        .icon-btn.recording {{
-            background: #f43f5e;
-            color: white;
-            animation: pulse 1s infinite;
         }}
 
         .send-btn {{
@@ -428,6 +399,74 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             cursor: pointer;
         }}
 
+        .btn-small {{
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }}
+
+        .btn-cyan {{ background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid #38bdf8; }}
+        .btn-purple {{ background: rgba(139,92,246,0.2); color: #c084fc; border: 1px solid #c084fc; }}
+        .btn-red {{ background: rgba(244,63,94,0.2); color: #f43f5e; border: 1px solid #f43f5e; }}
+
+        .provider-item {{
+            background: rgba(7, 11, 20, 0.6);
+            border: 1px solid var(--bg-card-border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }}
+
+        .provider-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }}
+
+        .provider-actions {{
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }}
+
+        /* Bottom Navigation */
+        .nav-tabs {{
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--bg-card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+        }}
+
+        .tab-btn {{
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            gap: 3px;
+            cursor: pointer;
+            flex: 1;
+        }}
+
+        .tab-btn.active {{
+            color: var(--accent-cyan);
+        }}
+
+        .tab-icon {{
+            font-size: 1.2rem;
+        }}
+
         pre {{
             background: rgba(7, 11, 20, 0.9);
             padding: 10px;
@@ -440,18 +479,91 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             white-space: pre-wrap;
             word-break: break-all;
         }}
+
+        /* Lightbox Fullscreen Modal */
+        .lightbox-modal {{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }}
+
+        .lightbox-close {{
+            position: absolute;
+            top: max(16px, env(safe-area-inset-top));
+            right: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1.4rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100000;
+        }}
+
+        .lightbox-content {{
+            max-width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }}
+
+        .lightbox-content img {{
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
+            object-fit: contain;
+        }}
+
+        .lightbox-btn {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 100px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+        }}
     </style>
 </head>
-<body>
+<body ontouchstart="">
 
     <!-- Header Bar -->
     <header class="app-header">
         <div class="brand-title">
             <span>⚡</span> DM AI OS
         </div>
-        <div class="status-badge" id="headerStatus">
-            <div class="pulse-dot"></div>
-            <span id="statusText">ONLINE</span>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <div id="workerComputeBadge" style="font-size:0.68rem; padding:3px 8px; border-radius:12px; background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3); font-weight:600; display:flex; align-items:center; gap:4px;">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
+                <span id="workerBadgeText">Colab T4...</span>
+            </div>
+            <div class="status-badge" id="headerStatus">
+                <div class="pulse-dot"></div>
+                <span id="statusText">ONLINE</span>
+            </div>
         </div>
     </header>
 
@@ -468,29 +580,65 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             </div>
 
             <div class="chat-input-area">
-                <div class="preview-box" id="previewBox">
-                    <span id="previewText"></span>
-                    <span style="cursor:pointer" onclick="clearAttachment()">✖</span>
+                <!-- AI Router selector bar -->
+                <div class="router-bar" style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); flex-shrink:0;">Proveedor:</span>
+                        <select class="router-select" id="aiProviderSelect" onchange="onProviderChanged()" style="flex:1;">
+                            <option value="auto" selected>✨ Auto (Recomendado)</option>
+                            <option value="comfyui">🎨 ComfyUI (Google Colab T4 16GB)</option>
+                            <option value="openrouter">🌐 OpenRouter (Modelos Gratis)</option>
+                            <option value="nvidia">⚡ NVIDIA NIM API</option>
+                            <option value="ollama">💻 Ollama (Local)</option>
+                            <option value="claude">🟣 Claude (Anthropic)</option>
+                            <option value="gemini">🔵 Gemini (Google)</option>
+                            <option value="grok">⚡ Grok (xAI)</option>
+                            <option value="openai">🟢 GPT OSS (OpenAI)</option>
+                            <option value="qwen">💻 Qwen Local</option>
+                            <option value="deepseek">🐳 DeepSeek Local</option>
+                            <option value="higgsfield">🎬 Higgsfield AI</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); flex-shrink:0;">Modelo:</span>
+                        <select class="router-select" id="aiModelSelect" style="flex:1;">
+                            <option value="auto" selected>Auto (Mejor Disponible)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="preview-box" id="previewBox" style="display:none;">
+                    <img id="previewThumb" src="" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;" />
+                    <div style="flex:1;min-width:0;">
+                        <div id="previewText" style="font-size:0.78rem;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                        <div style="display:flex;gap:6px;margin-top:4px;">
+                            <button type="button" id="modeImgBtn" onclick="setMediaMode('image')" style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:rgba(56,189,248,0.3);color:#38bdf8;border:1px solid #38bdf8;cursor:pointer;">📸 Referencia</button>
+                            <button type="button" id="modeVidBtn" onclick="setMediaMode('video')" style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:rgba(139,92,246,0.1);color:#94a3b8;border:1px solid rgba(139,92,246,0.3);cursor:pointer;">🎬 Animar</button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="clearAttachment()" style="background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:4px;">✖</button>
                 </div>
 
                 <div class="quick-pills">
                     <span class="quick-pill" onclick="triggerDictation()">🎙️ Dictar</span>
                     <span class="quick-pill" onclick="openCamera()">📷 Cámara</span>
-                    <span class="quick-pill" onclick="openFile()">📄 Documento</span>
+                    <span class="quick-pill" onclick="openFile()">📎 Subir imagen</span>
+                    <span class="quick-pill" onclick="openFileAnimate()">🎬 Animar imagen</span>
                     <span class="quick-pill" onclick="quickTask('research')">🔍 Investigar</span>
-                    <span class="quick-pill" onclick="quickTask('browser')">🌐 Navegar</span>
+                    <span class="quick-pill" onclick="quickTask('media')">🎨 Higgsfield</span>
                 </div>
 
                 <div class="input-controls">
-                    <input type="file" id="fileInput" accept="image/*,application/pdf,.txt,.md" style="display:none" onchange="handleFileSelected(event)">
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none" onchange="handleFileSelected(event)">
+                    <input type="file" id="fileInput" accept="image/*" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'image')">
+                    <input type="file" id="fileInputAnimate" accept="image/*" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'video')">
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'image')">
 
-                    <button class="icon-btn" onclick="openFile()" title="Adjuntar Archivo">📎</button>
-                    <button class="icon-btn" id="voiceBtn" onclick="toggleVoiceRecording()" title="Dictar por voz">🎙️</button>
+                    <button type="button" class="icon-btn" onclick="openFile()" title="Subir imagen de referencia">📎</button>
+                    <button type="button" class="icon-btn" id="voiceBtn" onclick="toggleVoiceRecording()" title="Dictar por voz">🎙️</button>
                     
                     <textarea class="chat-textarea" id="chatInput" placeholder="Mensaje o comando a DM AI OS..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
                     
-                    <button class="icon-btn send-btn" id="sendBtn" onclick="sendMessage()" title="Enviar">➔</button>
+                    <button type="button" class="icon-btn send-btn" id="sendBtn" onclick="sendMessage()" title="Enviar">➔</button>
                 </div>
             </div>
         </section>
@@ -527,8 +675,8 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     </div>
                     <div class="agent-card" onclick="selectAgent('media', 'Procesamiento Multimedia')">
                         <div class="agent-icon">🎨</div>
-                        <div class="agent-name">Media</div>
-                        <div class="agent-desc">Generación visual</div>
+                        <div class="agent-name">Media (Higgsfield)</div>
+                        <div class="agent-desc">Generación visual MCP</div>
                     </div>
                 </div>
             </div>
@@ -548,7 +696,40 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             </div>
         </section>
 
-        <!-- Tab 3: Memoria del Sistema -->
+        <!-- Tab 3: Settings > AI Providers & Local Models -->
+        <section id="providers-tab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span>🤖</span> Settings → AI Providers
+                    <button class="btn-small btn-cyan" style="margin-left:auto;" onclick="loadProviders(true)">⚡ Refrescar</button>
+                </div>
+                <div id="providersList">
+                    <div style="color:var(--text-muted); font-size:0.85rem;">Cargando proveedores...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span>🖥️</span> Hardware Manager</div>
+                <button class="primary-btn" onclick="loadHardwareReport()">Diagnosticar Hardware PC</button>
+                <div id="hardwareReport"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span>💻</span> Local Model Manager</div>
+                <div class="metric-row"><span class="metric-label">Ollama LLMs:</span><span class="metric-val" id="ollamaStatus">Detectando...</span></div>
+                <div class="metric-row"><span class="metric-label">Whisper STT:</span><span class="metric-val" id="whisperStatus">Disponible</span></div>
+                <div class="metric-row"><span class="metric-label">XTTS Voice:</span><span class="metric-val" id="xttsStatus">Disponible</span></div>
+                <div class="metric-row"><span class="metric-label">Piper TTS:</span><span class="metric-val" id="piperStatus">Disponible</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title"><span>📜</span> Historial de Proveedores</div>
+                <button class="primary-btn" onclick="loadProviderHistory()">Ver Historial de Llamadas</button>
+                <div id="providerHistoryLog"></div>
+            </div>
+        </section>
+
+        <!-- Tab 4: Memoria del Sistema -->
         <section id="memory-tab" class="tab-content">
             <div class="card">
                 <div class="card-title"><span>🔍</span> Buscar en Memoria IA</div>
@@ -570,7 +751,7 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             </div>
         </section>
 
-        <!-- Tab 4: Estado del Sistema & DevTools Console -->
+        <!-- Tab 5: Estado del Sistema & DevTools Console -->
         <section id="status-tab" class="tab-content">
             <div class="card">
                 <div class="card-title"><span>📊</span> Telemetría DM AI OS</div>
@@ -580,15 +761,11 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                 </div>
                 <div class="metric-row">
                     <span class="metric-label">Versión Plataforma:</span>
-                    <span class="metric-val">v1.4.0-production</span>
+                    <span class="metric-val">v1.5.0-production</span>
                 </div>
                 <div class="metric-row">
-                    <span class="metric-label">Modelo Activo:</span>
-                    <span class="metric-val">dm-autonomous-brain</span>
-                </div>
-                <div class="metric-row">
-                    <span class="metric-label">API Key Requerida:</span>
-                    <span class="metric-val">dm-secret-key-v1</span>
+                    <span class="metric-label">AI Router Activo:</span>
+                    <span class="metric-val">AUTO Router</span>
                 </div>
             </div>
 
@@ -618,19 +795,23 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
 
     <!-- Bottom Navigation Bar -->
     <nav class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('chat-tab', this)">
+        <button type="button" class="tab-btn active" onclick="switchTab('chat-tab', this)">
             <span class="tab-icon">💬</span>
             <span>Chat</span>
         </button>
-        <button class="tab-btn" onclick="switchTab('agents-tab', this)">
+        <button type="button" class="tab-btn" onclick="switchTab('agents-tab', this)">
             <span class="tab-icon">⚡</span>
             <span>Agentes</span>
         </button>
-        <button class="tab-btn" onclick="switchTab('memory-tab', this)">
+        <button type="button" class="tab-btn" onclick="switchTab('providers-tab', this); loadProviders();">
+            <span class="tab-icon">🤖</span>
+            <span>Proveedores</span>
+        </button>
+        <button type="button" class="tab-btn" onclick="switchTab('memory-tab', this)">
             <span class="tab-icon">🧠</span>
             <span>Memoria</span>
         </button>
-        <button class="tab-btn" onclick="switchTab('status-tab', this)">
+        <button type="button" class="tab-btn" onclick="switchTab('status-tab', this)">
             <span class="tab-icon">📊</span>
             <span>Estado</span>
         </button>
@@ -640,8 +821,6 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
         const API_KEY = "dm-secret-key-v1";
         let activeAgent = "browser";
         let attachedFile = null;
-        let speechRecognition = null;
-        let isRecording = false;
 
         // Custom Console Debug Logger
         function logDebug(type, obj) {{
@@ -661,116 +840,293 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             if (consoleDiv) consoleDiv.innerHTML = '';
         }}
 
+        let _allModelsData = [];
+
+        let _colabActivationUrl = "https://colab.research.google.com/github/daniel2029m-droid/dm-ai-os/blob/main/deployment/colab_comfyui_t4.ipynb";
+
+        function activateColabWorker() {{
+            window.open(_colabActivationUrl, '_blank');
+        }}
+
+        async function updateWorkerStatus() {{
+            try {{
+                const res = await fetch('/api/v1/workers/status');
+                if (res.ok) {{
+                    const data = await res.json();
+                    if (data.activation_url) {{
+                        _colabActivationUrl = data.activation_url;
+                    }}
+                    const badge = document.getElementById('workerComputeBadge');
+                    const text = document.getElementById('workerBadgeText');
+                    if (badge && text) {{
+                        if (data.status === 'ready' || data.state === 'ready') {{
+                            badge.style.background = 'rgba(16,185,129,0.15)';
+                            badge.style.borderColor = 'rgba(16,185,129,0.4)';
+                            badge.style.color = '#34d399';
+                            badge.style.cursor = 'default';
+                            badge.onclick = null;
+                            text.textContent = `🟢 Colab (${{data.gpu_name || 'Tesla T4'}})`;
+                        }} else if (data.status === 'reconnecting' || data.state === 'connecting') {{
+                            badge.style.background = 'rgba(245,158,11,0.15)';
+                            badge.style.borderColor = 'rgba(245,158,11,0.4)';
+                            badge.style.color = '#fbbf24';
+                            badge.style.cursor = 'default';
+                            badge.onclick = null;
+                            text.textContent = `🟡 Colab Reconectando...`;
+                        }} else {{
+                            badge.style.background = 'rgba(245,158,11,0.2)';
+                            badge.style.borderColor = 'rgba(245,158,11,0.5)';
+                            badge.style.color = '#fbbf24';
+                            badge.style.cursor = 'pointer';
+                            badge.onclick = activateColabWorker;
+                            text.innerHTML = `🟡 Colab Offline <strong style="text-decoration:underline;margin-left:2px;">[⚡ Iniciar]</strong>`;
+                        }}
+                    }}
+                }}
+            }} catch (e) {{}}
+        }}
+
+        async function loadDynamicModels() {{
+            try {{
+                const res = await fetch('/api/providers/models', {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                if (res.ok) {{
+                    _allModelsData = await res.json();
+                    onProviderChanged();
+                }}
+            }} catch (err) {{
+                console.warn('Error al cargar modelos dinámicos:', err);
+            }}
+            updateWorkerStatus();
+            setInterval(updateWorkerStatus, 15000);
+        }}
+
+        function onProviderChanged() {{
+            const provSelect = document.getElementById('aiProviderSelect');
+            const modelSelect = document.getElementById('aiModelSelect');
+            if (!provSelect || !modelSelect) return;
+
+            const pid = provSelect.value;
+            modelSelect.innerHTML = '';
+
+            const providerObj = _allModelsData.find(p => p.provider_id === pid);
+            if (providerObj && providerObj.models && providerObj.models.length > 0) {{
+                providerObj.models.forEach(m => {{
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    let tag = m.free ? ' [GRATIS]' : '';
+                    if (m.multimodal) tag += ' [MULTIMODAL]';
+                    if (m.local) tag += ' [LOCAL]';
+                    opt.textContent = `${{m.name || m.id}}${{tag}}`;
+                    modelSelect.appendChild(opt);
+                }});
+            }} else {{
+                const opt = document.createElement('option');
+                opt.value = 'auto';
+                opt.textContent = 'Auto / Standard';
+                modelSelect.appendChild(opt);
+            }}
+        }}
+
         // Switch Tabs
         function switchTab(tabId, btn) {{
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
         }}
 
-        // Read file as Base64 Data URL or Text
-        function readFileAsync(file) {{
-            return new Promise((resolve, reject) => {{
-                const reader = new FileReader();
-                if (file.type.startsWith('image/')) {{
-                    reader.readAsDataURL(file);
-                }} else {{
-                    reader.readAsText(file);
-                }}
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            }});
-        }}
-
-        // Send Chat Message via OpenAI Compatibility Endpoint
+        // Send Chat Message via OpenAI Compatibility Endpoint + AI Router
         async function sendMessage() {{
             const input = document.getElementById('chatInput');
             const prompt = input.value.trim();
             if (!prompt && !attachedFile) return;
 
             const chatMessages = document.getElementById('chatMessages');
+            const providerSelect = document.getElementById('aiProviderSelect');
+            const modelSelect = document.getElementById('aiModelSelect');
+
+            const selectedProvider = providerSelect ? providerSelect.value : 'auto';
+            const selectedModel = modelSelect ? modelSelect.value : 'auto';
 
             let userContentText = prompt;
-            let currentFile = attachedFile;
+            let currentAttachedFile = attachedFile;
+            let currentMediaMode = mediaMode;  // 'image' or 'video'
+            attachedFile = null;
+            mediaMode = 'image';
+            document.getElementById('previewBox').style.display = 'none';
 
-            if (currentFile) {{
-                userContentText += ` \\n[Adjunto: ${{currentFile.name}}]`;
+            if (currentAttachedFile) {{
+                const modeLabel = currentMediaMode === 'video' ? '🎬 Animar' : '📸 Referencia';
+                userContentText += ` [Adjunto ${{modeLabel}}: ${{currentAttachedFile.name}}]`;
             }}
 
-            // Render User Bubble
-            const userBubble = document.createElement('div');
-            userBubble.className = 'msg-bubble msg-user';
-            userBubble.innerText = userContentText;
-            chatMessages.appendChild(userBubble);
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'msg-bubble msg-user';
+            userMsgDiv.innerText = userContentText;
+            chatMessages.appendChild(userMsgDiv);
 
             input.value = '';
-            clearAttachment();
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // Render Temporary Assistant Bubble
-            const aiBubble = document.createElement('div');
-            aiBubble.className = 'msg-bubble msg-assistant';
-            aiBubble.innerHTML = '<em>Procesando en cerebro PC...</em>';
-            chatMessages.appendChild(aiBubble);
+            const assistantMsgDiv = document.createElement('div');
+            assistantMsgDiv.className = 'msg-bubble msg-assistant';
+            const modelLabel = selectedModel && selectedModel !== 'auto' ? ` / ${{selectedModel}}` : '';
+            assistantMsgDiv.innerHTML = `<em>Pensando con router [${{selectedProvider.toUpperCase()}}${{modelLabel}}]...</em>`;
+            chatMessages.appendChild(assistantMsgDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            let uploadedImageUrl = null;
+            if (currentAttachedFile) {{
+                try {{
+                    const modeLabel = currentMediaMode === 'video' ? 'imagen para animar' : 'imagen de referencia';
+                    assistantMsgDiv.innerHTML = `<em>Subiendo ${{modeLabel}} [${{currentAttachedFile.name}}]...</em>`;
+                    const formData = new FormData();
+                    formData.append('file', currentAttachedFile);
+                    const upRes = await fetch('/api/providers/upload-media', {{
+                        method: 'POST',
+                        headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
+                        body: formData
+                    }});
+                    const upData = await upRes.json();
+                    if (upData.url) {{
+                        uploadedImageUrl = upData.url;
+                        logDebug('UPLOAD_OK', {{mode: currentMediaMode, url: uploadedImageUrl}});
+                    }}
+                }} catch (upErr) {{
+                    logDebug('UPLOAD_ERR', upErr.message);
+                }}
+            }}
+
+            assistantMsgDiv.innerHTML = `<em>Generando respuesta con router [${{selectedProvider.toUpperCase()}}${{modelLabel}}]...</em>`;
 
             try {{
-                let messagePayloadContent = prompt || 'Analizar archivo adjunto';
-
-                if (currentFile) {{
-                    const fileData = await readFileAsync(currentFile);
-                    if (currentFile.type.startsWith('image/')) {{
-                        messagePayloadContent = [
-                            {{ type: "text", text: prompt || "Analizar esta imagen" }},
-                            {{ type: "image_url", image_url: {{ url: fileData }} }}
-                        ];
-                    }} else {{
-                        messagePayloadContent = prompt + `\\n\\n[Documento Adjunto (${{currentFile.name}})]:\\n` + fileData;
-                    }}
-                }}
-
-                const requestBody = {{
-                    model: 'dm-autonomous-brain',
-                    messages: [
-                        {{ role: 'user', content: messagePayloadContent }}
-                    ]
+                const payload = {{
+                    messages: [{{ role: 'user', content: userContentText }}],
+                    provider: (uploadedImageUrl && currentMediaMode === 'video') ? 'higgsfield' : selectedProvider,
+                    model: (selectedModel && selectedModel !== 'auto') ? selectedModel : null,
+                    image_url: (currentMediaMode === 'video') ? uploadedImageUrl : null,
+                    reference_image_url: (currentMediaMode === 'image') ? uploadedImageUrl : null,
                 }};
 
-                logDebug('HTTP_POST_REQ', {{ url: '/v1/chat/completions', body: requestBody }});
-
-                const res = await fetch('/v1/chat/completions', {{
+                const res = await fetch('/api/providers/route/chat', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + API_KEY,
                         'X-API-Key': API_KEY
                     }},
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify(payload)
                 }});
 
-                logDebug('HTTP_POST_RES_STATUS', res.status);
+                const data = await res.json();
 
-                if (!res.ok) {{
-                    const errText = await res.text();
-                    logDebug('HTTP_POST_ERROR_BODY', errText);
-                    throw new Error(`HTTP ${{res.status}}: ${{errText}}`);
+                // Extract image or video URL anywhere inside data object
+                function extractMediaFromData(obj) {{
+                    if (!obj) return {{}};
+                    if (obj.image_url) return {{ type: 'image', url: obj.image_url }};
+                    if (obj.video_url) return {{ type: 'video', url: obj.video_url }};
+                    if (obj.result && typeof obj.result === 'object') {{
+                        if (obj.result.image_url) return {{ type: 'image', url: obj.result.image_url }};
+                        if (obj.result.video_url) return {{ type: 'video', url: obj.result.video_url }};
+                        if (obj.result.results && obj.result.results.rawUrl) return {{ type: 'image', url: obj.result.results.rawUrl }};
+                    }}
+                    if (obj.raw_result && typeof obj.raw_result === 'object') {{
+                        if (obj.raw_result.results && obj.raw_result.results.rawUrl) return {{ type: 'image', url: obj.raw_result.results.rawUrl }};
+                    }}
+                    return {{}};
                 }}
 
-                const data = await res.json();
-                logDebug('HTTP_POST_RES_JSON', data);
+                const extracted = extractMediaFromData(data);
+                let answerText = "";
 
-                const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
-                    ? data.choices[0].message.content 
-                    : 'Soy DM AI OS, cerebro procesado con éxito.';
+                if (data.choices && data.choices[0] && data.choices[0].message && typeof data.choices[0].message.content === 'string') {{
+                    answerText = data.choices[0].message.content;
+                }} else if (data.message && typeof data.message === 'object' && typeof data.message.content === 'string') {{
+                    answerText = data.message.content;
+                }} else if (typeof data.message === 'string') {{
+                    answerText = data.message;
+                }} else if (data.response && typeof data.response === 'object' && typeof data.response.content === 'string') {{
+                    answerText = data.response.content;
+                }} else if (typeof data.response === 'string') {{
+                    answerText = data.response;
+                }} else if (typeof data.content === 'string') {{
+                    answerText = data.content;
+                }} else if (typeof data.output === 'string') {{
+                    answerText = data.output;
+                }} else if (typeof data.text === 'string') {{
+                    answerText = data.text;
+                }} else if (data.result && typeof data.result === 'object') {{
+                    if (typeof data.result.content === 'string') answerText = data.result.content;
+                    else if (data.result.message && typeof data.result.message.content === 'string') answerText = data.result.message.content;
+                    else if (typeof data.result.message === 'string') answerText = data.result.message;
+                    else if (typeof data.result.response === 'string') answerText = data.result.response;
+                    else if (typeof data.result.output === 'string') answerText = data.result.output;
+                    else if (typeof data.result.text === 'string') answerText = data.result.text;
+                    else answerText = JSON.stringify(data.result);
+                }} else if (typeof data.result === 'string') {{
+                    answerText = data.result;
+                }} else if (extracted.url) {{
+                    if (extracted.type === 'video') {{
+                        answerText = `🎬 **Video generado por ${{data.provider || 'Higgsfield AI'}}:**\n\n![Video](${{extracted.url}})\n\n[📥 Descargar Video](${{extracted.url}})`;
+                    }} else {{
+                        answerText = `🖼️ **Imagen generada por ${{data.provider || 'Higgsfield AI'}}:**\n\n![Imagen](${{extracted.url}})\n\n[📥 Descargar Imagen](${{extracted.url}})`;
+                    }}
+                }} else if (typeof data.detail === 'string') {{
+                    answerText = `⚠️ **Error de API:** ${{data.detail}}`;
+                }} else if (typeof data.error === 'string') {{
+                    answerText = `⚠️ **Error:** ${{data.error}}`;
+                }} else {{
+                    answerText = `⚠️ **Respuesta no reconocida:**\n\`\`\`json\n${{JSON.stringify(data, null, 2)}}\n\`\`\``;
+                }}
 
-                aiBubble.innerHTML = `<strong>DM AI OS</strong><br>${{reply.replace(/\\n/g, '<br>')}}`;
-                speakText(reply);
+                // Render media with signed URL support and Lightbox
+                function renderMedia(text) {{
+                    // Images: ![alt](url) → clickable image card with Lightbox & download
+                    text = text.replace(/!\[(.*?)\]\((https?:\/\/[^\)]+|\/[^\)]+)\)/g, function(m, alt, url) {{
+                        const filename = url.split('/').pop().split('?')[0] || 'generated_asset.png';
+                        const downloadUrl = url.includes('/view?') ? url.replace('/view?', '/download?') : url;
+                        return `<div style="position:relative;display:inline-block;margin:10px 0;width:100%;">`+
+                               `<img src="${{url}}" alt="${{alt}}" onclick="openMediaLightbox('${{url}}', '${{downloadUrl}}', '${{filename}}')" `+
+                               `style="max-width:100%;max-height:420px;border-radius:0.75rem;box-shadow:0 8px 24px rgba(0,0,0,0.5);display:block;object-fit:contain;cursor:pointer;" title="Toca para ver en pantalla completa" />`+
+                               `<a href="${{downloadUrl}}" download="${{filename}}" target="_blank" title="Descargar" `+
+                               `style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);color:#fff;border-radius:0.5rem;padding:6px 14px;font-size:0.78rem;font-weight:600;text-decoration:none;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.15);">`+
+                               `📥 Descargar</a></div>`;
+                    }});
+                    // Remaining links
+                    text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+|\/[^\)]+)\)/g, '<a href="$2" target="_blank" style="color:var(--accent-cyan);font-weight:600;text-decoration:underline;">$1</a>');
+                    // Bold
+                    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                    // Newlines
+                    text = text.replace(/\\n/g, '<br>');
+                    return text;
+                }}
+
+                let formattedHtml = "";
+                const rawStr = JSON.stringify(data);
+
+                if (rawStr.includes("Out of credits")) {{
+                    formattedHtml = `<div style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:10px;padding:14px;margin:8px 0;">` +
+                        `<div style="font-weight:700;color:#f87171;font-size:0.92rem;margin-bottom:6px;">⚠️ Sin créditos en la cuenta actual de Higgsfield</div>` +
+                        `<div style="font-size:0.8rem;color:#cbd5e1;margin-bottom:12px;">La cuenta de Gmail actual en Higgsfield se ha quedado sin créditos (queda 1 crédito). Cambia de cuenta para obtener créditos gratis de prueba.</div>` +
+                        `<button type="button" onclick="startHiggsfieldSwitch()" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;width:100%;">🔄 Cambiar Cuenta (Obtener Créditos Gratis)</button>` +
+                        `</div>`;
+                }} else {{
+                    formattedHtml = renderMedia(answerText);
+                }}
+
+                assistantMsgDiv.innerHTML = formattedHtml +
+                    `<div class="metric-row" style="margin-top:8px; font-size:0.7rem; color:var(--accent-cyan); border:none;">` +
+                    `<span>Proveedor: ${{data._provider_used || selectedProvider}}</span>` +
+                    `<span>${{data._routing_ms || 0}} ms</span>` +
+                    `</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                logDebug('CHAT_OK', data);
             }} catch (err) {{
-                logDebug('JS_EXCEPTION', err.message);
-                aiBubble.innerHTML = `<span style="color:#f43f5e">Error al comunicar con PC: ${{err.message}}</span>`;
+                assistantMsgDiv.innerHTML = `<span style="color:#f43f5e">Error al comunicar con DM AI OS: ${{err.message}}</span>`;
+                logDebug('CHAT_ERROR', err.message);
             }}
-            chatMessages.scrollTop = chatMessages.scrollHeight;
         }}
 
         function handleKeyDown(e) {{
@@ -780,95 +1136,87 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             }}
         }}
 
-        // Voice Dictation (Web Speech API)
-        function toggleVoiceRecording() {{
-            const btn = document.getElementById('voiceBtn');
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let mediaMode = 'image';  // 'image' = reference for img-to-img, 'video' = animate
 
-            if (!SpeechRecognition) {{
-                alert('El reconocimiento de voz no está soportado en este navegador.');
-                return;
-            }}
-
-            if (!speechRecognition) {{
-                speechRecognition = new SpeechRecognition();
-                speechRecognition.lang = 'es-ES';
-                speechRecognition.continuous = false;
-
-                speechRecognition.onresult = (event) => {{
-                    const transcript = event.results[0][0].transcript;
-                    document.getElementById('chatInput').value += ' ' + transcript;
-                }};
-
-                speechRecognition.onend = () => {{
-                    isRecording = false;
-                    btn.classList.remove('recording');
-                }};
-            }}
-
-            if (isRecording) {{
-                speechRecognition.stop();
-                isRecording = false;
-                btn.classList.remove('recording');
-            }} else {{
-                speechRecognition.start();
-                isRecording = true;
-                btn.classList.add('recording');
-            }}
-        }}
-
-        function triggerDictation() {{
-            toggleVoiceRecording();
-        }}
-
-        // Text-to-Speech Output
-        function speakText(text) {{
-            if ('speechSynthesis' in window) {{
-                window.speechSynthesis.cancel();
-                const cleanText = text.replace(/🔊 Escuchar|dm-autonomous-brain|DM AI OS/g, '');
-                const utterance = new SpeechSynthesisUtterance(cleanText);
-                utterance.lang = 'es-ES';
-                window.speechSynthesis.speak(utterance);
-            }}
-        }}
-
-        // File & Camera Capture
         function openFile() {{
             document.getElementById('fileInput').click();
+        }}
+
+        function openFileAnimate() {{
+            document.getElementById('fileInputAnimate').click();
         }}
 
         function openCamera() {{
             document.getElementById('cameraInput').click();
         }}
 
-        function handleFileSelected(e) {{
-            const file = e.target.files[0];
-            if (file) {{
-                attachedFile = file;
-                document.getElementById('previewText').innerText = `📎 ${{file.name}} (${{(file.size/1024).toFixed(1)}} KB)`;
-                document.getElementById('previewBox').style.display = 'flex';
-                logDebug('FILE_ATTACHED', {{ name: file.name, size: file.size, type: file.type }});
+        function setMediaMode(mode) {{
+            mediaMode = mode;
+            const imgBtn = document.getElementById('modeImgBtn');
+            const vidBtn = document.getElementById('modeVidBtn');
+            if (mode === 'video') {{
+                imgBtn.style.background = 'rgba(139,92,246,0.1)';
+                imgBtn.style.color = '#94a3b8';
+                imgBtn.style.borderColor = 'rgba(139,92,246,0.3)';
+                vidBtn.style.background = 'rgba(139,92,246,0.3)';
+                vidBtn.style.color = '#c084fc';
+                vidBtn.style.borderColor = '#c084fc';
+            }} else {{
+                imgBtn.style.background = 'rgba(56,189,248,0.3)';
+                imgBtn.style.color = '#38bdf8';
+                imgBtn.style.borderColor = '#38bdf8';
+                vidBtn.style.background = 'rgba(139,92,246,0.1)';
+                vidBtn.style.color = '#94a3b8';
+                vidBtn.style.borderColor = 'rgba(139,92,246,0.3)';
+            }}
+        }}
+
+        function handleFileSelected(event, mode) {{
+            const file = event.target.files[0];
+            if (!file) return;
+            attachedFile = file;
+            if (mode) mediaMode = mode;
+            // Show thumbnail if image
+            const thumb = document.getElementById('previewThumb');
+            if (file.type.startsWith('image/')) {{
+                const reader = new FileReader();
+                reader.onload = e => {{ thumb.src = e.target.result; thumb.style.display = 'block'; }};
+                reader.readAsDataURL(file);
+            }} else {{
+                thumb.style.display = 'none';
+            }}
+            document.getElementById('previewText').innerText = file.name;
+            document.getElementById('previewBox').style.display = 'flex';
+            setMediaMode(mediaMode);
+            // Auto-set prompt placeholder
+            const chatInput = document.getElementById('chatInput');
+            if (mediaMode === 'video' && !chatInput.value) {{
+                chatInput.placeholder = 'Describe qué debe hacer en el video (ej: haciendo sentadillas, sonidos de esfuerzo)...';
+            }} else if (!chatInput.value) {{
+                chatInput.placeholder = 'Describe el cambio que quieres (ej: cambia el outfit con top escotado rojo)...';
             }}
         }}
 
         function clearAttachment() {{
             attachedFile = null;
-            document.getElementById('fileInput').value = '';
-            document.getElementById('cameraInput').value = '';
+            mediaMode = 'image';
             document.getElementById('previewBox').style.display = 'none';
+            document.getElementById('previewThumb').src = '';
+            document.getElementById('chatInput').placeholder = 'Mensaje o comando a DM AI OS...';
         }}
 
-        // Agent Execution Tab
         function selectAgent(name, desc) {{
             activeAgent = name;
-            document.getElementById('agentTaskInput').placeholder = `Tarea para agente ${{name.toUpperCase()}} (${{desc}})...`;
+            const input = document.getElementById('agentTaskInput');
+            if (input) input.placeholder = `Tarea para ${{name.toUpperCase()}} (${{desc}})...`;
         }}
 
         async function runSelectedAgent() {{
-            const task = document.getElementById('agentTaskInput').value.trim();
+            const input = document.getElementById('agentTaskInput');
+            const task = input.value.trim();
             if (!task) return;
             const resDiv = document.getElementById('agentResult');
-            resDiv.innerHTML = '<pre>Ejecutando agente en PC...</pre>';
+            resDiv.innerHTML = '<pre>Ejecutando agente...</pre>';
 
             try {{
                 const res = await fetch('/agent/run', {{
@@ -882,35 +1230,287 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                 }});
                 const data = await res.json();
                 resDiv.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
-                logDebug('AGENT_RUN_RES', data);
             }} catch (err) {{
                 resDiv.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
-                logDebug('AGENT_RUN_ERROR', err.message);
             }}
         }}
 
-        async function runWorkflow() {{
-            const goal = document.getElementById('workflowGoalInput').value.trim();
-            if (!goal) return;
-            const resDiv = document.getElementById('workflowResult');
-            resDiv.innerHTML = '<pre>Ejecutando DAG paralelo en PC...</pre>';
+        // AI Providers Panel Management
+        async function loadProviders(forceCheck = false) {{
+            const container = document.getElementById('providersList');
+            if (!container) return;
+            container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Cargando estado de proveedores...</div>';
 
             try {{
-                const res = await fetch('/workflow/run', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'X-API-Key': API_KEY
-                    }},
-                    body: JSON.stringify({{ goal: goal }})
+                const endpoint = forceCheck ? '/api/providers/health' : '/api/providers';
+                const res = await fetch(endpoint, {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const providers = await res.json();
+
+                let html = '';
+                providers.forEach(p => {{
+                    const isAvailable = p.status === 'available' || (!p.status && p.account !== 'Not configured');
+                    const badgeColor = isAvailable ? 'var(--accent-green)' : 'var(--accent-yellow)';
+                    const statusText = p.status ? p.status.toUpperCase() : 'CONFIGURADO';
+
+                    html += `
+                    <div class="provider-item">
+                        <div class="provider-header">
+                            <strong style="color:var(--text-main); font-size:0.9rem;">${{p.name || p.id}}</strong>
+                            <span class="btn-small" style="background:rgba(255,255,255,0.05); color:${{badgeColor}}">${{statusText}}</span>
+                        </div>
+                        <div class="metric-row"><span class="metric-label">Cuenta:</span><span class="metric-val">${{p.account || p.provider_id || 'N/A'}}</span></div>
+                        <div class="metric-row"><span class="metric-label">Latencia:</span><span class="metric-val">${{p.latency_ms !== undefined ? p.latency_ms + ' ms' : 'N/A'}}</span></div>
+                        <div class="provider-actions">
+                            <button class="btn-small btn-cyan" onclick="healthCheckProvider('${{p.id || p.provider_id}}')">⚡ Probar Conexión</button>
+                            ${{(p.id || p.provider_id) === 'higgsfield' ? `<button class="btn-small btn-purple" onclick="switchHiggsfieldAccount()">🔄 Cambiar Cuenta</button>` : `<button class="btn-small btn-purple" onclick="loginProvider('${{p.id || p.provider_id}}')">🔄 Cambiar Cuenta</button>`}}
+                            <button class="btn-small btn-red" onclick="logoutProvider('${{p.id || p.provider_id}}')">🚪 Cerrar Sesión</button>
+                        </div>
+                    </div>`;
+                }});
+                container.innerHTML = html;
+            }} catch (err) {{
+                container.innerHTML = `<div style="color:var(--accent-red)">Error al cargar proveedores: ${{err.message}}</div>`;
+            }}
+        }}
+
+        async function healthCheckProvider(id) {{
+            try {{
+                const res = await fetch(`/api/providers/${{id}}/health`, {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
                 }});
                 const data = await res.json();
-                resDiv.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
-                logDebug('WORKFLOW_RUN_RES', data);
+                alert(`Resultado para ${{id.toUpperCase()}}:\nStatus: ${{data.status}}\nLatencia: ${{data.latency_ms}} ms\nCuenta: ${{data.account}}`);
+                loadProviders();
             }} catch (err) {{
-                resDiv.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
-                logDebug('WORKFLOW_RUN_ERROR', err.message);
+                alert('Error al probar conexión: ' + err.message);
+            }}
+        }}
+
+        async function loginProvider(id) {{
+            try {{
+                const res = await fetch(`/api/providers/${{id}}/login`, {{
+                    method: 'POST',
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                alert(`Autenticación para ${{id.toUpperCase()}}:\n${{data.message}}`);
+                loadProviders();
+            }} catch (err) {{
+                alert('Error al iniciar sesión: ' + err.message);
+            }}
+        }}
+
+        // ── Higgsfield: Cambiar Cuenta / Pegar Token con Redirección al Chat ──────
+        function switchHiggsfieldAccount() {{
+            let modal = document.getElementById('higgsfieldLoginModal');
+            if (!modal) {{
+                modal = document.createElement('div');
+                modal.id = 'higgsfieldLoginModal';
+                modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;';
+                modal.innerHTML = `
+                    <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(99,102,241,0.3);border-radius:1.5rem;padding:2rem;max-width:500px;width:92%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.6);">
+                        <div style="font-size:2.8rem;margin-bottom:0.75rem;">🔐</div>
+                        <h2 style="color:#e2e8f0;margin:0 0 0.4rem;font-size:1.35rem;">Conectar Cuenta Higgsfield</h2>
+                        <p style="color:#94a3b8;font-size:0.85rem;margin:0 0 1.5rem;">Cada cuenta de Gmail incluye <strong style="color:#818cf8;">3 días gratis</strong> para generar imágenes y video.</p>
+
+                        <!-- OPCIÓN A: OAUTH LOGIN (URL from backend CLI) -->
+                        <div id="hfInstructions" style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);border-radius:0.75rem;padding:1rem;text-align:left;margin-bottom:1.25rem;">
+                            <p style="color:#818cf8;font-weight:600;margin:0 0 0.4rem;font-size:0.85rem;">🌐 Opción A — Login con Google (Automático):</p>
+                            <ol style="color:#94a3b8;font-size:0.8rem;margin:0 0 0.75rem;padding-left:1.2rem;line-height:1.7;">
+                                <li>Haz clic en el botón verde ⬇️</li>
+                                <li>Elige tu cuenta de Gmail (3 días gratis)</li>
+                                <li>Esta pantalla se actualizará sola al terminar</li>
+                            </ol>
+                            <div style="text-align:center;">
+                                <a id="hfLoginBtn" href="https://cloud.higgsfield.ai" target="_blank" style="display:inline-block;padding:0.65rem 1.4rem;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:600;font-size:0.85rem;border-radius:0.5rem;text-decoration:none;box-shadow:0 4px 12px rgba(16,185,129,0.3);">🔗 Cargando URL de login...</a>
+                            </div>
+                        </div>
+
+                        <!-- OPCIÓN B: PEGAR TOKEN / API KEY -->
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:0.75rem;padding:1rem;text-align:left;margin-bottom:1.25rem;">
+                            <p style="color:#a78bfa;font-weight:600;margin:0 0 0.5rem;font-size:0.85rem;">🔑 Opción B — Pegar Token / API Key de Higgsfield:</p>
+                            <input type="text" id="hfManualToken" placeholder="Pega el Bearer Token o API Key aquí..." style="width:100%;box-sizing:border-box;padding:0.6rem 0.8rem;background:rgba(0,0,0,0.4);border:1px solid rgba(167,139,250,0.3);border-radius:0.5rem;color:#e2e8f0;font-size:0.82rem;margin-bottom:0.75rem;outline:none;">
+                            <div style="text-align:right;">
+                                <button onclick="saveManualHiggsfieldToken()" style="padding:0.5rem 1.2rem;background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;font-weight:600;font-size:0.82rem;border:none;border-radius:0.4rem;cursor:pointer;">💾 Guardar Token</button>
+                            </div>
+                        </div>
+
+                        <div id="hfStatusText" style="color:#94a3b8;font-size:0.83rem;margin-bottom:0.75rem;">💡 Usa la Opción A para obtener tu API Key, luego pégala en Opción B.</div>
+
+                        <div id="hfSuccessBanner" style="display:none;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);border-radius:0.75rem;padding:1rem;margin-bottom:1.25rem;">
+                            <div style="font-size:1.8rem;">✅</div>
+                            <div id="hfSuccessMsg" style="color:#10b981;font-weight:600;margin-top:0.3rem;">¡Cuenta Conectada! Redirigiendo al Chat...</div>
+                        </div>
+
+                        <div id="hfErrorBanner" style="display:none;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:0.75rem;padding:1rem;margin-bottom:1.25rem;">
+                            <div id="hfErrorMsg" style="color:#ef4444;font-size:0.85rem;"></div>
+                        </div>
+
+                        <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+                            <button id="hfCancelBtn" onclick="closeHiggsfieldModal(true)" style="padding:0.65rem 1.6rem;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:600;border:none;border-radius:0.5rem;cursor:pointer;font-size:0.85rem;box-shadow:0 4px 12px rgba(59,130,246,0.3);">💬 Ir al Chat Principal</button>
+                            <button onclick="closeHiggsfieldModal(false)" style="padding:0.65rem 1.2rem;background:rgba(255,255,255,0.07);color:#94a3b8;font-weight:500;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;cursor:pointer;font-size:0.85rem;">✖ Cerrar</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }}
+            modal.style.display = 'flex';
+            document.getElementById('hfSuccessBanner').style.display = 'none';
+            document.getElementById('hfErrorBanner').style.display = 'none';
+            document.getElementById('hfStatusText').textContent = 'Esperando autenticación...';
+            startHiggsfieldSwitch();
+        }}
+
+        let _hfPollInterval = null;
+
+        async function startHiggsfieldSwitch() {{
+            document.getElementById('hfSuccessBanner').style.display = 'none';
+            document.getElementById('hfErrorBanner').style.display = 'none';
+            document.getElementById('hfStatusText').textContent = 'Iniciando login con Higgsfield...';
+            const loginBtn = document.getElementById('hfLoginBtn');
+            if (loginBtn) loginBtn.textContent = '⏳ Obteniendo URL de login...';
+            try {{
+                const res = await fetch('/api/providers/higgsfield/switch-account', {{
+                    method: 'POST',
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                // Update login button with real OAuth URL from backend
+                if (data.login_url && loginBtn) {{
+                    loginBtn.href = data.login_url;
+                    loginBtn.textContent = '🔐 Abrir Login de Higgsfield con Google';
+                }}
+                document.getElementById('hfStatusText').textContent = data.message || 'Haz clic en el botón verde para iniciar sesión.';
+                if (_hfPollInterval) clearInterval(_hfPollInterval);
+                _hfPollInterval = setInterval(pollHiggsfieldLogin, 2500);
+            }} catch (err) {{
+                document.getElementById('hfStatusText').textContent = 'Error al conectar. Usa Opción B para pegar el token manualmente.';
+            }}
+        }}
+
+        async function saveManualHiggsfieldToken() {{
+            const token = document.getElementById('hfManualToken').value.trim();
+            if (!token) {{
+                alert('Por favor ingresa un token válido.');
+                return;
+            }}
+            try {{
+                const res = await fetch('/api/providers/higgsfield/set-token', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
+                    body: JSON.stringify({{ token: token }})
+                }});
+                const data = await res.json();
+                if (res.ok) {{
+                    document.getElementById('hfSuccessMsg').textContent = '¡Token Guardado! Redirigiendo al Chat...';
+                    document.getElementById('hfSuccessBanner').style.display = 'block';
+                    document.getElementById('hfErrorBanner').style.display = 'none';
+                    setTimeout(() => closeHiggsfieldModal(true), 1200);
+                }} else {{
+                    alert('Error al guardar token: ' + (data.detail || 'Token no válido'));
+                }}
+            }} catch (err) {{
+                alert('Error de conexión: ' + err.message);
+            }}
+        }}
+
+        async function pollHiggsfieldLogin() {{
+            try {{
+                const res = await fetch('/api/providers/higgsfield/login-status', {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                // Always update login button URL if backend has a new one
+                if (data.oauth_url) {{
+                    const loginBtn = document.getElementById('hfLoginBtn');
+                    if (loginBtn && loginBtn.href !== data.oauth_url) {{
+                        loginBtn.href = data.oauth_url;
+                        loginBtn.textContent = '🔐 Abrir Login de Higgsfield con Google';
+                    }}
+                }}
+                if (data.status === 'success') {{
+                    clearInterval(_hfPollInterval);
+                    document.getElementById('hfSuccessMsg').textContent = `¡Cuenta conectada! (${{data.account || 'Gmail'}}). Redirigiendo al Chat...`;
+                    document.getElementById('hfSuccessBanner').style.display = 'block';
+                    document.getElementById('hfStatusText').textContent = '';
+                    setTimeout(() => closeHiggsfieldModal(true), 1200);
+                }} else if (data.status === 'waiting') {{
+                    const sec = Math.round(data.elapsed_seconds || 0);
+                    document.getElementById('hfStatusText').textContent = `Esperando que completes el login en el navegador... (${{sec}}s)`;
+                }} else if (data.status === 'timeout') {{
+                    clearInterval(_hfPollInterval);
+                    document.getElementById('hfStatusText').textContent = '⏰ Tiempo agotado. Haz clic en el botón verde para intentar de nuevo.';
+                }}
+            }} catch (err) {{
+                // keep polling silently
+            }}
+        }}
+
+        let _hfOpenedLogin = false;
+
+        function closeHiggsfieldModal(goToChat = false) {{
+            clearInterval(_hfPollInterval);
+            _hfOpenedLogin = false;
+            const modal = document.getElementById('higgsfieldLoginModal');
+            if (modal) modal.style.display = 'none';
+            loadProviders();
+            if (goToChat) {{
+                // Activate chat tab and its button
+                const chatTabBtn = document.querySelectorAll('.tab-btn')[0];
+                switchTab('chat-tab', chatTabBtn || null);
+                // Force scroll chat into view
+                const chatSection = document.getElementById('chat-tab');
+                if (chatSection) chatSection.scrollIntoView({{behavior:'smooth'}});
+            }}
+        }}
+
+        async function logoutProvider(id) {{
+            if (!confirm(`¿Cerrar sesión de ${{id.toUpperCase()}}?`)) return;
+            try {{
+                const res = await fetch(`/api/providers/${{id}}/logout`, {{
+                    method: 'POST',
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                // Show inline toast instead of blocking alert
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #334155;color:#94a3b8;padding:0.7rem 1.4rem;border-radius:0.75rem;font-size:0.85rem;z-index:9000;box-shadow:0 8px 24px rgba(0,0,0,0.4);';
+                toast.textContent = `${{id.toUpperCase()}}: ${{data.message || 'Sesión cerrada'}}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+                loadProviders();
+            }} catch (err) {{
+                console.error('Error al cerrar sesión:', err);
+            }}
+        }}
+
+        async function loadHardwareReport() {{
+            const div = document.getElementById('hardwareReport');
+            div.innerHTML = '<pre>Diagnosticando hardware local...</pre>';
+            try {{
+                const res = await fetch('/api/providers/hardware', {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                div.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
+            }} catch (err) {{
+                div.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
+            }}
+        }}
+
+        async function loadProviderHistory() {{
+            const div = document.getElementById('providerHistoryLog');
+            div.innerHTML = '<pre>Cargando historial de llamadas...</pre>';
+            try {{
+                const res = await fetch('/api/providers/history', {{
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                }});
+                const data = await res.json();
+                div.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
+            }} catch (err) {{
+                div.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
             }}
         }}
 
@@ -919,92 +1519,64 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             selectAgent(type, 'Tarea Rápida');
         }}
 
-        // Memory Management Tab
         async function searchMemory() {{
             const q = document.getElementById('memQuery').value.trim();
             const resDiv = document.getElementById('memSearchResults');
             resDiv.innerHTML = '<pre>Buscando recuerdos...</pre>';
-
             try {{
                 const res = await fetch('/memory/search', {{
                     method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'X-API-Key': API_KEY
-                    }},
+                    headers: {{ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
                     body: JSON.stringify({{ query: q, category: 'general' }})
                 }});
                 const data = await res.json();
                 resDiv.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
-                logDebug('MEMORY_SEARCH_RES', data);
             }} catch (err) {{
                 resDiv.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
-                logDebug('MEMORY_SEARCH_ERROR', err.message);
             }}
         }}
 
         async function storeMemory() {{
             const content = document.getElementById('memContent').value.trim();
             if (!content) return;
-
             try {{
-                const res = await fetch('/memory/store', {{
+                await fetch('/memory/store', {{
                     method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'X-API-Key': API_KEY
-                    }},
+                    headers: {{ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
                     body: JSON.stringify({{ content: content, category: 'user_note', importance: 0.8 }})
                 }});
                 alert('Recuerdo guardado exitosamente.');
                 document.getElementById('memContent').value = '';
-                logDebug('MEMORY_STORE_OK', content);
             }} catch (err) {{
-                alert('Error al guardar recuerdo: ' + err.message);
-                logDebug('MEMORY_STORE_ERROR', err.message);
+                alert('Error: ' + err.message);
             }}
         }}
 
         async function loadMemoryProfile() {{
             const resDiv = document.getElementById('memProfileResult');
             resDiv.innerHTML = '<pre>Cargando perfil...</pre>';
-
             try {{
                 const res = await fetch('/memory/profile?user_id=daniel', {{
-                    headers: {{
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'X-API-Key': API_KEY
-                    }}
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
                 }});
                 const data = await res.json();
                 resDiv.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
-                logDebug('MEMORY_PROFILE_RES', data);
             }} catch (err) {{
                 resDiv.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
-                logDebug('MEMORY_PROFILE_ERROR', err.message);
             }}
         }}
 
-        // Telemetry & Status Tab
         async function fetchSystemTelemetry() {{
             const div = document.getElementById('telemetryDetails');
             div.innerHTML = '<pre>Consultando backend PC...</pre>';
-
             try {{
                 const res = await fetch('/system/status', {{
-                    headers: {{
-                        'Authorization': 'Bearer ' + API_KEY,
-                        'X-API-Key': API_KEY
-                    }}
+                    headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
                 }});
                 const data = await res.json();
                 div.innerHTML = `<pre>${{JSON.stringify(data, null, 2)}}</pre>`;
-                logDebug('TELEMETRY_RES', data);
             }} catch (err) {{
                 div.innerHTML = `<pre style="color:#f43f5e">Error: ${{err.message}}</pre>`;
-                logDebug('TELEMETRY_ERROR', err.message);
             }}
         }}
 
@@ -1015,11 +1587,51 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             }});
         }}
 
+        // Lightbox Media Modal Handlers
+        function openMediaLightbox(viewUrl, downloadUrl, filename) {{
+            const modal = document.getElementById('mediaLightbox');
+            const img = document.getElementById('lightboxImg');
+            const dlBtn = document.getElementById('lightboxDownloadBtn');
+            if (!modal || !img) return;
+
+            img.src = viewUrl;
+            if (dlBtn) {{
+                dlBtn.href = downloadUrl || viewUrl;
+                dlBtn.download = filename || 'generated_asset.png';
+            }}
+            modal.style.display = 'flex';
+        }}
+
+        function closeMediaLightbox(e) {{
+            if (e && e.target && e.target.id === 'lightboxImg') return;
+            const modal = document.getElementById('mediaLightbox');
+            const img = document.getElementById('lightboxImg');
+            if (modal) modal.style.display = 'none';
+            if (img) img.src = '';
+        }}
+
+        // Initial load of dynamic models on startup
+        document.addEventListener('DOMContentLoaded', () => {{
+            loadDynamicModels();
+        }});
+        loadDynamicModels();
+
         // Register Service Worker for PWA
         if ('serviceWorker' in navigator) {{
             navigator.serviceWorker.register('/sw.js').catch(() => {{}});
         }}
     </script>
+
+    <!-- Fullscreen Media Lightbox Modal -->
+    <div id="mediaLightbox" class="lightbox-modal" style="display:none;" onclick="closeMediaLightbox(event)">
+        <button class="lightbox-close" onclick="closeMediaLightbox(event)">✕</button>
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" alt="Fullscreen asset preview" />
+            <div class="lightbox-actions">
+                <a id="lightboxDownloadBtn" href="" download="asset.png" target="_blank" class="lightbox-btn">📥 Guardar en el dispositivo</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 """

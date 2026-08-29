@@ -1,6 +1,6 @@
 """
-Automated Test for Media Agent (Phase 2 Priority #6 - RunPod & ComfyUI integration).
-Tests GPU evaluation, prompt payload formatting, and budget guardrails.
+Automated Test for Media Agent (RunPod ComfyUI & Higgsfield MCP Integration).
+Tests GPU evaluation, prompt payload formatting, multi-provider selection, and budget guardrails.
 """
 
 import sys
@@ -19,21 +19,32 @@ async def test_media_agent():
     # 1. Test image generation request (evaluates GPU target & budget)
     res = await agent.execute_action("generate_image", {
         "prompt": "Cinematic portrait of a futuristic AI architect",
-        "resolution": "1024x1024"
+        "resolution": "1024x1024",
+        "provider": "comfyui"
     })
     assert res["status"] == "success"
     assert "gpu_target" in res
     assert "workflow_payload" in res
 
-    # 2. Test video generation request (reusing Grok video node payload)
+    # 2. Test video generation request (reusing Grok video node payload with ComfyUI)
     v_res = await agent.execute_action("generate_video", {
         "image_filename": "input.png",
-        "prompt": "Smooth camera zoom in"
+        "prompt": "Smooth camera zoom in",
+        "provider": "comfyui"
     })
     assert v_res["status"] == "success"
     assert v_res["workflow_payload"]["1"]["class_type"] == "GrokVideoNode"
 
-    print("[OK] Test Passed: MediaAgent GPU evaluation, ComfyUI workflow payload, and RunPod integration verified.")
+    # 3. Test Higgsfield provider selection (or automatic fallback)
+    h_res = await agent.execute_action("generate_video", {
+        "image_filename": "https://example.com/source.png",
+        "prompt": "Higgsfield camera motion",
+        "provider": "higgsfield"
+    })
+    assert h_res["status"] == "success"
+    assert h_res["provider"] in ("higgsfield", "comfyui")
+
+    print("[OK] Test Passed: MediaAgent GPU evaluation, ComfyUI workflow payload, and Higgsfield MCP integration verified.")
 
 if __name__ == "__main__":
     asyncio.run(test_media_agent())

@@ -56,6 +56,18 @@ app.include_router(openai_router)
 from src.commercial.routes import commercial_router
 app.include_router(commercial_router)
 
+# ── AI Provider Manager Router (Settings > AI Providers, AI Router) ─────────
+from src.api.providers_router import providers_router
+app.include_router(providers_router)
+
+# ── Creative Assets Router (Remote Streaming & Presigned URLs) ──────────────
+from src.api.creative_assets_router import creative_assets_router
+app.include_router(creative_assets_router)
+
+# ── Remote Compute Workers Router (Colab, Tesla T4, Heartbeat, Handshake) ───
+from src.api.workers_router import workers_router
+app.include_router(workers_router)
+
 
 def start_api(host: str = "0.0.0.0", port: int = 8000):
     uvicorn.run("src.api.server:app", host=host, port=port, reload=False, log_level="info")

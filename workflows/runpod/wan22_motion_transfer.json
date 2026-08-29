@@ -1,0 +1,90 @@
+{
+  "1": {
+    "class_type": "UNETLoader",
+    "_meta": { "title": "Load Wan 2.2 Fun I2V Diffusion Model" },
+    "inputs": {
+      "unet_name": "wan2.2_fun_i2v_14B_fp8_scaled.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    }
+  },
+  "2": {
+    "class_type": "CLIPLoader",
+    "_meta": { "title": "Load UMT5-XXL Text Encoder" },
+    "inputs": {
+      "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan"
+    }
+  },
+  "3": {
+    "class_type": "VAELoader",
+    "_meta": { "title": "Load Wan VAE" },
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors"
+    }
+  },
+  "4": {
+    "class_type": "LoadImage",
+    "_meta": { "title": "Load Reference Character Image" },
+    "inputs": {
+      "image": "REF_CHARACTER_IMAGE_PLACEHOLDER"
+    }
+  },
+  "5": {
+    "class_type": "VHS_LoadVideo",
+    "_meta": { "title": "Load Reference Motion Video" },
+    "inputs": {
+      "video": "REF_MOTION_VIDEO_PLACEHOLDER",
+      "force_rate": 16,
+      "force_size": "Disabled",
+      "frame_load_cap": 81,
+      "skip_first_frames": 0,
+      "select_every_nth": 1
+    }
+  },
+  "6": {
+    "class_type": "CLIPTextEncode",
+    "_meta": { "title": "Positive Prompt" },
+    "inputs": {
+      "clip": ["2", 0],
+      "text": "PROMPT_PLACEHOLDER"
+    }
+  },
+  "7": {
+    "class_type": "WanVaceToVideo",
+    "_meta": { "title": "Wan VACE Motion Transfer Sampler" },
+    "inputs": {
+      "model": ["1", 0],
+      "positive": ["6", 0],
+      "vae": ["3", 0],
+      "reference_image": ["4", 0],
+      "control_video": ["5", 0],
+      "width": 832,
+      "height": 480,
+      "length": 81,
+      "steps": 25,
+      "cfg": 5.0,
+      "seed": 42,
+      "strength": 0.85
+    }
+  },
+  "8": {
+    "class_type": "VAEDecode",
+    "_meta": { "title": "VAE Decode Latent to Video Frames" },
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["3", 0]
+    }
+  },
+  "9": {
+    "class_type": "SaveAnimatedWEBP",
+    "_meta": { "title": "Save Motion Transfer Video" },
+    "inputs": {
+      "images": ["8", 0],
+      "filename_prefix": "Wan22_MotionTransfer_RunPod",
+      "fps": 16,
+      "lossless": false,
+      "quality": 85,
+      "method": "default"
+    }
+  }
+}

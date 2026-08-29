@@ -47,3 +47,19 @@ class MemorySearchRequest(BaseModel):
 class MemoryForgetRequest(BaseModel):
     memory_id: int = Field(..., description="ID of memory to delete")
 
+class MediaImageRequest(BaseModel):
+    prompt: str = Field(..., description="Prompt text for image generation")
+    provider: str = Field(default="auto", description="Provider: higgsfield, comfyui, or auto")
+    resolution: str = Field(default="1024x1024", description="Image resolution")
+    aspect_ratio: str = Field(default="1:1", description="Aspect ratio")
+    style: str = Field(default="soul", description="Style preset")
+
+class MediaVideoRequest(BaseModel):
+    prompt: str = Field(..., description="Prompt text for video generation")
+    image_url: Optional[str] = Field(default=None, description="Source image URL for image-to-video")
+    provider: str = Field(default="auto", description="Provider: higgsfield, comfyui, or auto")
+    duration: int = Field(default=5, description="Duration in seconds")
+    resolution: str = Field(default="720p", description="Video resolution")
+    mode: str = Field(default="cinema", description="Generation mode")
+
+

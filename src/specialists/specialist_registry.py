@@ -73,6 +73,10 @@ class SpecialistRegistry:
             "ventas": "sales_specialist",
             "curso": "course_builder_specialist",
             "workflow": "workflow_specialist",
+            "higgsfield": "higgsfield_specialist",
+            "higgs": "higgsfield_specialist",
+            "cinematografico": "higgsfield_specialist",
+            "soul ai": "higgsfield_specialist",
         }
 
         for kw, spec_id in keywords.items():

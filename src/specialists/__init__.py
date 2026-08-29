@@ -1,4 +1,4 @@
-﻿"""
+"""
 DM AI OS — Autonomous Digital Employees & Specialists Package (Fase 14)
 ======================================================================
 Contains all 20 Autonomous Business Specialist Workers:
@@ -50,8 +50,9 @@ from .analytics_specialist import AnalyticsSpecialist
 from .automation_specialist import AutomationSpecialist
 from .course_builder_specialist import CourseBuilderSpecialist
 from .workflow_specialist import WorkflowSpecialist
+from .higgsfield_specialist import HiggsfieldSpecialist
 
-# Register default instances of all 20 specialists into the registry
+# Register default instances of all specialists into the registry
 _all_specialist_classes = [
     FacebookSpecialist,
     InstagramSpecialist,
@@ -73,6 +74,7 @@ _all_specialist_classes = [
     AutomationSpecialist,
     CourseBuilderSpecialist,
     WorkflowSpecialist,
+    HiggsfieldSpecialist,
 ]
 
 for cls in _all_specialist_classes:
@@ -105,4 +107,5 @@ __all__ = [
     "AutomationSpecialist",
     "CourseBuilderSpecialist",
     "WorkflowSpecialist",
+    "HiggsfieldSpecialist",
 ]

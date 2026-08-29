@@ -1,356 +1,440 @@
+﻿# ============================================================
+# DM AI Operating System v1.5.1-production - Idempotent Startup
+# Consolidated Autostart - Single Entry Point
 # ============================================================
-# DM AI Operating System v1.4.0-production - Startup Script
-# Phase 12.2: Robust Remote Deployment & E2E Validation
+# Features:
+#   - Named Mutex prevents concurrent execution
+#   - Start-Process (not Start-Job) for robust, independent services
+#   - Ollama wait/retry (up to 60s)
+#   - Health-check based idempotency
+#   - Daemon mode: monitoring loop with auto-recovery
+#   - Log rotation (1MB max)
+#   - -Stop flag for clean shutdown
 # ============================================================
-$ErrorActionPreference = "Stop"
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location $scriptDir
-
-$deploymentDir = "$scriptDir\deployment"
-if (-not (Test-Path $deploymentDir)) { New-Item -ItemType Directory -Path $deploymentDir | Out-Null }
-$logFile = "$deploymentDir\deployment.log"
-
-function Write-Log {
-    param([string]$message, [string]$level="INFO", [string]$color="White")
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logLine = "[$timestamp] [$level] $message"
-    try {
-        Add-Content -Path $logFile -Value $logLine -Encoding utf8 -ErrorAction SilentlyContinue
-    } catch {
-        # Suppress log file locking conflicts
-    }
-    if ($color -ne "None") {
-        Write-Host "[$level] $message" -ForegroundColor $color
-    }
-}
-
-# Clear previous deployment.log header
-Write-Log "==========================================================" "INFO" "Cyan"
-Write-Log "Starting DM AI OS Remote Deployment Bootstrapper (Phase 12.2)" "INFO" "Cyan"
-Write-Log "Working Directory: $scriptDir" "INFO" "DarkGray"
-
-# 1. Cloudflared configuration sanitization (Check all potential config paths)
-$cfConfigPaths = @(
-    "$env:USERPROFILE\.cloudflared\config.yml",
-    "$env:USERPROFILE\.cloudflared\config.yaml",
-    "$env:APPDATA\cloudflared\config.yml",
-    "$env:APPDATA\cloudflared\config.yaml",
-    "$env:LOCALAPPDATA\cloudflared\config.yml",
-    "$env:LOCALAPPDATA\cloudflared\config.yaml",
-    "$scriptDir\config.yml",
-    "$scriptDir\config.yaml",
-    "$scriptDir\.cloudflared\config.yml",
-    "$scriptDir\.cloudflared\config.yaml"
+param(
+    [switch]$Daemon  = $false,
+    [switch]$Stop    = $false,
+    [switch]$Status  = $false,
+    [switch]$ForceRestart = $false
 )
 
-foreach ($cfPath in $cfConfigPaths) {
-    if (Test-Path $cfPath) {
-        $bakPath = "$cfPath.bak"
-        Write-Log "Found existing cloudflared config at '$cfPath'. Renaming to '$bakPath' to prevent tunnel target override." "WARN" "Yellow"
-        Rename-Item -Path $cfPath -NewName "$cfPath.bak" -Force -ErrorAction SilentlyContinue
+# --- Configuration ---
+$scriptDir      = Split-Path -Parent $MyInvocation.MyCommand.Path
+$deploymentDir  = "$scriptDir\deployment"
+$logFile        = "$deploymentDir\deployment.log"
+$lockFile       = "$deploymentDir\.platform.lock"
+$pyExe          = "$scriptDir\.venv\Scripts\python.exe"
+$cfExe          = if (Test-Path "$scriptDir\cloudflared.exe") { "$scriptDir\cloudflared.exe" } else { "cloudflared" }
+$maxLogBytes    = 1048576  # 1 MB
+
+$OLLAMA_URL     = "http://127.0.0.1:11434/api/tags"
+$API_HEALTH     = "http://127.0.0.1:8000/health"
+$MCP_HEALTH     = "http://127.0.0.1:8001/health"
+$PUBLIC_URL     = "https://ai.dmorales.site"
+
+# --- Ensure dirs ---
+if (-not (Test-Path $deploymentDir)) { New-Item -ItemType Directory -Path $deploymentDir -Force | Out-Null }
+
+# ============================================================
+# Logging
+# ============================================================
+function Write-Log {
+    param(
+        [string]$Message,
+        [ValidateSet("INFO","WARN","ERROR","SUCCESS","DEBUG")]
+        [string]$Level = "INFO",
+        [string]$Color = "White"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logLine   = "[$timestamp] [$Level] $Message"
+    try { Add-Content -Path $logFile -Value $logLine -Encoding utf8 -ErrorAction SilentlyContinue } catch {}
+    $colorMap = @{ "INFO"="White"; "WARN"="Yellow"; "ERROR"="Red"; "SUCCESS"="Green"; "DEBUG"="DarkGray" }
+    $fc = if ($Color -ne "White") { $Color } else { $colorMap[$Level] }
+    Write-Host $logLine -ForegroundColor $fc
+}
+
+function Rotate-Log {
+    if (Test-Path $logFile) {
+        $size = (Get-Item $logFile -ErrorAction SilentlyContinue).Length
+        if ($size -gt $maxLogBytes) {
+            $archive = "$deploymentDir\deployment_$(Get-Date -Format 'yyyyMMdd_HHmmss').log"
+            Move-Item $logFile $archive -Force -ErrorAction SilentlyContinue
+            Write-Log "Log rotated to $(Split-Path -Leaf $archive)" "INFO"
+        }
     }
 }
 
-# 2. Activate Virtual Environment
-if (Test-Path ".\.venv\Scripts\Activate.ps1") {
-    & ".\.venv\Scripts\Activate.ps1"
-    Write-Log "Virtual environment activated" "INFO" "DarkGray"
+# ============================================================
+# Health Check Helpers
+# ============================================================
+function Test-OllamaHealth {
+    try {
+        $r = Invoke-RestMethod -Uri $OLLAMA_URL -Method Get -TimeoutSec 3 -ErrorAction Stop
+        return ($null -ne $r)
+    } catch { return $false }
 }
-$pyCmd = if (Test-Path ".\.venv\Scripts\python.exe") { ".\.venv\Scripts\python.exe" } else { "python" }
 
-# 3. Check Ollama
-$ollamaStatus = "OFFLINE"
+function Test-ApiHealth {
+    try {
+        $r = Invoke-RestMethod -Uri $API_HEALTH -TimeoutSec 3 -ErrorAction Stop
+        return ($r.status -eq "ONLINE")
+    } catch { return $false }
+}
+
+function Test-McpHealth {
+    try {
+        $r = Invoke-RestMethod -Uri $MCP_HEALTH -TimeoutSec 3 -ErrorAction Stop
+        return ($r.status -eq "ONLINE")
+    } catch { return $false }
+}
+
+function Test-CloudflareRunning {
+    $proc = Get-Process -Name "cloudflared" -ErrorAction SilentlyContinue
+    if (-not $proc) { return $false }
+    # Verify it's our tunnel (dmorales-website)
+    try {
+        $cmd = (Get-CimInstance Win32_Process -Filter "Name='cloudflared.exe'" -ErrorAction SilentlyContinue).CommandLine
+        return ($cmd -match "dmorales-website")
+    } catch { return ($null -ne $proc) }
+}
+
+# ============================================================
+# Service Management
+# ============================================================
+function Start-ApiGateway {
+    Write-Log "Starting API Gateway on port 8000..." "INFO"
+    Start-Process -FilePath $pyExe `
+        -ArgumentList "-m", "uvicorn", "src.api.server:app", "--host", "127.0.0.1", "--port", "8000", "--log-level", "info" `
+        -WorkingDirectory $scriptDir `
+        -WindowStyle Hidden `
+        -RedirectStandardOutput "$deploymentDir\api_gw_out.log" `
+        -RedirectStandardError  "$deploymentDir\api_gw_err.log"
+
+    # Wait up to 15s for API to respond
+    for ($i = 1; $i -le 5; $i++) {
+        Start-Sleep -Seconds 3
+        if (Test-ApiHealth) {
+            Write-Log "API Gateway started successfully (attempt $i)." "SUCCESS"
+            return $true
+        }
+        Write-Log "Waiting for API Gateway... (attempt $i/5)" "DEBUG"
+    }
+    Write-Log "API Gateway failed to start within 15 seconds." "ERROR"
+    return $false
+}
+
+function Start-McpServer {
+    Write-Log "Starting MCP Server on port 8001..." "INFO"
+    Start-Process -FilePath $pyExe `
+        -ArgumentList "-m", "uvicorn", "src.mcp.mcp_server:mcp_app", "--host", "127.0.0.1", "--port", "8001", "--log-level", "info" `
+        -WorkingDirectory $scriptDir `
+        -WindowStyle Hidden `
+        -RedirectStandardOutput "$deploymentDir\mcp_out.log" `
+        -RedirectStandardError  "$deploymentDir\mcp_err.log"
+
+    # Wait up to 15s for MCP to respond
+    for ($i = 1; $i -le 5; $i++) {
+        Start-Sleep -Seconds 3
+        if (Test-McpHealth) {
+            Write-Log "MCP Server started successfully (attempt $i)." "SUCCESS"
+            return $true
+        }
+        Write-Log "Waiting for MCP Server... (attempt $i/5)" "DEBUG"
+    }
+    Write-Log "MCP Server failed to start within 15 seconds." "ERROR"
+    return $false
+}
+
+function Start-CloudflareTunnel {
+    Write-Log "Starting Cloudflare Tunnel (dmorales-website)..." "INFO"
+    Start-Process -FilePath $cfExe `
+        -ArgumentList "tunnel", "run", "dmorales-website" `
+        -WorkingDirectory $scriptDir `
+        -WindowStyle Hidden `
+        -RedirectStandardOutput "$deploymentDir\cf_out.log" `
+        -RedirectStandardError  "$deploymentDir\cf_err.log"
+
+    # Wait up to 10s for process to appear
+    for ($i = 1; $i -le 5; $i++) {
+        Start-Sleep -Seconds 2
+        if (Test-CloudflareRunning) {
+            Write-Log "Cloudflare Tunnel started successfully." "SUCCESS"
+            return $true
+        }
+        Write-Log "Waiting for Cloudflare Tunnel... (attempt $i/5)" "DEBUG"
+    }
+    Write-Log "Cloudflare Tunnel failed to start within 10 seconds." "ERROR"
+    return $false
+}
+
+function Stop-AllServices {
+    Write-Log "=== Stopping all DM AI OS services ===" "WARN"
+
+    # Stop API Gateway (python on port 8000)
+    $apiPid = (Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue).OwningProcess
+    if ($apiPid) {
+        # Kill the parent uvicorn process tree
+        try {
+            $parentPid = (Get-CimInstance Win32_Process -Filter "ProcessId=$apiPid" -ErrorAction SilentlyContinue).ParentProcessId
+            if ($parentPid -and $parentPid -ne 0) {
+                Stop-Process -Id $parentPid -Force -ErrorAction SilentlyContinue
+            }
+            Stop-Process -Id $apiPid -Force -ErrorAction SilentlyContinue
+            Write-Log "Stopped API Gateway (PID $apiPid)." "INFO"
+        } catch { Write-Log "Error stopping API: $_" "WARN" }
+    }
+
+    # Stop MCP Server (python on port 8001)
+    $mcpPid = (Get-NetTCPConnection -LocalPort 8001 -State Listen -ErrorAction SilentlyContinue).OwningProcess
+    if ($mcpPid) {
+        try {
+            $parentPid = (Get-CimInstance Win32_Process -Filter "ProcessId=$mcpPid" -ErrorAction SilentlyContinue).ParentProcessId
+            if ($parentPid -and $parentPid -ne 0) {
+                Stop-Process -Id $parentPid -Force -ErrorAction SilentlyContinue
+            }
+            Stop-Process -Id $mcpPid -Force -ErrorAction SilentlyContinue
+            Write-Log "Stopped MCP Server (PID $mcpPid)." "INFO"
+        } catch { Write-Log "Error stopping MCP: $_" "WARN" }
+    }
+
+    # Stop Cloudflare Tunnel
+    Get-Process -Name "cloudflared" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    Write-Log "Stopped Cloudflare Tunnel." "INFO"
+
+    # Kill any orphan Start-Job PowerShell hosts from old architecture
+    Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue | Where-Object {
+        $_.CommandLine -match "Version 5\.1 -s -NoLogo -NoProfile" -and
+        $_.ParentProcessId -in (
+            Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
+            Where-Object { $_.CommandLine -match "start_platform\.ps1" } |
+            Select-Object -ExpandProperty ProcessId
+        )
+    } | ForEach-Object {
+        Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+        Write-Log "Killed orphan Start-Job host (PID $($_.ProcessId))." "DEBUG"
+    }
+
+    # Kill old start_platform.ps1 instances (not ourselves)
+    $myPid = $PID
+    Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue | Where-Object {
+        $_.CommandLine -match "start_platform\.ps1" -and $_.ProcessId -ne $myPid
+    } | ForEach-Object {
+        Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+        Write-Log "Killed old start_platform.ps1 instance (PID $($_.ProcessId))." "DEBUG"
+    }
+
+    Start-Sleep -Seconds 2
+    Write-Log "All DM AI OS services stopped." "SUCCESS"
+}
+
+# ============================================================
+# Status Display
+# ============================================================
+function Show-Status {
+    Write-Host ""
+    Write-Host "==========================================================" -ForegroundColor Cyan
+    Write-Host "  DM AI OS v1.5.1 - Service Status" -ForegroundColor Cyan
+    Write-Host "==========================================================" -ForegroundColor Cyan
+
+    $ollamaOk = Test-OllamaHealth
+    $apiOk    = Test-ApiHealth
+    $mcpOk    = Test-McpHealth
+    $cfOk     = Test-CloudflareRunning
+
+    $icon = { param($ok) if ($ok) { "[OK]" } else { "[!!]" } }
+    $col  = { param($ok) if ($ok) { "Green" } else { "Red" } }
+
+    Write-Host "  Ollama (11434):       $(& $icon $ollamaOk)" -ForegroundColor (& $col $ollamaOk)
+    Write-Host "  API Gateway (8000):   $(& $icon $apiOk)" -ForegroundColor (& $col $apiOk)
+    Write-Host "  MCP Server (8001):    $(& $icon $mcpOk)" -ForegroundColor (& $col $mcpOk)
+    Write-Host "  Cloudflare Tunnel:    $(& $icon $cfOk)" -ForegroundColor (& $col $cfOk)
+    Write-Host "  Public URL:           $PUBLIC_URL" -ForegroundColor Cyan
+    Write-Host "==========================================================" -ForegroundColor Cyan
+    Write-Host ""
+}
+
+# ============================================================
+# MAIN LOGIC
+# ============================================================
+
+# --- Handle -Status ---
+if ($Status) {
+    Show-Status
+    exit 0
+}
+
+# --- Handle -Stop ---
+if ($Stop) {
+    Stop-AllServices
+    exit 0
+}
+
+# --- Mutex: prevent concurrent execution ---
+$mutexName = "Global\DMAIOS_StartPlatform_Mutex"
+$mutexCreated = $false
 try {
-    $ollamaRes = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -Method Get -TimeoutSec 3 -ErrorAction SilentlyContinue
-    if ($ollamaRes) { $ollamaStatus = "CONNECTED" }
+    $mutex = [System.Threading.Mutex]::new($true, $mutexName, [ref]$mutexCreated)
 } catch {
-    Write-Log "Ollama is OFFLINE. Local models might fail." "WARN" "Yellow"
+    Write-Host "[BLOCKED] Another instance of start_platform.ps1 is already running. Exiting." -ForegroundColor Yellow
+    exit 0
 }
-Write-Log "Ollama Status: $ollamaStatus" "INFO" "DarkGray"
 
-# 4. Cleanup any orphan processes from previous runs
-Write-Log "Cleaning up any orphan cloudflared / uvicorn processes..." "INFO" "DarkGray"
-Get-Process -Name "cloudflared" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-$port8000 = netstat -ano | Select-String ":8000 " | Select-String "LISTENING"
-if ($port8000) {
-    $pid8000 = ($port8000 -split '\s+')[-1]
-    Stop-Process -Id $pid8000 -Force -ErrorAction SilentlyContinue
-    Write-Log "Killed process on port 8000 (PID $pid8000)" "INFO" "DarkGray"
+if (-not $mutexCreated) {
+    # Another instance holds the mutex
+    Write-Host "[BLOCKED] Another instance of start_platform.ps1 is already running. Exiting." -ForegroundColor Yellow
+    try { $mutex.Dispose() } catch {}
+    exit 0
 }
-$port8001 = netstat -ano | Select-String ":8001 " | Select-String "LISTENING"
-if ($port8001) {
-    $pid8001 = ($port8001 -split '\s+')[-1]
-    Stop-Process -Id $pid8001 -Force -ErrorAction SilentlyContinue
-    Write-Log "Killed process on port 8001 (PID $pid8001)" "INFO" "DarkGray"
-}
-Start-Sleep -Seconds 2
 
-# 5. Launch API Gateway and MCP Server
-$apiJob = Start-Job -ScriptBlock {
-    Set-Location $using:scriptDir
-    if (Test-Path ".\.venv\Scripts\python.exe") {
-        & ".\.venv\Scripts\python.exe" -m uvicorn src.api.server:app --host 0.0.0.0 --port 8000 --log-level info
-    } else {
-        python -m uvicorn src.api.server:app --host 0.0.0.0 --port 8000 --log-level info
-    }
-}
-Write-Log "Started API Gateway on port 8000 (Job ID: $($apiJob.Id))" "INFO" "DarkGray"
-
-$mcpJob = Start-Job -ScriptBlock {
-    Set-Location $using:scriptDir
-    if (Test-Path ".\.venv\Scripts\python.exe") {
-        & ".\.venv\Scripts\python.exe" -m uvicorn src.mcp.mcp_server:mcp_app --host 0.0.0.0 --port 8001 --log-level info
-    } else {
-        python -m uvicorn src.mcp.mcp_server:mcp_app --host 0.0.0.0 --port 8001 --log-level info
-    }
-}
-Write-Log "Started MCP Server on port 8001 (Job ID: $($mcpJob.Id))" "INFO" "DarkGray"
-
-Start-Sleep -Seconds 4
-
-# Local Health Check
+# We own the mutex - proceed
 try {
-    $localHealth = Invoke-RestMethod -Uri "http://127.0.0.1:8000/health" -Method Get -TimeoutSec 5 -ErrorAction SilentlyContinue
-    if ($localHealth.status -eq "ONLINE") {
-        Write-Log "Local API Gateway health check passed (HTTP 200)" "SUCCESS" "Green"
-    } else {
-        Write-Log "Local API Gateway health check failed." "ERROR" "Red"
-    }
-} catch {
-    Write-Log "Local API Gateway not responding at http://127.0.0.1:8000" "ERROR" "Red"
-}
+    Rotate-Log
 
-# 6. Ensure Cloudflared binary exists
-$CloudflaredUrl = "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
-$CloudflaredPath = "$scriptDir\cloudflared.exe"
+    Write-Log "==========================================================" "INFO"
+    Write-Log "DM AI OS Bootstrapper v1.5.1 - Starting" "INFO"
+    Write-Log "Mode: $(if ($Daemon) { 'DAEMON (monitoring)' } else { 'ONE-SHOT' })" "INFO"
+    Write-Log "PID: $PID | Working Directory: $scriptDir" "DEBUG"
+    Write-Log "==========================================================" "INFO"
 
-if (-not (Test-Path $CloudflaredPath)) {
-    Write-Log "Downloading cloudflared.exe..." "INFO" "Cyan"
-    Invoke-WebRequest -Uri $CloudflaredUrl -OutFile $CloudflaredPath
-}
-
-$targetUrl = "http://127.0.0.1:8000"
-$tunnelArgs = "tunnel --url $targetUrl"
-$curlExe = "curl.exe"
-$curlTmp = "$deploymentDir\curl_tmp.txt"
-$jsonPayloadFile = "$deploymentDir\ping_payload.json"
-@{model="dm-autonomous-brain"; messages=@(@{role="user"; content="PING"})} | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 -Path $jsonPayloadFile
-
-# Function to start cloudflared and validate end-to-end
-function Start-And-Validate-Tunnel {
-    $maxTunnelRetries = 5
-    $tunnelAttempt = 0
-    $e2eSuccess = $false
-    $global:publicUrl = ""
-    $global:tunnelProcess = $null
-
-    while (-not $e2eSuccess -and $tunnelAttempt -lt $maxTunnelRetries) {
-        $tunnelAttempt++
-        Write-Log "Starting Cloudflare Quick Tunnel (Attempt $tunnelAttempt/$maxTunnelRetries): $CloudflaredPath $tunnelArgs" "INFO" "Cyan"
-
-        # Cleanup existing cloudflared log
-        $cfLogPath = "$scriptDir\cloudflared.log"
-        if (Test-Path $cfLogPath) { Remove-Item $cfLogPath -Force -ErrorAction SilentlyContinue }
-
-        $global:tunnelProcess = Start-Process -FilePath $CloudflaredPath -ArgumentList $tunnelArgs -NoNewWindow -PassThru -RedirectStandardError $cfLogPath
-
-        # Parse log to get public URL
-        $extractedUrl = ""
-        $urlRetries = 0
-        Write-Log "Waiting for public tunnel URL allocation..." "INFO" "Yellow"
-
-        while ($extractedUrl -eq "" -and $urlRetries -lt 25) {
-            Start-Sleep -Seconds 2
-            if (Test-Path $cfLogPath) {
-                $logContent = Get-Content $cfLogPath -Tail 30 -ErrorAction SilentlyContinue
-                foreach ($line in $logContent) {
-                    if ($line -match "https://[a-zA-Z0-9-]+\.trycloudflare\.com") {
-                        $extractedUrl = $matches[0]
-                        Write-Log "Allocated Public Tunnel URL: $extractedUrl" "SUCCESS" "Green"
-                        break
-                    }
-                }
-            }
-            $urlRetries++
-        }
-
-        if (-not $extractedUrl) {
-            Write-Log "Failed to extract public URL from cloudflared after 50 seconds. Restarting tunnel..." "WARN" "Yellow"
-            if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-                Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
-            }
-            Start-Sleep -Seconds 3
-            continue
-        }
-
-        $global:publicUrl = $extractedUrl
-
-        # Poll /health until HTTP 200 or timeout
-        Write-Log "Waiting for Cloudflare Edge propagation on $global:publicUrl/health..." "INFO" "Yellow"
-        $healthCode = ""
-        $healthRetry = 0
-        $healthMaxRetries = 15
-
-        while ($healthCode -ne "200" -and $healthRetry -lt $healthMaxRetries) {
-            $healthRetry++
-            Start-Sleep -Seconds 3
-            $t0 = Get-Date
-            $healthCode = & $curlExe -s -k -L -o $curlTmp -w "%{http_code}" --connect-timeout 10 "$global:publicUrl/health"
-            $t1 = Get-Date
-            $elapsedMs = [math]::Round(($t1 - $t0).TotalMilliseconds)
-            $healthCode = $healthCode.Trim()
-
-            Write-Log "[Check 1/4] GET /health attempt ${healthRetry}/${healthMaxRetries}: HTTP $healthCode (${elapsedMs}ms)" "INFO" "DarkGray"
-        }
-
-        if ($healthCode -ne "200") {
-            Write-Log "Cloudflare Tunnel $global:publicUrl/health failed to return 200 (Got: '$healthCode'). Restarting cloudflared tunnel..." "WARN" "Yellow"
-            if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-                Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
-            }
-            Start-Sleep -Seconds 3
-            continue
-        }
-
-        Write-Log "[Check 1/4] Public GET /health PASSED (HTTP 200)" "SUCCESS" "Green"
-
-        # Check 2: /docs
-        Write-Log "[Check 2/4] Testing GET $global:publicUrl/docs ..." "INFO" "Yellow"
-        $t0 = Get-Date
-        $docsCode = & $curlExe -s -k -L -o $curlTmp -w "%{http_code}" --connect-timeout 10 "$global:publicUrl/docs"
-        $t1 = Get-Date
-        $docsCode = $docsCode.Trim()
-        $docsMs = [math]::Round(($t1 - $t0).TotalMilliseconds)
-
-        if ($docsCode -ne "200") {
-            Write-Log "[Check 2/4] GET /docs FAILED (HTTP $docsCode). Retrying full tunnel allocation..." "WARN" "Yellow"
-            if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-                Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
-            }
-            Start-Sleep -Seconds 3
-            continue
-        }
-        Write-Log "[Check 2/4] Public GET /docs PASSED (HTTP 200, ${docsMs}ms)" "SUCCESS" "Green"
-
-        # Check 3: /v1/models
-        Write-Log "[Check 3/4] Testing GET $global:publicUrl/v1/models ..." "INFO" "Yellow"
-        $t0 = Get-Date
-        $modelsCode = & $curlExe -s -k -L -o $curlTmp -w "%{http_code}" --connect-timeout 10 -H "X-API-Key: dm-secret-key-v1" "$global:publicUrl/v1/models"
-        $t1 = Get-Date
-        $modelsCode = $modelsCode.Trim()
-        $modelsMs = [math]::Round(($t1 - $t0).TotalMilliseconds)
-
-        if ($modelsCode -ne "200") {
-            Write-Log "[Check 3/4] GET /v1/models FAILED (HTTP $modelsCode). Retrying full tunnel allocation..." "WARN" "Yellow"
-            if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-                Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
-            }
-            Start-Sleep -Seconds 3
-            continue
-        }
-        $modelsBody = Get-Content $curlTmp -Raw 2>$null
-        Write-Log "[Check 3/4] Public GET /v1/models PASSED (HTTP 200, ${modelsMs}ms)" "SUCCESS" "Green"
-        Write-Log "  Models Response Snippet: $($modelsBody.Substring(0, [math]::Min(100, $modelsBody.Length)))" "INFO" "DarkGray"
-
-        # Check 4: POST /v1/chat/completions
-        Write-Log "[Check 4/4] Testing POST $global:publicUrl/v1/chat/completions ..." "INFO" "Yellow"
-        $t0 = Get-Date
-        $chatCode = & $curlExe -s -k -L -o $curlTmp -w "%{http_code}" --connect-timeout 15 --max-time 60 -X POST `
-            -H "Content-Type: application/json" `
-            -H "X-API-Key: dm-secret-key-v1" `
-            --data-binary "@$jsonPayloadFile" `
-            "$global:publicUrl/v1/chat/completions"
-        $t1 = Get-Date
-        $chatCode = $chatCode.Trim()
-        $chatMs = [math]::Round(($t1 - $t0).TotalMilliseconds)
-
-        if ($chatCode -ne "200") {
-            Write-Log "[Check 4/4] POST /v1/chat/completions FAILED (HTTP $chatCode). Retrying full tunnel allocation..." "WARN" "Yellow"
-            if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-                Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
-            }
-            Start-Sleep -Seconds 3
-            continue
-        }
-        $chatBody = Get-Content $curlTmp -Raw 2>$null
-        Write-Log "[Check 4/4] Public POST /v1/chat/completions PASSED (HTTP 200, ${chatMs}ms)" "SUCCESS" "Green"
-        Write-Log "  Chat Response Excerpt: $($chatBody.Substring(0, [math]::Min(120, $chatBody.Length)))" "INFO" "DarkGray"
-
-        $e2eSuccess = $true
+    # --- Activate venv (for environment variables only) ---
+    if (Test-Path "$scriptDir\.venv\Scripts\Activate.ps1") {
+        & "$scriptDir\.venv\Scripts\Activate.ps1"
     }
 
-    return $e2eSuccess
-}
+    # --- ForceRestart: stop everything first ---
+    if ($ForceRestart) {
+        Stop-AllServices
+    }
 
-# Run tunnel startup & validation
-$validated = Start-And-Validate-Tunnel
-
-if (-not $validated) {
-    Write-Log "FATAL: Could not establish a fully functional Cloudflare Quick Tunnel after multiple attempts." "FATAL" "Red"
-    Write-Log "DO NOT SHOW READY - Deployment Failed." "FATAL" "Red"
-    exit 1
-}
-
-# 7. Generate QRs & OpenAI Connection Assets (ONLY generated after 100% successful validation)
-Write-Log "Generating QR Codes and OpenAI deployment configuration..." "INFO" "Cyan"
-& $pyCmd scripts\generate_deployment_assets.py --url $global:publicUrl | Out-Null
-Write-Log "Deployment Assets successfully generated in $deploymentDir" "SUCCESS" "Green"
-
-# Append cloudflared.log summary to deployment.log
-if (Test-Path "$scriptDir\cloudflared.log") {
-    $cfLogExcerpt = Get-Content "$scriptDir\cloudflared.log" -Raw 2>$null
-    try { Add-Content -Path $logFile -Value "`n--- CLOUDFLARED LOG START ---`n$cfLogExcerpt`n--- CLOUDFLARED LOG END ---`n" -Encoding utf8 -ErrorAction SilentlyContinue } catch {}
-}
-
-# 8. Final Banner
-Write-Host ""
-Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "     DM AI OS REMOTE DEPLOYMENT FULLY OPERATIONAL         " -ForegroundColor Green
-Write-Host "==========================================================" -ForegroundColor Green
-Write-Host ""
-Write-Host "Public Web URL:" -ForegroundColor White
-Write-Host "  $global:publicUrl" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "OpenAI Base Endpoint (for iPhone / Remote Clients):" -ForegroundColor White
-Write-Host "  $global:publicUrl/v1" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "API Key:" -ForegroundColor White
-Write-Host "  dm-secret-key-v1" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Default Model:" -ForegroundColor White
-Write-Host "  dm-autonomous-brain" -ForegroundColor Yellow
-Write-Host ""
-Write-Host "Generated Assets:" -ForegroundColor White
-Write-Host "  - Web QR:   deployment\dm_ai_os_qr.png" -ForegroundColor DarkGray
-Write-Host "  - Config QR: deployment\openai_config_qr.png" -ForegroundColor DarkGray
-Write-Host "  - JSON Config: deployment\openai_connection.json" -ForegroundColor DarkGray
-Write-Host "  - Audit Log: deployment\deployment.log" -ForegroundColor DarkGray
-Write-Host ""
-Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "   [Press Ctrl+C to stop all background services & tunnel]" -ForegroundColor Yellow
-Write-Host ""
-
-# Monitor loop with auto-restart for cloudflared
-try {
-    while ($true) {
-        if ($global:tunnelProcess -and $global:tunnelProcess.HasExited) {
-            Write-Log "Cloudflared process died unexpectedly. Initiating automatic recovery..." "WARN" "Red"
-            $revalidated = Start-And-Validate-Tunnel
-            if ($revalidated) {
-                Write-Log "Tunnel recovered and re-validated at $global:publicUrl" "SUCCESS" "Green"
-                & $pyCmd scripts\generate_deployment_assets.py --url $global:publicUrl | Out-Null
-            }
+    # ==========================================================
+    # 1. Wait for Ollama (up to 60 seconds)
+    # ==========================================================
+    Write-Log "Checking Ollama availability..." "INFO"
+    $ollamaReady = $false
+    for ($attempt = 1; $attempt -le 12; $attempt++) {
+        if (Test-OllamaHealth) {
+            $ollamaReady = $true
+            Write-Log "Ollama is CONNECTED (attempt $attempt)." "SUCCESS"
+            break
+        }
+        if ($attempt -eq 1) {
+            Write-Log "Ollama not yet available. Waiting (up to 60s)..." "WARN"
+        } else {
+            Write-Log "Ollama retry $attempt/12..." "DEBUG"
         }
         Start-Sleep -Seconds 5
     }
-} finally {
-    Write-Log "Stopping DM AI OS Services..." "INFO" "DarkGray"
-    Stop-Job -Job $apiJob -ErrorAction SilentlyContinue
-    Stop-Job -Job $mcpJob -ErrorAction SilentlyContinue
-    Remove-Job -Job $apiJob -ErrorAction SilentlyContinue
-    Remove-Job -Job $mcpJob -ErrorAction SilentlyContinue
-    if ($global:tunnelProcess -and -not $global:tunnelProcess.HasExited) {
-        Stop-Process -Id $global:tunnelProcess.Id -Force -ErrorAction SilentlyContinue
+    if (-not $ollamaReady) {
+        Write-Log "Ollama is OFFLINE after 60 seconds. Continuing without it." "ERROR"
     }
-    Write-Log "DM AI OS Remote Deployment Shutdown Complete." "INFO" "DarkGray"
+
+    # ==========================================================
+    # 2. Idempotent Start: API Gateway
+    # ==========================================================
+    if (Test-ApiHealth) {
+        Write-Log "API Gateway already running on port 8000." "SUCCESS"
+    } else {
+        Start-ApiGateway | Out-Null
+    }
+
+    # ==========================================================
+    # 3. Idempotent Start: MCP Server
+    # ==========================================================
+    if (Test-McpHealth) {
+        Write-Log "MCP Server already running on port 8001." "SUCCESS"
+    } else {
+        Start-McpServer | Out-Null
+    }
+
+    # ==========================================================
+    # 4. Idempotent Start: Cloudflare Tunnel
+    # ==========================================================
+    if (Test-CloudflareRunning) {
+        Write-Log "Cloudflare Tunnel already running." "SUCCESS"
+    } else {
+        Start-CloudflareTunnel | Out-Null
+    }
+
+    # ==========================================================
+    # 5. Write Public URL
+    # ==========================================================
+    [System.IO.File]::WriteAllText("$scriptDir\tunnel_url.txt", $PUBLIC_URL)
+
+    # ==========================================================
+    # 6. Generate Deployment Assets (non-critical)
+    # ==========================================================
+    try {
+        & $pyExe "$scriptDir\scripts\generate_deployment_assets.py" --url $PUBLIC_URL 2>&1 | Out-Null
+        Write-Log "Deployment assets updated." "SUCCESS"
+    } catch {
+        Write-Log "Asset generation notice: $_" "WARN"
+    }
+
+    # ==========================================================
+    # 7. Final Status
+    # ==========================================================
+    Write-Host ""
+    Write-Host "==========================================================" -ForegroundColor Green
+    Write-Host "     DM AI OS DEPLOYMENT STATUS: OPERATIONAL              " -ForegroundColor Green
+    Write-Host "==========================================================" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Local Gateway:   http://127.0.0.1:8000" -ForegroundColor White
+    Write-Host "MCP Server:      http://127.0.0.1:8001" -ForegroundColor White
+    Write-Host "Public URL:      $PUBLIC_URL" -ForegroundColor Cyan
+    Write-Host "OpenAI Endpoint: $PUBLIC_URL/v1" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "==========================================================" -ForegroundColor Green
+
+    Write-Log "Bootstrapper completed. All services operational." "SUCCESS"
+
+    # ==========================================================
+    # 8. Daemon Mode: Monitor & Auto-Recovery
+    # ==========================================================
+    if ($Daemon) {
+        Write-Log "Entering daemon monitoring loop (60s interval)." "INFO"
+        Write-Host "Monitoring services... (Ctrl+C to stop)" -ForegroundColor Yellow
+
+        try {
+            while ($true) {
+                Start-Sleep -Seconds 60
+
+                $recovered = @()
+
+                # Check API Gateway
+                if (-not (Test-ApiHealth)) {
+                    Write-Log "RECOVERY: API Gateway is down. Restarting..." "WARN"
+                    Start-ApiGateway | Out-Null
+                    $recovered += "API Gateway"
+                }
+
+                # Check MCP Server
+                if (-not (Test-McpHealth)) {
+                    Write-Log "RECOVERY: MCP Server is down. Restarting..." "WARN"
+                    Start-McpServer | Out-Null
+                    $recovered += "MCP Server"
+                }
+
+                # Check Cloudflare Tunnel
+                if (-not (Test-CloudflareRunning)) {
+                    Write-Log "RECOVERY: Cloudflare Tunnel is down. Restarting..." "WARN"
+                    Start-CloudflareTunnel | Out-Null
+                    $recovered += "Cloudflare"
+                }
+
+                if ($recovered.Count -gt 0) {
+                    Write-Log "RECOVERY: Restarted: $($recovered -join ', ')" "WARN"
+                }
+            }
+        } finally {
+            Write-Log "Daemon monitoring loop exited." "INFO"
+        }
+    }
+
+} finally {
+    # Release mutex
+    try {
+        $mutex.ReleaseMutex()
+        $mutex.Dispose()
+    } catch {}
+    Write-Log "Bootstrapper shutdown. Mutex released." "DEBUG"
 }

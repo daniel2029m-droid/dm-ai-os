@@ -116,6 +116,7 @@ class JsonVectorBackend(VectorBackend):
         self.vectors_dir = Path(vectors_dir)
         self.index_file = self.vectors_dir / "vector_index.json"
         self._initialized = False
+        self._ensure_store()
 
     def _ensure_store(self):
         if self._initialized:

@@ -8,20 +8,21 @@ Selects local model based on required task capability:
 
 import httpx
 import logging
+import os
 from typing import Dict, Any, List, Optional
 
 log = logging.getLogger("capability_selector")
 
 # Capability mapping
 CAPABILITY_MAP = {
-    "reasoning":     ["bonsai", "qwen3", "qwen2.5:1.5b", "qwen2.5:0.5b"],
-    "planning":      ["bonsai", "qwen3", "qwen2.5:1.5b"],
-    "coding":        ["qwen-code", "qwen2.5:1.5b", "bonsai"],
-    "summarization": ["qwen2.5:0.5b", "qwen2.5:1.5b"],
+    "reasoning":     ["qwen2.5-coder:7b", "qwen2.5-coder", "bonsai", "qwen3", "qwen2.5:1.5b"],
+    "planning":      ["qwen2.5-coder:7b", "qwen2.5-coder", "bonsai", "qwen3", "qwen2.5:1.5b"],
+    "coding":        ["qwen2.5-coder:7b", "qwen2.5-coder", "qwen-code", "qwen2.5:1.5b"],
+    "summarization": ["qwen2.5-coder:7b", "qwen2.5:1.5b", "qwen2.5:0.5b"],
     "ocr":           ["llava", "bakllava", "llama3.2-vision", "qwen2-vl", "qwen2.5:0.5b"],
     "vision":        ["llava", "bakllava", "llama3.2-vision", "qwen2-vl", "qwen2.5:1.5b"],
-    "research":      ["qwen2.5:1.5b", "bonsai", "qwen3"],
-    "general":       ["qwen2.5:1.5b", "qwen2.5:0.5b"]
+    "research":      ["qwen2.5-coder:7b", "qwen2.5-coder", "qwen2.5:1.5b"],
+    "general":       ["qwen2.5-coder:7b", "qwen2.5-coder", "qwen2.5:1.5b"]
 }
 
 class CapabilityModelSelector:
@@ -96,10 +97,24 @@ class CapabilityModelSelector:
             user_msg["images"] = images
         messages.append(user_msg)
 
-        payload = {"model": model, "messages": messages, "stream": False}
+        num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "32768"))
+        # Coding requests need more time: 7B model on CPU takes 2-5 min for large files
+        if capability == "coding":
+            timeout_sec = float(os.getenv("OLLAMA_TIMEOUT_CODING", "600.0"))
+        else:
+            timeout_sec = float(os.getenv("OLLAMA_TIMEOUT", "120.0"))
+
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "options": {
+                "num_ctx": num_ctx
+            }
+        }
 
         try:
-            r = httpx.post(f"{self.ollama_url}/api/chat", json=payload, timeout=60)
+            r = httpx.post(f"{self.ollama_url}/api/chat", json=payload, timeout=timeout_sec)
             if r.status_code == 200:
                 text = r.json().get("message", {}).get("content", "").strip()
                 # Guard: never return an empty string — clients reject empty content

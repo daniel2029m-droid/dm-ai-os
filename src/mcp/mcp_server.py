@@ -19,6 +19,11 @@ class MCPCallRequest(BaseModel):
     tool: str
     arguments: Dict[str, Any] = {}
 
+@mcp_app.get("/")
+@mcp_app.get("/health")
+async def health_check():
+    return {"status": "ONLINE", "service": "MCP Server"}
+
 @mcp_app.get("/mcp/tools")
 async def get_mcp_tools():
     return {"tools": mcp_registry.list_tools()}

@@ -26,5 +26,56 @@
     "enabled": false,
     "api_key_env": "XAI_API_KEY",
     "model": "grok-2"
+  },
+  "higgsfield": {
+    "enabled": true,
+    "mcp_url": "https://mcp.higgsfield.ai/mcp",
+    "mcp_url_env": "HIGGSFIELD_MCP_URL",
+    "api_key_env": "HIGGSFIELD_AUTH_TOKEN",
+    "workspace_id_env": "HIGGSFIELD_WORKSPACE_ID",
+    "character_id_env": "HIGGSFIELD_CHARACTER_ID",
+    "capabilities": [
+      "image_generation",
+      "video_generation",
+      "character_management",
+      "job_status",
+      "asset_retrieval"
+    ],
+    "project": {
+      "name": "Valeria Montesano Digital",
+      "character": "Mi Influencer",
+      "project_env": "HIGGSFIELD_PROJECT_NAME",
+      "character_name_env": "HIGGSFIELD_CHARACTER_NAME"
+    },
+    "models": {
+      "image": {
+        "default": "soul_2",
+        "env": "HIGGSFIELD_DEFAULT_IMAGE_MODEL",
+        "available": ["soul_2", "soul", "nano_banana_2", "nano_banana"]
+      },
+      "video": {
+        "default": "seedance_2_0",
+        "env": "HIGGSFIELD_DEFAULT_VIDEO_MODEL",
+        "available": ["seedance_2_0", "cinematic_studio_3_0", "cinematic_studio_2_0", "motion_easy"]
+      }
+    },
+    "format": {
+      "default_aspect_ratio": "9:16",
+      "aspect_ratio_env": "HIGGSFIELD_DEFAULT_ASPECT_RATIO",
+      "available_ratios": ["9:16", "16:9", "1:1", "4:3"]
+    },
+    "style": [
+      "luxury lifestyle",
+      "photorealistic",
+      "premium cinematic",
+      "facebook-safe",
+      "advertiser-friendly"
+    ],
+    "retry": {
+      "max_retries": 3,
+      "poll_interval_sec": 5.0,
+      "max_poll_time_sec": 300.0
+    }
   }
 }
+

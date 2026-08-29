@@ -50,6 +50,16 @@ AGENT_TRIGGERS: Dict[str, List[str]] = {
     "browser":     ["navega", "abre", "website", "url", "browser"],
 }
 
+# Keywords that indicate a coding / implementation request
+CODING_TRIGGERS: List[str] = [
+    "implementa", "implement", "crea", "create", "escribe", "write",
+    "código", "code", "clase", "class", "función", "function",
+    "módulo", "module", "archivo", "file", "script", "test",
+    "playwright", "fastapi", "uvicorn", "sqlalchemy", "pytest",
+    "def ", "async def", "import ", "from ", "class ",
+    "src/", ".py", "__init__", "router", "endpoint",
+]
+
 
 class BrainPipeline:
     def __init__(self):
@@ -62,6 +72,10 @@ class BrainPipeline:
 
     # ── Step 2: Tool / Agent selection ───────────────────────────────────────
     def _select_tool(self, prompt: str) -> Optional[str]:
+        # Coding intent always wins — never route a coding request to a content agent.
+        # e.g. "implementa el Facebook Connector" is coding, not a facebook post.
+        if self._is_coding_request(prompt):
+            return None
         lowered = prompt.lower()
         for agent, keywords in AGENT_TRIGGERS.items():
             if any(kw in lowered for kw in keywords):
@@ -69,21 +83,41 @@ class BrainPipeline:
         return None
 
     # ── Step 3: Prompt enrichment ─────────────────────────────────────────────
+    @staticmethod
+    def _is_coding_request(prompt: str) -> bool:
+        """Return True when the prompt is asking for code / implementation."""
+        lowered = prompt.lower()
+        return any(kw in lowered for kw in CODING_TRIGGERS)
+
+    def _build_system_identity(self, user_prompt: str, override: Optional[str] = None) -> str:
+        """Build system identity. Coding requests get a coder persona."""
+        if override:
+            return override
+        if self._is_coding_request(user_prompt):
+            return (
+                "You are an expert software engineer and coding assistant embedded in DM AI OS.\n"
+                "When asked to implement code, you MUST write complete, production-quality Python (or the requested language).\n"
+                "Rules:\n"
+                "- Always write real, executable code — no pseudocode, no TODOs, no placeholders.\n"
+                "- Use proper imports, classes, functions, type hints, and docstrings.\n"
+                "- Follow the existing project architecture under src/.\n"
+                "- If asked for tests, write real pytest tests.\n"
+                "- Return ONLY the code and minimal explanation — no marketing text, no hashtags."
+            )
+        return (
+            "Eres DM AI OS, sistema operativo autónomo de inteligencia artificial.\n"
+            "Respondes de forma directa, precisa y útil.\n"
+            "No eres Grok ni xAI — Grok Build es solo un cliente externo.\n"
+            "No uses frases genéricas de asistente ni hashtags de redes sociales."
+        )
+
     def _build_enriched_prompt(self, user_id: str, user_prompt: str, system_identity_override: Optional[str] = None) -> str:
         context = memory_manager.summarize_context(user_id=user_id, query=user_prompt)
-        system_identity = system_identity_override or (
-            "Soy DM AI OS.\n"
-            "Mi núcleo cognitivo es BrainPipeline.\n"
-            "Grok Build es únicamente un cliente externo.\n"
-            "Opero mediante memoria, herramientas MCP y agentes autónomos.\n"
-            "No eres Grok ni xAI.\n"
-            "No digas que eres asistente cognitivo, interfaz, producto ni plataforma.\n"
-            "No digas que estás diseñado para ayudarte, ni use frases genéricas de asistente."
-        )
+        system_identity = system_identity_override or self._build_system_identity(user_prompt)
         return (
-            f"[SYSTEM DIRECTIVE — ABSOLUTE MANDATORY IDENTITY]\n"
+            f"[SYSTEM DIRECTIVE]\n"
             f"{system_identity}\n\n"
-            f"[DM AI Platform — System Context]\n"
+            f"[Context]\n"
             f"{context}\n\n"
             f"[User Request]\n"
             f"{user_prompt}"
@@ -154,28 +188,41 @@ class BrainPipeline:
             final_answer = agent_text
             target_model = f"agent:{selected_agent}"
         else:
-            # 5. Build enriched prompt for LLM (System Identity has MAXIMUM priority)
-            system_identity = system_prompt_override or (
-                "Soy DM AI OS.\n"
-                "Mi núcleo cognitivo es BrainPipeline.\n"
-                "Grok Build es únicamente un cliente externo.\n"
-                "Opero mediante memoria, herramientas MCP y agentes autónomos.\n"
-                "No eres Grok ni xAI.\n"
-                "No digas que eres asistente cognitivo, interfaz, producto ni plataforma.\n"
-                "No digas que estás diseñado para ayudarte, ni use frases genéricas de asistente."
-            )
+            # 5. Build system identity — coding requests get coder persona
+            system_identity = system_prompt_override or self._build_system_identity(user_prompt)
             enriched_prompt = self._build_enriched_prompt(user_id, user_prompt, system_identity_override=system_identity)
 
-            # 6. LLM (Ollama) — generates the final answer (it's just a component)
-            req_capability = "vision" if images else "reasoning"
-            target_model = capability_selector.select_model_for_capability(req_capability)
-            log.info(f"[LLM] Model selected='{target_model}' for capability='{req_capability}' | Generating response...")
-            final_answer = capability_selector.generate(
-                prompt=enriched_prompt,
-                capability=req_capability,
-                system_prompt=system_identity,
-                images=images
-            )
+            # 6. LLM — select capability based on request type
+            if images:
+                req_capability = "vision"
+                target_model = capability_selector.select_model_for_capability(req_capability)
+                log.info(f"[LLM] Model='{target_model}' | Capability='{req_capability}'")
+                final_answer = capability_selector.generate(
+                    prompt=enriched_prompt,
+                    capability=req_capability,
+                    system_prompt=system_identity,
+                    images=images
+                )
+            elif self._is_coding_request(user_prompt):
+                # ── Agentic coding loop: LLM can write files, read files, run tests ──
+                from ..core.agent_tools import run_agentic_loop
+                target_model = capability_selector.select_model_for_capability("coding")
+                log.info(f"[LLM] Model='{target_model}' | Capability='coding' | Mode='agentic_loop'")
+                final_answer = await run_agentic_loop(
+                    user_request=enriched_prompt,
+                    model=target_model,
+                )
+            else:
+                req_capability = "reasoning"
+                target_model = capability_selector.select_model_for_capability(req_capability)
+                log.info(f"[LLM] Model='{target_model}' | Capability='{req_capability}' | Coding=False")
+                final_answer = capability_selector.generate(
+                    prompt=enriched_prompt,
+                    capability=req_capability,
+                    system_prompt=system_identity,
+                    images=images
+                )
+
 
         # 8. Clean any residual conversational greetings or closing questions
         import re

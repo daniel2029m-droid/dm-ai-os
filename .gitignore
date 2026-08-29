@@ -30,8 +30,14 @@ htmlcov/
 # Logs & Temporary Database Locks
 logs/*.log
 !logs/.gitkeep
+*.log
+*.exe
+*.zip
 *.db-wal
 *.db-shm
+suite_summary.txt
+deployment/curl_tmp.txt
+deployment/*.log
 
 .vercel
 # Runtime state / local generated data

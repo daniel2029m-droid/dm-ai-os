@@ -107,6 +107,8 @@ async def get_models(
                     object=m.get("object", "model"),
                     created=m.get("created", int(time.time())),
                     owned_by=m.get("owned_by", "dm-platform"),
+                    context_window=m.get("context_window", 131072),
+                    max_tokens=m.get("context_window", 131072),
                 )
             )
 

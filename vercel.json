@@ -1,43 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/health",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/system/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/agent/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/workflow/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/memory/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/v1/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/checkout",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/panel/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/owner/:path*",
-      "destination": "/api/index.py"
-    },
-    {
-      "source": "/admin/:path*",
+      "source": "/(.*)",
       "destination": "/api/index.py"
     }
   ]

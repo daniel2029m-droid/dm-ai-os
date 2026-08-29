@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-08-28T00:00:00Z",
+  "models": {
+    "flux2_klein": {
+      "architecture": "flux",
+      "category": "checkpoint",
+      "filename": "flux1-schnell.safetensors",
+      "min_vram_gb": 12.0,
+      "recommended_vram_gb": 16.0,
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4", "H100"],
+      "compatible_workflows": ["flux2_klein_txt2img", "flux_txt2img_lora"],
+      "tags": ["photorealistic", "fast", "schnell", "high-quality"]
+    },
+    "sd15_base": {
+      "architecture": "sd15",
+      "category": "checkpoint",
+      "filename": "v1-5-pruned-emaonly.safetensors",
+      "min_vram_gb": 4.0,
+      "recommended_vram_gb": 8.0,
+      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3090", "RTX 4090", "A10G", "A100", "L4", "T4"],
+      "compatible_workflows": ["sd15_txt2img", "sd15_img2img", "sd15_inpainting"],
+      "tags": ["lightweight", "fast", "stable-diffusion-1.5"]
+    },
+    "sdxl_base": {
+      "architecture": "sdxl",
+      "category": "checkpoint",
+      "filename": "sd_xl_base_1.0.safetensors",
+      "min_vram_gb": 8.0,
+      "recommended_vram_gb": 12.0,
+      "compatible_gpus": ["Tesla T4", "RTX 3080", "RTX 3090", "RTX 4090", "A10G", "A100", "L4"],
+      "compatible_workflows": ["sdxl_txt2img", "sdxl_base_refiner"],
+      "tags": ["sdxl", "1024x1024", "cinematic"]
+    },
+    "wan22_i2v": {
+      "architecture": "wan",
+      "category": "video",
+      "filename": "wan2.1_i2v_720p.safetensors",
+      "min_vram_gb": 14.0,
+      "recommended_vram_gb": 24.0,
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "H100"],
+      "compatible_workflows": ["wan22_i2v", "wan_text_to_video"],
+      "tags": ["video-generation", "720p", "motion"]
+    },
+    "flux_pulid_lora": {
+      "architecture": "flux",
+      "category": "lora",
+      "filename": "pulid_flux_v1.safetensors",
+      "min_vram_gb": 12.0,
+      "recommended_vram_gb": 16.0,
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4"],
+      "compatible_workflows": ["flux2_klein_txt2img", "flux_txt2img_lora"],
+      "tags": ["identity", "face-consistency", "pulid"]
+    }
+  }
+}

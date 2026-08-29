@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from .knowledge_base import KnowledgeBase
+from .job_store import JobStore
 from ..core.cache_layer import CacheLayer
 
 log = logging.getLogger("storage_layer")
@@ -33,7 +34,9 @@ class StorageLayer:
 
         # Initialize sub-stores without immediate unhandled mkdir errors
         cache_path = os.getenv("DM_CACHE_DIR") or str(self.base_dir / "Cache")
-        self.sqlite_db = KnowledgeBase(db_path=str(self.base_dir / "Storage" / "knowledge.db"))
+        storage_db_path = str(self.base_dir / "Storage" / "knowledge.db")
+        self.sqlite_db = KnowledgeBase(db_path=storage_db_path)
+        self.job_store = JobStore(db_path=storage_db_path)
         self.cache = CacheLayer(cache_dir=cache_path)
         self.artifacts_dir = self.base_dir / "Artifacts"
 

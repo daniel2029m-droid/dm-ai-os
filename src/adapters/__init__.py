@@ -1,4 +1,4 @@
-﻿"""
+"""
 DM AI OS — Adapters Package
 Thin adapters that integrate mature Open Source engines as optional backends.
 
@@ -16,6 +16,7 @@ from .crawl4ai_adapter import Crawl4AIAdapter, crawl4ai_adapter
 from .browser_use_adapter import BrowserUseAdapter, browser_use_adapter
 from .pocketflow_adapter import PocketFlowAdapter, pocketflow_adapter
 from .vision_adapter import VisionAdapter, vision_adapter
+from .higgsfield_adapter import HiggsfieldAdapter, higgsfield_adapter
 
 __all__ = [
     "DoclingAdapter",
@@ -28,4 +29,7 @@ __all__ = [
     "pocketflow_adapter",
     "VisionAdapter",
     "vision_adapter",
+    "HiggsfieldAdapter",
+    "higgsfield_adapter",
 ]
+

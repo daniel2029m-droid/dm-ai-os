@@ -11,11 +11,14 @@ selects the best available model based on priority:
 import httpx
 import logging
 import json
+import os
 from typing import Dict, Any, List, Optional
 
 log = logging.getLogger("model_selector")
 
 PRIORITY_CASCADE = [
+    {"name_pattern": "qwen2.5-coder:7b", "display": "Qwen 2.5 Coder 7B"},
+    {"name_pattern": "qwen2.5-coder", "display": "Qwen 2.5 Coder"},
     {"name_pattern": "bonsai", "display": "Bonsai 27B 1-bit"},
     {"name_pattern": "qwen3", "display": "Qwen 3"},
     {"name_pattern": "qwen2.5:1.5b", "display": "Qwen 2.5 1.5B"},
@@ -74,15 +77,18 @@ class DynamicModelSelector:
             all_messages.append({"role": "system", "content": system_prompt})
         all_messages.extend(messages)
 
+        num_ctx = int(os.getenv("OLLAMA_NUM_CTX", "32768"))
+        timeout_sec = float(os.getenv("OLLAMA_TIMEOUT", "120.0"))
+
         payload = {
             "model": model,
             "messages": all_messages,
             "stream": False,
-            "options": {"temperature": temperature}
+            "options": {"temperature": temperature, "num_ctx": num_ctx}
         }
 
         try:
-            r = httpx.post(f"{self.ollama_url}/api/chat", json=payload, timeout=60)
+            r = httpx.post(f"{self.ollama_url}/api/chat", json=payload, timeout=timeout_sec)
             if r.status_code == 200:
                 return r.json().get("message", {}).get("content", "").strip()
             else:
