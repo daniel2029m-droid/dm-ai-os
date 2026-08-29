@@ -402,7 +402,7 @@ def run_bootstrap():
     log_step("💓", "Iniciando servicio de Heartbeat (cada 30s)...", "")
     start_heartbeat_thread(DM_AI_OS_URL, WORKER_ID, SESSION_ID, interval_sec=30)
 
-    # 7. Complete Summary Banner
+    # 7. Complete Summary Banner & Keep-Alive Loop
     print("\n" + "=" * 65)
     print("🟢 \033[1;32mWORKER READY — COMPUTE PLANE OPERATIVO\033[0m")
     print(f"   Worker ID:   {WORKER_ID}")
@@ -410,7 +410,15 @@ def run_bootstrap():
     print(f"   GPU:         {gpu['name']} ({gpu['vram_gb']} GB)")
     print(f"   ComfyUI URL: {tunnel_url}")
     print(f"   Control URL: {DM_AI_OS_URL}/connect")
-    print("=" * 65 + "\n")
+    print("=" * 65)
+    print("⚡ Manteniendo conexión activa con DM AI OS...")
+    print("   (Para detener el worker, detén la ejecución de esta celda en Colab)\n")
+
+    try:
+        while True:
+            time.sleep(10)
+    except KeyboardInterrupt:
+        print("\nWorker detenido.")
 
 
 if __name__ == "__main__":
