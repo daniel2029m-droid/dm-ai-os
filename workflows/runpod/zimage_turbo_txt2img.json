@@ -11,10 +11,11 @@
   "11": {
     "inputs": {
       "clip_name": "qwen_3_4b.safetensors",
-      "type": "sd3"
+      "type": "lumina2"
     },
     "class_type": "CLIPLoader"
   },
+
   "12": {
     "inputs": {
       "vae_name": "ae.safetensors"
