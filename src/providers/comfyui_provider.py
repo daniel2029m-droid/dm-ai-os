@@ -21,8 +21,56 @@ from ..api.creative_assets_router import generate_signed_urls
 
 log = logging.getLogger("comfyui_provider")
 
+def optimize_diffusion_prompt(prompt: str) -> str:
+    """
+    Translates and optimizes Spanish prompts into high-adherence English diffusion prompts
+    specifically tuned for Qwen 3.4B text encoder, Z-Image Turbo, SD1.5, and FLUX.
+    """
+    import re
+    text = prompt.strip()
+    translations = [
+        # Explicit / Anatomy
+        (r"\bsin\s+ropa\b", "completely nude, naked, topless, bare skin"),
+        (r"\bdesnuda\b", "nude, naked, bare breasts, uncensored"),
+        (r"\bdesnudo\b", "nude, naked, bare body, uncensored"),
+        (r"\bpechos\s+voluptuosos\b", "large natural breasts, cleavage"),
+        (r"\bpechos\s+grandes\b", "large natural breasts"),
+        (r"\bbusto\s+grande\b", "large voluptuous bust"),
+        (r"\bgluteos\b", "shapely round buttocks, curvy hips"),
+        (r"\btrasero\b", "shapely buttocks"),
+        (r"\bcola\b", "shapely buttocks"),
+        (r"\bcuerpo\s+voluptuoso\b", "voluptuous hourglass figure, curvy body"),
+        (r"\bmujer\s+adulta\s+joven\b", "young adult woman, 22 years old"),
+        (r"\bmujer\s+joven\b", "young woman"),
+        (r"\bmujer\s+hermosa\b", "beautiful gorgeous woman"),
+        (r"\bmodelo\b", "fashion model"),
+        (r"\bapariencia\s+natural\b", "natural look, authentic beauty"),
+        
+        # Style / Photography
+        (r"\bretrato\s+fotorealista\b", "masterpiece, RAW photorealistic portrait"),
+        (r"\bfotografia\s+profesional\b", "professional 35mm DSLR photography, sharp focus"),
+        (r"\bfotorealista\b", "photorealistic, hyperrealistic, 8k uhd"),
+        (r"\biluminaci[oó]n\s+cinematogr[aá]fica\s+de\s+estudio\b", "cinematic studio lighting, soft shadows, Rembrandt lighting"),
+        (r"\biluminaci[oó]n\s+de\s+estudio\b", "studio lighting, soft ambient glow"),
+        (r"\bpiel\s+realista\b", "highly detailed skin texture, visible pores, natural skin tone"),
+        (r"\bojos\s+detallados\b", "sharp detailed eyes, detailed iris"),
+        (r"\bcabello\s+detallado\b", "detailed flowing hair, strands"),
+        (r"\bcomposici[oó]n\s+vertical\s+9:16\b", "vertical 9:16 portrait framing"),
+        (r"\bvertical\b", "vertical portrait framing"),
+        (r"\bhorizontal\b", "horizontal landscape framing"),
+        (r"\bfondo\s+de\s+estudio\b", "studio background, subtle bokeh"),
+        (r"\bplaya\b", "tropical beach, ocean background"),
+        (r"\bciudad\b", "city street background, urban bokeh"),
+        (r"\bhabitaci[oó]n\b", "cozy bedroom, soft warm lighting")
+    ]
+    optimized = text
+    for pattern, replacement in translations:
+        optimized = re.sub(pattern, replacement, optimized, flags=re.IGNORECASE)
+    return optimized
+
 
 class ComfyUIProviderAdapter(BaseProviderAdapter):
+
     """
     ComfyUI Provider Adapter for Google Colab (Tesla T4) & remote workers.
     """
@@ -174,15 +222,17 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
 
         log.info(f"[ComfyUIProvider] Executing '{workflow_template}' ({target_model}) on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")
 
-
         # 1. Dispatch workflow via CreativeEngine
+        optimized_prompt = optimize_diffusion_prompt(prompt)
+
         exec_res = await creative_engine.run_workflow(
             template_name_or_path=workflow_template,
-            prompt=prompt,
+            prompt=optimized_prompt,
             parameters=parameters,
             negative_prompt=kwargs.get("negative_prompt"),
             seed=kwargs.get("seed")
         )
+
 
 
         if exec_res.get("status") not in ("SUBMITTED", "COMPLETED"):
