@@ -684,11 +684,14 @@ def run_bootstrap():
 
     # Auto-install ReActor Face Swap custom node for 1-click Face Swapping & Consistency
     reactor_dir = comfy_dir / "custom_nodes" / "comfyui-reactor-node"
+    if reactor_dir.exists() and not (reactor_dir / "nodes.py").exists() and not (reactor_dir / "__init__.py").exists():
+        import shutil
+        shutil.rmtree(str(reactor_dir), ignore_errors=True)
+
     if not reactor_dir.exists():
         log_step("🎭", "Instalando ReActor Face Swap...", "")
         subprocess.run(["git", "clone", "--depth", "1", "https://github.com/Gourieff/comfyui-reactor-node.git", str(reactor_dir)], check=False)
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "insightface", "onnxruntime-gpu"], check=False)
-        # Download inswapper_128.onnx and GFPGAN into models/insightface
         insight_models = comfy_dir / "models" / "insightface"
         facerestore_models = comfy_dir / "models" / "facerestore_models"
         insight_models.mkdir(parents=True, exist_ok=True)
@@ -700,7 +703,6 @@ def run_bootstrap():
 
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
-
 
     # Also add ComfyUI's own models dir as a storage root (for local cache hits)
     local_models_root = comfy_dir / "models"
@@ -736,13 +738,21 @@ def run_bootstrap():
         "--lowvram",
         "--preview-method", "auto"
     ]
-    comfy_log = open("/content/comfyui.log", "w") if Path("/content").exists() else open("comfyui.log", "w")
+    log_path = "/content/comfyui.log" if Path("/content").exists() else "comfyui.log"
+    comfy_log = open(log_path, "w")
     subprocess.Popen(comfy_cmd, stdout=comfy_log, stderr=comfy_log)
 
     log_step("⏳", "Esperando respuesta de ComfyUI /system_stats...", "")
-    if not wait_for_port(COMFY_PORT, timeout=45):
+    if not wait_for_port(COMFY_PORT, timeout=90):
         print("\033[1;31m[ERROR] ComfyUI no respondió en el puerto 8188.\033[0m")
+        if Path(log_path).exists():
+            print("--- ÚLTIMAS LÍNEAS DE COMFYUI.LOG ---")
+            lines = Path(log_path).read_text(encoding="utf-8", errors="ignore").splitlines()[-25:]
+            for l in lines:
+                print("   " + l)
+            print("-------------------------------------")
         return
+
 
     # 9. Validate SD15 indexed in ComfyUI (SD15 E2E frozen — must continue to pass)
     sd15_indexed = False
