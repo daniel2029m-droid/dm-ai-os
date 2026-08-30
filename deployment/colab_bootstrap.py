@@ -434,32 +434,32 @@ def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
             {"filename": "v1-5-pruned-emaonly-fp16.safetensors", "category": "checkpoints", "min_size_bytes": 1_500_000_000},
         ],
         "zimage_turbo": [
-            {"filename": "z_image_turbo_fp8_e4m3fn.safetensors", "category": "diffusion_models", "min_size_bytes": 3_500_000_000},
-            {"filename": "qwen_3_4b.safetensors", "category": "text_encoders", "min_size_bytes": 1_500_000_000},
-            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 50_000_000},
+            {"filename": ["z_image_turbo_bf16.safetensors", "z_image_turbo_fp8_e4m3fn.safetensors", "z_image_turbo.safetensors"], "category": "diffusion_models", "min_size_bytes": 3_500_000_000},
+            {"filename": ["qwen_3_4b.safetensors", "qwen3_4b.safetensors"], "category": "text_encoders", "min_size_bytes": 1_500_000_000},
+            {"filename": ["ae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
         "seedvr2_upscale": [
-            {"filename": "seedvr2_upscale_v1.safetensors", "category": "upscale_models", "min_size_bytes": 50_000_000},
+            {"filename": ["seedvr2_upscale_v1.safetensors", "seedvr2.safetensors"], "category": "upscale_models", "min_size_bytes": 50_000_000},
         ],
         "flux1_schnell_fp8": [
-            {"filename": "flux1-schnell-fp8.safetensors", "category": "diffusion_models", "min_size_bytes": 11_000_000_000},
-            {"filename": "clip_l.safetensors", "category": "clip", "min_size_bytes": 200_000_000},
-            {"filename": "t5xxl_fp8_e4m3fn.safetensors", "category": "clip", "min_size_bytes": 4_000_000_000},
-            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 50_000_000},
+            {"filename": ["flux1-schnell-fp8.safetensors", "flux1-schnell.safetensors"], "category": "diffusion_models", "min_size_bytes": 10_000_000_000},
+            {"filename": ["clip_l.safetensors"], "category": "clip", "min_size_bytes": 200_000_000},
+            {"filename": ["t5xxl_fp8_e4m3fn.safetensors"], "category": "clip", "min_size_bytes": 4_000_000_000},
+            {"filename": ["ae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
         "flux2_klein_4b_fp8": [
-            {"filename": "flux-2-klein-4b-fp8.safetensors", "category": "diffusion_models", "min_size_bytes": 3_500_000_000},
-            {"filename": "clip_l.safetensors", "category": "clip", "min_size_bytes": 200_000_000},
-            {"filename": "t5xxl_fp8_e4m3fn.safetensors", "category": "clip", "min_size_bytes": 4_000_000_000},
-            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 50_000_000},
+            {"filename": ["flux-2-klein-4b-fp8.safetensors", "flux2-klein-4b.safetensors"], "category": "diffusion_models", "min_size_bytes": 3_500_000_000},
+            {"filename": ["clip_l.safetensors"], "category": "clip", "min_size_bytes": 200_000_000},
+            {"filename": ["t5xxl_fp8_e4m3fn.safetensors"], "category": "clip", "min_size_bytes": 4_000_000_000},
+            {"filename": ["ae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
         "sdxl_base": [
-            {"filename": "sd_xl_base_1.0.safetensors", "category": "checkpoints", "min_size_bytes": 5_000_000_000},
+            {"filename": ["sd_xl_base_1.0.safetensors", "sdxl_base.safetensors"], "category": "checkpoints", "min_size_bytes": 5_000_000_000},
         ],
         "wan22_i2v": [
-            {"filename": "wan2.2_i2v_480p_14B_fp8_scaled.safetensors", "category": "diffusion_models", "min_size_bytes": 10_000_000_000},
-            {"filename": "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "category": "clip", "min_size_bytes": 3_500_000_000},
-            {"filename": "wan_2.1_vae.safetensors", "category": "vae", "min_size_bytes": 50_000_000},
+            {"filename": ["wan2.2_i2v_480p_14B_fp8_scaled.safetensors"], "category": "diffusion_models", "min_size_bytes": 10_000_000_000},
+            {"filename": ["umt5_xxl_fp8_e4m3fn_scaled.safetensors"], "category": "clip", "min_size_bytes": 3_500_000_000},
+            {"filename": ["wan_2.1_vae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
     }
 
@@ -468,27 +468,28 @@ def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
         found = []
         missing = []
         for comp in components:
-            path = find_component_in_storage(comp["filename"], comp["category"], storage_roots)
-            if path:
-                if is_valid_safetensors(path, min_bytes=comp["min_size_bytes"]):
-                    found.append({"filename": comp["filename"], "path": str(path)})
-                    # Link to local ComfyUI models folder
+            filenames = comp["filename"] if isinstance(comp["filename"], list) else [comp["filename"]]
+            comp_found = False
+            for fn in filenames:
+                path = find_component_in_storage(fn, comp["category"], storage_roots)
+                if path and is_valid_safetensors(path, min_bytes=comp["min_size_bytes"]):
+                    found.append({"filename": fn, "path": str(path)})
+                    comp_found = True
                     try:
                         cat_dir = comfy_dir / "models" / comp["category"]
                         cat_dir.mkdir(parents=True, exist_ok=True)
-                        link_target = cat_dir / comp["filename"]
+                        link_target = cat_dir / fn
                         if not link_target.exists():
-                            # Remove dead link or empty file if any
                             if link_target.is_symlink():
                                 link_target.unlink()
                             link_target.symlink_to(path)
-                            print(f"   [Link] {comp['filename']} -> {cat_dir}")
+                            print(f"   [Link] {fn} -> {cat_dir}")
                     except Exception as e:
-                        print(f"   [Link aviso] {comp['filename']}: {e}")
-                else:
-                    missing.append({"filename": comp["filename"], "reason": "INTEGRITY_FAIL: Invalid size"})
-            else:
-                missing.append({"filename": comp["filename"], "reason": "NOT_FOUND"})
+                        print(f"   [Link aviso] {fn}: {e}")
+                    break
+            if not comp_found:
+                missing.append({"filename": filenames[0], "reason": "NOT_FOUND"})
+
 
         all_present = len(missing) == 0
         results[model_id] = {
