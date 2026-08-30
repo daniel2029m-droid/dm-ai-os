@@ -13,8 +13,9 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
-from .provider_manager import BaseProviderAdapter, ProviderStatus, ProviderCapability
+from .base_adapter import BaseProviderAdapter, ProviderStatus, ProviderCapability
 from .provider_history import provider_history
+
 from .worker_registry import worker_registry, WorkerStatus
 from ..core.creative_engine import creative_engine
 from ..core.comfy_health_probe import comfy_health_probe

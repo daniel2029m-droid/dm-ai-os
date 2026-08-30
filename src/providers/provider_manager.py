@@ -27,83 +27,14 @@ log = logging.getLogger("provider_manager")
 _STATE_FILE = Path(os.getenv("APPDATA", Path.home())) / ".dm_ai_os" / "provider_state.json"
 
 
-class ProviderStatus(str, Enum):
-    AVAILABLE    = "available"
-    UNAVAILABLE  = "unavailable"
-    AUTH_EXPIRED = "auth_expired"
-    NO_CREDITS   = "no_credits"
-    DISABLED     = "disabled"
-    UNKNOWN      = "unknown"
+from .base_adapter import BaseProviderAdapter, ProviderStatus, ProviderCapability
 
 
-class ProviderCapability(str, Enum):
-    CHAT            = "chat"
-    IMAGE           = "image"
-    VIDEO           = "video"
-    CODE            = "code"
-    AUDIO           = "audio"
-    LOCAL           = "local"
-    CHARACTER_MGMT  = "character_management"
-    JOB_STATUS      = "job_status"
-    ASSET_RETRIEVAL = "asset_retrieval"
-
-
-# ─────────────────────────────────────────────────────────────
-# Base Provider Adapter interface
-# ─────────────────────────────────────────────────────────────
-
-class BaseProviderAdapter:
-    """All provider adapters must inherit from this."""
-    id: str = "base"
-    display_name: str = "Base Provider"
-    capabilities: List[ProviderCapability] = []
-    is_local: bool = False
-
-    async def health_check(self) -> Tuple[ProviderStatus, float, str]:
-        """
-        Returns (status, latency_ms, account_info).
-        Must be overridden.
-        """
-        raise NotImplementedError
-
-    async def chat(self, messages: List[Dict], **kwargs) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    async def generate_image(self, prompt: str, **kwargs) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    async def generate_video(self, prompt: str, **kwargs) -> Dict[str, Any]:
-        raise NotImplementedError
-
-    async def trigger_login(self) -> Dict[str, Any]:
-        """Launch authentication flow. Returns {status, message}."""
-        return {"status": "not_supported", "message": f"{self.display_name} login not implemented"}
-
-    async def logout(self) -> Dict[str, Any]:
-        return {"status": "not_supported", "message": f"{self.display_name} logout not implemented"}
-
-    def get_account_info(self) -> str:
-        return "Unknown"
-
-    def is_configured(self) -> bool:
-        """Return True when the provider has the credentials required to run."""
-        if self.is_local:
-            return True
-
-        if hasattr(self, "api_key"):
-            return bool(str(getattr(self, "api_key") or "").strip())
-
-        if hasattr(self, "_env_key"):
-            return bool(os.getenv(getattr(self, "_env_key"), "").strip())
-
-        return False
-
-
-# ─────────────────────────────────────────────────────────────
 # Concrete adapters: Higgsfield
 # ─────────────────────────────────────────────────────────────
 
 class HiggsfieldProviderAdapter(BaseProviderAdapter):
+
     id = "higgsfield"
     display_name = "Higgsfield AI"
     capabilities = [
