@@ -697,24 +697,25 @@ def run_bootstrap():
         log_step("🎭", "Instalando ReActor Face Swap...", "")
         env_git = os.environ.copy()
         env_git["GIT_TERMINAL_PROMPT"] = "0"
-        res = subprocess.run(["git", "clone", "--depth", "1", "https://github.com/Gourieff/ComfyUI-ReActor.git", str(reactor_dir)], env=env_git, check=False)
-        if res.returncode == 0 and reactor_dir.exists():
-            subprocess.run([sys.executable, "-m", "pip", "install", "-q", "insightface", "onnxruntime-gpu"], check=False)
-            insight_models = comfy_dir / "models" / "insightface"
-            facerestore_models = comfy_dir / "models" / "facerestore_models"
-            insight_models.mkdir(parents=True, exist_ok=True)
-            facerestore_models.mkdir(parents=True, exist_ok=True)
-            if not (insight_models / "inswapper_128.onnx").exists():
-                subprocess.run(["wget", "-q", "-c", "https://huggingface.co/ezioroz/inswapper_128.onnx/resolve/main/inswapper_128.onnx", "-P", str(insight_models)], check=False)
-            if not (facerestore_models / "GFPGANv1.4.pth").exists():
-                subprocess.run(["wget", "-q", "-c", "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth", "-P", str(facerestore_models)], check=False)
-        else:
-            if reactor_dir.exists() and not (reactor_dir / "__init__.py").exists():
-                import shutil
-                shutil.rmtree(str(reactor_dir), ignore_errors=True)
+        subprocess.run(["git", "clone", "--depth", "1", "https://github.com/Gourieff/ComfyUI-ReActor.git", str(reactor_dir)], env=env_git, check=False)
+
+    if reactor_dir.exists():
+        reactor_req = reactor_dir / "requirements.txt"
+        if reactor_req.exists():
+            subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(reactor_req)], check=False)
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "insightface", "onnx", "onnxruntime-gpu", "opencv-python"], check=False)
+        insight_models = comfy_dir / "models" / "insightface"
+        facerestore_models = comfy_dir / "models" / "facerestore_models"
+        insight_models.mkdir(parents=True, exist_ok=True)
+        facerestore_models.mkdir(parents=True, exist_ok=True)
+        if not (insight_models / "inswapper_128.onnx").exists():
+            subprocess.run(["wget", "-q", "-c", "https://huggingface.co/ezioroz/inswapper_128.onnx/resolve/main/inswapper_128.onnx", "-P", str(insight_models)], check=False)
+        if not (facerestore_models / "GFPGANv1.4.pth").exists():
+            subprocess.run(["wget", "-q", "-c", "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth", "-P", str(facerestore_models)], check=False)
 
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+
 
 
     # Also add ComfyUI's own models dir as a storage root (for local cache hits)
