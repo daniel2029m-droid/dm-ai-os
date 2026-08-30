@@ -157,8 +157,20 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             opt_w, opt_h = model_registry.get_optimal_resolution(target_model, aspect_ratio=ar_req)
             parameters["width"] = opt_w
             parameters["height"] = opt_h
+        elif target_model == "zimage_turbo" and "width" not in kwargs and "height" not in kwargs:
+            parameters["width"] = 832
+            parameters["height"] = 1472
+
+        if target_model == "zimage_turbo":
+            parameters.setdefault("steps", 8)
+            parameters.setdefault("cfg", 0.0)
+            parameters.setdefault("sampler_name", "euler")
+            parameters.setdefault("scheduler", "simple")
+
         parameters["model"] = target_model
         parameters["workflow"] = workflow_template
+
+
 
         log.info(f"[ComfyUIProvider] Executing '{workflow_template}' ({target_model}) on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")
 
