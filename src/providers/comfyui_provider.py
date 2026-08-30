@@ -10,6 +10,7 @@ Generates HMAC-SHA256 presigned streaming URLs for zero-leak delivery to the iPh
 
 import time
 import logging
+from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 from .provider_manager import BaseProviderAdapter, ProviderStatus, ProviderCapability
