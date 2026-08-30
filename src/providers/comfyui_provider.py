@@ -177,7 +177,10 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             err = exec_res.get("error", "Workflow submission failed")
             raise RuntimeError(f"ComfyUI execution error: {err}")
 
+        job_id = exec_res.get("job_id")
+
         # 2. Quick poll (up to 8s) or return async pending descriptor
+
         poll_start = time.time()
         timeout_sec = float(kwargs.get("timeout", 8.0))
         vault_res = {"status": "FAILED"}
