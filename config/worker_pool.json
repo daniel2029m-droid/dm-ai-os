@@ -1,0 +1,24 @@
+{
+  "master_account": "dmoralesllc7@gmail.com",
+  "storage_quota": "5TB",
+  "master_folder_path": "/content/drive/MyDrive/DM_AI_OS",
+  "rotation_accounts": [
+    {"id": "worker-01", "email": "dmoralesllc12@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-02", "email": "alberto2031m@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-03", "email": "dmoralesllc20@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-04", "email": "dmoralesllc4f@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-05", "email": "guada2031mn@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-06", "email": "carla2030m@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-07", "email": "danielallc01m@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-08", "email": "daniela42m@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-09", "email": "ingridllc06@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-10", "email": "dam709095@gmail.com", "role": "gpu_worker", "status": "active"},
+    {"id": "worker-11", "email": "abigail2031m@gmail.com", "role": "gpu_worker", "status": "active"}
+  ],
+  "failover_policy": {
+    "auto_switch_on_disconnect": true,
+    "probe_interval_seconds": 15,
+    "cooldown_recovery_seconds": 7200,
+    "zero_downtime_rerouting": true
+  }
+}
