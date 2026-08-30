@@ -704,17 +704,21 @@ def run_bootstrap():
         if reactor_req.exists():
             subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(reactor_req)], check=False)
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "insightface", "onnx", "onnxruntime-gpu", "opencv-python"], check=False)
+        log_step("🎭", "Descargando modelo biométrico inswapper_128.onnx...", "")
         insight_models = comfy_dir / "models" / "insightface"
         facerestore_models = comfy_dir / "models" / "facerestore_models"
         insight_models.mkdir(parents=True, exist_ok=True)
         facerestore_models.mkdir(parents=True, exist_ok=True)
-        if not (insight_models / "inswapper_128.onnx").exists():
-            subprocess.run(["wget", "-q", "-c", "https://huggingface.co/ezioroz/inswapper_128.onnx/resolve/main/inswapper_128.onnx", "-P", str(insight_models)], check=False)
-        if not (facerestore_models / "GFPGANv1.4.pth").exists():
-            subprocess.run(["wget", "-q", "-c", "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth", "-P", str(facerestore_models)], check=False)
+        inswapper_target = insight_models / "inswapper_128.onnx"
+        if not inswapper_target.exists() or inswapper_target.stat().st_size < 500_000_000:
+            subprocess.run(["wget", "-c", "https://huggingface.co/ezioroz/inswapper_128.onnx/resolve/main/inswapper_128.onnx", "-O", str(inswapper_target)], check=False)
+        gfpgan_target = facerestore_models / "GFPGANv1.4.pth"
+        if not gfpgan_target.exists() or gfpgan_target.stat().st_size < 300_000_000:
+            subprocess.run(["wget", "-c", "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth", "-O", str(gfpgan_target)], check=False)
 
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+
 
 
 
