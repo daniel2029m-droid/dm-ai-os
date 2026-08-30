@@ -46,7 +46,8 @@ SLOT_REGISTRY: Dict[str, Dict[str, Any]] = {
 }
 
 
-SLOT_PATTERN = re.compile(r"\{\{([A-Z_]+)\}\}")
+SLOT_PATTERN = re.compile(r"\{\{([A-Z0-9_]+)\}\}")
+
 
 # ─── Errors ───────────────────────────────────────────────────────────────────
 
