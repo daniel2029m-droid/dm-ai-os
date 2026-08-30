@@ -1070,10 +1070,22 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                                 const statData = await statRes.json();
                                 if (statData.status === 'COMPLETED' && statData.view_url) {{
                                     clearInterval(pollInterval);
-                                    const finalMsg = `🖼️ **Imagen generada por ComfyUI (${{gpuLabel}}):**\\n\\n![Imagen](${{statData.view_url}})\\n\\n[📥 Descargar Imagen](${{statData.download_url || statData.view_url}}) [🌐 Ver HD](${{statData.view_url}})`;
-                                    assistantMsgDiv.innerHTML = renderMedia(finalMsg);
+                                    const viewUrl = statData.view_url;
+                                    const dlUrl = statData.download_url || viewUrl;
+                                    const fn = viewUrl.split('/').pop().split('?')[0] || 'valeria_photo.png';
+                                    assistantMsgDiv.innerHTML = `
+                                        <div style="font-weight:700; color:#38bdf8; margin-bottom:8px; font-size:0.9rem;">🖼️ Imagen generada por ComfyUI (${{gpuLabel}}):</div>
+                                        <div style="position:relative; display:inline-block; margin:6px 0; width:100%;">
+                                            <img src="${{viewUrl}}" alt="Valeria" onclick="openMediaLightbox('${{viewUrl}}', '${{dlUrl}}', '${{fn}}')" style="max-width:100%; max-height:480px; border-radius:12px; box-shadow:0 8px 28px rgba(0,0,0,0.7); display:block; object-fit:contain; cursor:pointer; background:#0f172a;" title="Toca para ver en pantalla completa" />
+                                            <div style="margin-top:10px; display:flex; gap:8px;">
+                                                <a href="${{dlUrl}}" download="${{fn}}" target="_blank" style="background:#0284c7; color:#fff; border-radius:6px; padding:6px 14px; font-size:0.8rem; font-weight:600; text-decoration:none;">📥 Descargar Imagen HD</a>
+                                                <a href="${{viewUrl}}" target="_blank" style="background:rgba(255,255,255,0.1); color:#e2e8f0; border-radius:6px; padding:6px 14px; font-size:0.8rem; font-weight:600; text-decoration:none; border:1px solid rgba(255,255,255,0.2);">🌐 Ver Pantalla Completa</a>
+                                            </div>
+                                        </div>
+                                    `;
                                     chatMessages.scrollTop = chatMessages.scrollHeight;
                                 }}
+
                             }}
                         }} catch (pollErr) {{
                             console.warn('Polling error:', pollErr);
