@@ -127,9 +127,9 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         is_online = active.get("status") == "READY"
 
         catalog_models = [
+            {"id": "flux1_schnell", "name": "ComfyUI / FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False},
+            {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Sin Censura)", "free": True, "local": False},
             {"id": "zimage_turbo", "name": "ComfyUI / Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False},
-            {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Fast)", "free": True, "local": False},
-            {"id": "flux2_klein_4b_fp8", "name": "ComfyUI / FLUX.2 Klein 4B", "free": True, "local": False},
         ]
 
         for m in catalog_models:
@@ -143,24 +143,16 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
 
 
     async def chat(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
-        """Chat wrapper that generates image or video based on messages."""
-        prompt = ""
-        for m in reversed(messages):
-            if m.get("role") == "user":
-                prompt = m.get("content", "")
-                break
-        if not prompt and messages:
-            prompt = messages[-1].get("content", "")
-
-        model = kwargs.get("model") or "flux2_klein"
-        if "video" in str(model).lower() or "i2v" in str(model).lower() or kwargs.get("media_type") == "video":
-            return await self.generate_video(prompt=prompt, **kwargs)
+        """
+        Executes text-to-image or image-to-video for ComfyUI.
+        """
+        prompt = messages[-1].get("content", "") if messages else ""
         return await self.generate_image(prompt=prompt, **kwargs)
 
     async def generate_image(self, prompt: str, **kwargs) -> Dict[str, Any]:
         """
-        Executes workflow-first image generation on ComfyUI (Tesla T4) via CreativeEngine.
-        Vaults media output and returns HMAC signed URLs.
+        Dispatches workflow execution to the active ComfyUI worker (Tesla T4) via CreativeEngine.
+        Auto-vaults output, generates HMAC signed streaming URLs, and records telemetry.
         """
         t0 = time.monotonic()
         active_worker = worker_registry.get_active_worker()
@@ -170,22 +162,22 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         model_req = kwargs.get("model", "")
         worker_models = active_worker.get("models", [])
 
-        if "zimage" in str(model_req).lower() or "turbo" in str(model_req).lower():
+        if "flux" in str(model_req).lower() or "schnell" in str(model_req).lower():
+            workflow_template = "flux1_schnell_txt2img"
+            target_model = "flux1_schnell"
+        elif "zimage" in str(model_req).lower() or "turbo" in str(model_req).lower():
             workflow_template = "zimage_turbo_txt2img"
             target_model = "zimage_turbo"
-        elif "flux" in str(model_req).lower():
-            workflow_template = "flux2_klein_txt2img"
-            target_model = "flux2_klein_4b_fp8"
         elif "sd15" in str(model_req).lower():
             workflow_template = "sd15_txt2img"
             target_model = "sd15_base"
         else:
-            if "zimage_turbo" in worker_models:
+            if "flux1_schnell" in worker_models or "flux1_schnell_fp8" in worker_models:
+                workflow_template = "flux1_schnell_txt2img"
+                target_model = "flux1_schnell"
+            elif "zimage_turbo" in worker_models:
                 workflow_template = "zimage_turbo_txt2img"
                 target_model = "zimage_turbo"
-            elif "flux2_klein" in worker_models or "flux2_klein_4b_fp8" in worker_models:
-                workflow_template = "flux2_klein_txt2img"
-                target_model = "flux2_klein_4b_fp8"
             else:
                 workflow_template = kwargs.get("workflow") or kwargs.get("template") or "sd15_txt2img"
                 target_model = "sd15_base"
@@ -200,7 +192,20 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             elif "16:9" in prompt_lower or "horizontal" in prompt_lower or "landscape" in prompt_lower:
                 ar_req = "16:9"
 
-        if ar_req and "width" not in kwargs and "height" not in kwargs:
+        if target_model in ("flux1_schnell", "flux2_klein_4b_fp8"):
+            if "width" not in parameters and "height" not in parameters:
+                if ar_req == "9:16" or "9:16" in prompt_lower or "vertical" in prompt_lower:
+                    parameters["width"] = 832
+                    parameters["height"] = 1216
+                elif ar_req == "16:9" or "16:9" in prompt_lower:
+                    parameters["width"] = 1216
+                    parameters["height"] = 832
+                else:
+                    parameters["width"] = 1024
+                    parameters["height"] = 1024
+            parameters.setdefault("steps", 4)
+            parameters.setdefault("cfg", 1.0)
+        elif ar_req and "width" not in kwargs and "height" not in kwargs:
             from ..core.model_registry import model_registry
             opt_w, opt_h = model_registry.get_optimal_resolution(target_model, aspect_ratio=ar_req)
             parameters["width"] = opt_w
