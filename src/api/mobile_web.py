@@ -1020,7 +1020,18 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     body: JSON.stringify(payload)
                 }});
 
-                const data = await res.json();
+                let data = {{}};
+                const resText = await res.text();
+                try {{
+                    data = JSON.parse(resText);
+                }} catch (jsonErr) {{
+                    if (!res.ok) {{
+                        throw new Error(`Servidor ocupado (${{res.status}}). La GPU sigue procesando en segundo plano.`);
+                    }}
+                    throw new Error('Respuesta no válida del servidor');
+                }}
+
+
 
                 // Extract image or video URL anywhere inside data object
                 function extractMediaFromData(obj) {{
