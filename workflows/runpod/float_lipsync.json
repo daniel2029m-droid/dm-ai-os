@@ -1,0 +1,40 @@
+{
+  "1": {
+    "inputs": {
+      "image": "{{INPUT_IMAGE}}",
+      "upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "2": {
+    "inputs": {
+      "audio": "{{INPUT_AUDIO}}",
+      "upload": "audio"
+    },
+    "class_type": "LoadAudio"
+  },
+  "3": {
+    "inputs": {
+      "ckpt_name": "float_lipsync_v1.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "4": {
+    "inputs": {
+      "model": ["3", 0],
+      "image": ["1", 0],
+      "audio": ["2", 0],
+      "fps": 25
+    },
+    "class_type": "FloatLipsyncGenerator"
+  },
+  "5": {
+    "inputs": {
+      "filename_prefix": "FLOAT_Lipsync_Video",
+      "fps": 25,
+      "images": ["4", 0],
+      "audio": ["2", 0]
+    },
+    "class_type": "SaveVideoWithAudio"
+  }
+}

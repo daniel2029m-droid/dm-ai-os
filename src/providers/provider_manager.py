@@ -609,10 +609,12 @@ class ProviderManager:
                 {"id": "higgsfield-video", "name": "Higgsfield Video (Animate)", "free": True, "local": False, "status": "available"}
             ],
             "comfyui": [
-                {"id": "flux2_klein", "name": "FLUX.2 Klein 4B (Tesla T4 16GB)", "free": True, "local": False, "status": "available"},
+                {"id": "zimage_turbo", "name": "Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False, "status": "available"},
                 {"id": "sd15_base", "name": "Stable Diffusion 1.5 Fast", "free": True, "local": False, "status": "available"},
-                {"id": "wan22_i2v", "name": "Wan 2.1 / 2.2 Video I2V", "free": True, "local": False, "status": "available"}
+                {"id": "flux2_klein_4b_fp8", "name": "FLUX.2 Klein 4B", "free": True, "local": False, "status": "available"},
+                {"id": "ltx_video", "name": "LTX-Video (Text/Image to Video)", "free": True, "local": False, "status": "available"}
             ]
+
         }
 
         for pid, adapter in self._providers.items():

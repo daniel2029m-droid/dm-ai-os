@@ -1,56 +1,470 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-08-28T00:00:00Z",
+  "_comment": "DM AI OS v1.5.1 — Model Registry. Single source of truth for model definitions. Loaded at runtime by ModelStoragePlane and ModelRegistry. DO NOT duplicate in Python code.",
+  "version": "2.1.0",
+  "updated_at": "2026-08-29T22:15:00Z",
+  "schema_version": "dm-model-registry-v2",
   "models": {
-    "flux2_klein": {
-      "architecture": "flux",
-      "category": "checkpoint",
-      "filename": "flux1-schnell.safetensors",
-      "min_vram_gb": 12.0,
-      "recommended_vram_gb": 16.0,
-      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4", "H100"],
-      "compatible_workflows": ["flux2_klein_txt2img", "flux_txt2img_lora"],
-      "tags": ["photorealistic", "fast", "schnell", "high-quality"]
-    },
     "sd15_base": {
+      "model_id": "sd15_base",
+      "display_name": "Stable Diffusion 1.5 Base",
+      "family": "sd15",
+      "variant": "base_fp16",
       "architecture": "sd15",
-      "category": "checkpoint",
-      "filename": "v1-5-pruned-emaonly.safetensors",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp16",
+      "quantization": "none",
+      "size_gb": 2.1,
       "min_vram_gb": 4.0,
       "recommended_vram_gb": 8.0,
-      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3090", "RTX 4090", "A10G", "A100", "L4", "T4"],
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "PHYSICALLY_VALIDATED",
+      "resolution_presets": {
+        "portrait_9_16": [512, 912],
+        "square_1_1": [512, 512],
+        "landscape_16_9": [912, 512]
+      },
+      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3070", "RTX 3090", "RTX 4090", "A10G", "A100", "L4", "T4"],
       "compatible_workflows": ["sd15_txt2img", "sd15_img2img", "sd15_inpainting"],
-      "tags": ["lightweight", "fast", "stable-diffusion-1.5"]
+      "task_types": ["image_generation", "text_to_image"],
+      "capabilities": ["text_to_image"],
+      "tags": ["lightweight", "fast", "stable-diffusion-1.5", "validated-e2e"],
+      "status_note": "E2E validated on Tesla T4. DO NOT modify workflow or loader config.",
+      "required_components": [
+        {
+          "filename": "v1-5-pruned-emaonly-fp16.safetensors",
+          "category": "checkpoints",
+          "min_size_bytes": 1500000000,
+          "loader_node": "CheckpointLoaderSimple",
+          "input_param": "ckpt_name",
+          "optional": false,
+          "notes": "Primary checkpoint. Already validated E2E."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/IMAGE/SD15",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/checkpoints",
+        "copy_policy": "always"
+      }
     },
-    "sdxl_base": {
-      "architecture": "sdxl",
-      "category": "checkpoint",
-      "filename": "sd_xl_base_1.0.safetensors",
+    "zimage_turbo": {
+      "model_id": "zimage_turbo",
+      "display_name": "Z-Image Turbo",
+      "family": "zimage",
+      "variant": "turbo_fp8",
+      "architecture": "zimage",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp8",
+      "quantization": "fp8_e4m3fn",
+      "size_gb": 4.8,
       "min_vram_gb": 8.0,
       "recommended_vram_gb": 12.0,
-      "compatible_gpus": ["Tesla T4", "RTX 3080", "RTX 3090", "RTX 4090", "A10G", "A100", "L4"],
-      "compatible_workflows": ["sdxl_txt2img", "sdxl_base_refiner"],
-      "tags": ["sdxl", "1024x1024", "cinematic"]
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED",
+      "resolution_presets": {
+        "portrait_9_16": [832, 1472],
+        "square_1_1": [1024, 1024],
+        "landscape_16_9": [1472, 832]
+      },
+
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3080", "RTX 3090", "RTX 4090", "A100", "L4"],
+      "compatible_workflows": ["zimage_turbo_txt2img"],
+      "task_types": ["image_generation", "text_to_image"],
+      "capabilities": ["text_to_image"],
+      "tags": ["zimage", "turbo", "fp8", "fast-generation", "mvp-priority"],
+      "required_components": [
+        {
+          "filename": "z_image_turbo_fp8_e4m3fn.safetensors",
+          "category": "diffusion_models",
+          "min_size_bytes": 4000000000,
+          "loader_node": "UNETLoader",
+          "input_param": "unet_name",
+          "optional": false,
+          "notes": "Z-Image Turbo FP8 diffusion model (~6.2 GB)."
+        },
+        {
+          "filename": "qwen_3_4b.safetensors",
+          "category": "text_encoders",
+          "min_size_bytes": 2000000000,
+          "loader_node": "CLIPLoader",
+          "input_param": "clip_name",
+          "optional": false,
+          "notes": "Qwen 3 4B text encoder for Z-Image Turbo (~3.4 GB)."
+        },
+        {
+          "filename": "ae.safetensors",
+          "category": "vae",
+          "min_size_bytes": 100000000,
+          "loader_node": "VAELoader",
+          "input_param": "vae_name",
+          "optional": false,
+          "notes": "Official VAE for Z-Image Turbo (~168 MB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/IMAGE/Z_IMAGE_TURBO",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/diffusion_models",
+        "copy_policy": "if_space_available",
+        "min_free_gb_after_copy": 5.0
+      },
+
+      "comfyui_flags": ["--lowvram"]
     },
-    "wan22_i2v": {
-      "architecture": "wan",
-      "category": "video",
-      "filename": "wan2.1_i2v_720p.safetensors",
-      "min_vram_gb": 14.0,
-      "recommended_vram_gb": 24.0,
-      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "H100"],
-      "compatible_workflows": ["wan22_i2v", "wan_text_to_video"],
-      "tags": ["video-generation", "720p", "motion"]
-    },
-    "flux_pulid_lora": {
+    "flux2_klein_4b_fp8": {
+      "model_id": "flux2_klein_4b_fp8",
+      "display_name": "FLUX.2 Klein 4B FP8",
+      "family": "flux2",
+      "variant": "4b_fp8",
       "architecture": "flux",
-      "category": "lora",
-      "filename": "pulid_flux_v1.safetensors",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp8",
+      "quantization": "fp8_e4m3fn",
+      "size_gb": 5.5,
       "min_vram_gb": 12.0,
       "recommended_vram_gb": 16.0,
+
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED_WITH_CONSTRAINTS",
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3080", "RTX 3090", "RTX 4090", "A100", "L4", "H100"],
+      "compatible_workflows": ["flux2_klein_txt2img", "flux2_klein_img2img"],
+      "task_types": ["image_generation", "text_to_image", "image_to_image"],
+      "capabilities": ["text_to_image"],
+      "tags": ["flux", "klein", "4b", "fp8", "lightweight"],
+      "status_note": "T4 compatible at 8-10 GB VRAM. Requires physical validation.",
+      "required_components": [
+        {
+          "filename": "flux-2-klein-4b-fp8.safetensors",
+          "category": "diffusion_models",
+          "min_size_bytes": 3500000000,
+          "loader_node": "UNETLoader",
+          "input_param": "unet_name",
+          "optional": false,
+          "notes": "FLUX.2 Klein 4B parameter model in FP8. ~4-5 GB."
+        },
+        {
+          "filename": "clip_l.safetensors",
+          "category": "clip",
+          "min_size_bytes": 200000000,
+          "loader_node": "DualCLIPLoader",
+          "input_param": "clip_name1",
+          "optional": false,
+          "notes": "CLIP-L text encoder."
+        },
+        {
+          "filename": "t5xxl_fp8_e4m3fn.safetensors",
+          "category": "clip",
+          "min_size_bytes": 4000000000,
+          "loader_node": "DualCLIPLoader",
+          "input_param": "clip_name2",
+          "optional": false,
+          "notes": "T5-XXL FP8 text encoder."
+        },
+        {
+          "filename": "ae.safetensors",
+          "category": "vae",
+          "min_size_bytes": 250000000,
+          "loader_node": "VAELoader",
+          "input_param": "vae_name",
+          "optional": false,
+          "notes": "FLUX VAE."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/IMAGE/FLUX",
+        "copy_to_local": true,
+        "local_path": "/content/models/flux2_klein",
+        "copy_policy": "if_space_available",
+        "min_free_gb_after_copy": 5.0
+      },
+      "comfyui_flags": ["--fp8_e4m3fn-unet", "--lowvram"]
+    },
+    "flux1_schnell_fp8": {
+      "model_id": "flux1_schnell_fp8",
+      "display_name": "FLUX.1 Schnell FP8",
+      "family": "flux1",
+      "variant": "schnell_fp8",
+      "architecture": "flux",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp8",
+      "quantization": "fp8_e4m3fn",
+      "size_gb": 17.2,
+      "min_vram_gb": 12.0,
+      "recommended_vram_gb": 16.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED_WITH_CONSTRAINTS",
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4", "H100"],
+      "compatible_workflows": ["flux1_schnell_txt2img"],
+      "task_types": ["image_generation", "text_to_image"],
+      "capabilities": ["text_to_image"],
+      "tags": ["flux", "schnell", "fp8", "fast-inference"],
+      "status_note": "CONFIGURED — high VRAM usage on T4 (12-13 GB). Use --lowvram.",
+      "required_components": [
+        {
+          "filename": "flux1-schnell-fp8.safetensors",
+          "category": "diffusion_models",
+          "min_size_bytes": 11000000000,
+          "loader_node": "UNETLoader",
+          "input_param": "unet_name",
+          "optional": false,
+          "notes": "Main FLUX.1 Schnell diffusion model in FP8. ~11.9 GB."
+        },
+        {
+          "filename": "clip_l.safetensors",
+          "category": "clip",
+          "min_size_bytes": 200000000,
+          "loader_node": "DualCLIPLoader",
+          "input_param": "clip_name1",
+          "optional": false
+        },
+        {
+          "filename": "t5xxl_fp8_e4m3fn.safetensors",
+          "category": "clip",
+          "min_size_bytes": 4000000000,
+          "loader_node": "DualCLIPLoader",
+          "input_param": "clip_name2",
+          "optional": false
+        },
+        {
+          "filename": "ae.safetensors",
+          "category": "vae",
+          "min_size_bytes": 250000000,
+          "loader_node": "VAELoader",
+          "input_param": "vae_name",
+          "optional": false
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/IMAGE/FLUX",
+        "copy_to_local": true,
+        "local_path": "/content/models/flux1_schnell",
+        "copy_policy": "if_space_available",
+        "min_free_gb_after_copy": 5.0
+      },
+      "comfyui_flags": ["--fp8_e4m3fn-unet", "--lowvram"]
+    },
+    "ltx_video": {
+      "model_id": "ltx_video",
+      "display_name": "LTX-Video 0.9.1 FP8",
+      "family": "ltx",
+      "variant": "ltx_video_091_fp8",
+      "architecture": "ltx",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp8",
+      "quantization": "fp8_e4m3fn",
+      "size_gb": 7.8,
+      "min_vram_gb": 12.0,
+      "recommended_vram_gb": 16.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED_WITH_CONSTRAINTS",
       "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4"],
-      "compatible_workflows": ["flux2_klein_txt2img", "flux_txt2img_lora"],
-      "tags": ["identity", "face-consistency", "pulid"]
+      "compatible_workflows": ["ltx_txt2video", "ltx_img2video"],
+      "task_types": ["video_generation", "text_to_video", "image_to_video"],
+      "capabilities": ["text_to_video", "image_to_video"],
+      "tags": ["video", "ltx", "fast-video", "fp8"],
+      "status_note": "Fast video generation for rapid iteration. Optimized for 16GB GPUs with offload.",
+      "required_components": [
+        {
+          "filename": "ltx-video-2b-v0.9.1-fp8.safetensors",
+          "category": "checkpoints",
+          "min_size_bytes": 5000000000,
+          "loader_node": "CheckpointLoaderSimple",
+          "input_param": "ckpt_name",
+          "optional": false,
+          "notes": "LTX-Video 2B FP8 unified model (~5.2 GB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/VIDEO/LTX",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/checkpoints",
+        "copy_policy": "if_space_available",
+        "min_free_gb_after_copy": 5.0
+      },
+      "comfyui_flags": ["--lowvram"]
+    },
+    "minimax_h3": {
+      "model_id": "minimax_h3",
+      "display_name": "MiniMax H3 Video",
+      "family": "minimax",
+      "variant": "h3_q4_gguf",
+      "architecture": "minimax_h3",
+      "backend": "comfyui",
+      "format": "gguf",
+      "precision": "q4_k_m",
+      "quantization": "q4_k_m",
+      "size_gb": 18.5,
+      "min_vram_gb": 16.0,
+      "recommended_vram_gb": 24.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "EXPERIMENTAL",
+      "compatible_gpus": ["A10G", "RTX 3090", "RTX 4090", "A100", "H100"],
+      "compatible_workflows": ["h3_t2v", "h3_fl2va", "h3_ref2va"],
+      "task_types": ["video_generation", "t2va", "fl2va", "ref2va"],
+      "capabilities": ["text_to_video", "image_to_video", "reference_to_video"],
+      "tags": ["video", "minimax", "h3", "multimodal", "experimental"],
+      "status_note": "High-demand multimodal video model. T4 VRAM constrained (requires CPU offload/A100).",
+      "required_components": [
+        {
+          "filename": "minimax_h3_q4_k_m.gguf",
+          "category": "diffusion_models",
+          "min_size_bytes": 15000000000,
+          "loader_node": "UNETLoaderGGUF",
+          "input_param": "unet_name",
+          "optional": false,
+          "notes": "Main MiniMax H3 quantized model (~18 GB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/VIDEO/MINIMAX_H3",
+        "copy_to_local": false,
+        "local_path": "/content/models/minimax_h3",
+        "copy_policy": "never_auto",
+        "min_free_gb_after_copy": 10.0
+      }
+    },
+    "seedvr2_upscale": {
+      "model_id": "seedvr2_upscale",
+      "display_name": "SeedVR2 Super Resolution",
+      "family": "seedvr2",
+      "variant": "seedvr2_fp16",
+      "architecture": "seedvr2",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp16",
+      "quantization": "none",
+      "size_gb": 1.2,
+      "min_vram_gb": 8.0,
+      "recommended_vram_gb": 12.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED",
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3080", "RTX 3090", "RTX 4090", "A100", "L4"],
+      "compatible_workflows": ["seedvr2_upscale"],
+      "task_types": ["super_resolution", "upscale"],
+      "capabilities": ["image_upscale"],
+      "tags": ["upscale", "super-resolution", "detail-preservation"],
+      "status_note": "High-fidelity upscaling model for post-processing.",
+      "required_components": [
+        {
+          "filename": "seedvr2_upscale_v1.safetensors",
+          "category": "upscale_models",
+          "min_size_bytes": 900000000,
+          "loader_node": "UpscaleModelLoader",
+          "input_param": "model_name",
+          "optional": false,
+          "notes": "SeedVR2 upscale weights (~1.2 GB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/UPSCALE/SEEDVR2",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/upscale_models",
+        "copy_policy": "always"
+      }
+    },
+    "qwen3_tts": {
+      "model_id": "qwen3_tts",
+      "display_name": "Qwen3-TTS Voice Engine",
+      "family": "qwen3",
+      "variant": "tts_06b_fp16",
+      "architecture": "qwen_tts",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp16",
+      "quantization": "none",
+      "size_gb": 1.5,
+      "min_vram_gb": 4.0,
+      "recommended_vram_gb": 8.0,
+      "local_allowed": true,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED",
+      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3070", "RTX 3090", "RTX 4090", "A10G", "A100"],
+      "compatible_workflows": ["qwen3_tts"],
+      "task_types": ["text_to_speech", "voice_generation"],
+      "capabilities": ["text_to_audio"],
+      "tags": ["audio", "tts", "voice-synthesis", "qwen3"],
+      "status_note": "High-fidelity text-to-speech engine. Can run locally on CPU or on remote GPU.",
+      "required_components": [
+        {
+          "filename": "qwen3_tts_0.6b_fp16.safetensors",
+          "category": "audio_models",
+          "min_size_bytes": 1000000000,
+          "loader_node": "TTSModelLoader",
+          "input_param": "model_name",
+          "optional": false,
+          "notes": "Qwen3-TTS 0.6B model checkpoint (~1.5 GB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/AUDIO/QWEN3_TTS",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/audio_models",
+        "copy_policy": "always"
+      }
+    },
+    "comfyui_float": {
+      "model_id": "comfyui_float",
+      "display_name": "ComfyUI-FLOAT Lipsync",
+      "family": "float",
+      "variant": "lipsync_v1",
+      "architecture": "float_lipsync",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp16",
+      "quantization": "none",
+      "size_gb": 3.2,
+      "min_vram_gb": 10.0,
+      "recommended_vram_gb": 14.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "SUPPORTED_WITH_CONSTRAINTS",
+      "compatible_gpus": ["Tesla T4", "A10G", "RTX 3090", "RTX 4090", "A100", "L4"],
+      "compatible_workflows": ["float_lipsync"],
+      "task_types": ["lipsync", "audio_video_sync"],
+      "capabilities": ["video_lipsync"],
+      "tags": ["lipsync", "audio-driven", "face-animation", "float"],
+      "status_note": "Audio + Video/Image lipsync synchronization. Runs on T4 with lowvram.",
+      "required_components": [
+        {
+          "filename": "float_lipsync_v1.safetensors",
+          "category": "checkpoints",
+          "min_size_bytes": 2500000000,
+          "loader_node": "CheckpointLoaderSimple",
+          "input_param": "ckpt_name",
+          "optional": false,
+          "notes": "FLOAT lipsync neural pipeline (~3.2 GB)."
+        }
+      ],
+      "storage": {
+        "storage_node": "google-drive-primary",
+        "relative_path": "AI_LIBRARY/LIPSYNC/FLOAT",
+        "copy_to_local": true,
+        "local_path": "/content/ComfyUI/models/checkpoints",
+        "copy_policy": "if_space_available",
+        "min_free_gb_after_copy": 5.0
+      },
+      "comfyui_flags": ["--lowvram"]
     }
   }
 }
+

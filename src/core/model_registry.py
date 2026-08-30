@@ -140,7 +140,112 @@ class ModelRegistry:
                         details={"model_name": model_name, "gpu_name": gpu_name, "compatible_gpus": compat_gpus}
                     )
 
-        return model_info
+    def list_models_by_task(self, task_type: str) -> List[Dict[str, Any]]:
+        """Filters models that support a specific task type (e.g. 'image_generation', 'video_generation', 'text_to_speech')."""
+        task_clean = task_type.lower().strip()
+        matched = []
+        for m in self.list_models():
+            tasks = [t.lower() for t in m.get("task_types", [])] + [c.lower() for c in m.get("capabilities", [])]
+            if task_clean in tasks or any(task_clean in t for t in tasks):
+                matched.append(m)
+        return matched
+
+    def list_models_by_family(self, family: str) -> List[Dict[str, Any]]:
+        """Filters models by family identifier (e.g. 'zimage', 'flux2', 'ltx', 'minimax')."""
+        fam_clean = family.lower().strip()
+        return [m for m in self.list_models() if m.get("family", "").lower() == fam_clean]
+
+    def find_best_model_for_task(
+        self,
+        task_type: str,
+        available_vram_gb: Optional[float] = None,
+        prefer_fast: bool = True
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Selects the optimal registered model for a given task based on VRAM constraints.
+        Priority:
+          - Image generation: zimage_turbo (fast MVP) -> flux2_klein_4b_fp8 -> sd15_base
+          - Video generation: ltx_video (fast/iterative) -> minimax_h3 (multimodal heavy)
+          - Upscaling: seedvr2_upscale
+          - Voice: qwen3_tts
+          - Lipsync: comfyui_float
+        """
+        candidates = self.list_models_by_task(task_type)
+        if not candidates:
+            return None
+
+        # Filter by VRAM constraint if provided
+        if available_vram_gb is not None:
+            candidates = [m for m in candidates if m.get("min_vram_gb", 0.0) <= available_vram_gb]
+
+        if not candidates:
+            return None
+
+        # Priority sorting rules
+        task_norm = task_type.lower()
+        if "image" in task_norm or "txt2img" in task_norm:
+            priority_order = ["zimage_turbo", "flux2_klein_4b_fp8", "flux1_schnell_fp8", "sd15_base"]
+            for pid in priority_order:
+                for c in candidates:
+                    if c.get("model_id") == pid:
+                        return c
+
+        elif "video" in task_norm or "i2v" in task_norm or "t2v" in task_norm:
+            priority_order = ["ltx_video", "minimax_h3", "wan22_i2v"]
+            for pid in priority_order:
+                for c in candidates:
+                    if c.get("model_id") == pid:
+                        return c
+
+        elif "upscale" in task_norm or "super_resolution" in task_norm:
+            for c in candidates:
+                if "seedvr2" in c.get("model_id", ""):
+                    return c
+
+        elif "tts" in task_norm or "speech" in task_norm or "voice" in task_norm:
+            for c in candidates:
+                if "qwen3" in c.get("model_id", ""):
+                    return c
+
+        elif "lipsync" in task_norm:
+            for c in candidates:
+                if "float" in c.get("model_id", ""):
+                    return c
+
+        return candidates[0]
+
+    def get_optimal_resolution(self, model_id: str, aspect_ratio: str = "9:16") -> Tuple[int, int]:
+        """
+        Determines the optimal (width, height) resolution for a model and aspect ratio.
+        Prevents Out-Of-Memory while maximizing fidelity.
+        """
+        model = self.get_model(model_id) or {}
+        presets = model.get("resolution_presets", {})
+
+        ar_clean = aspect_ratio.strip().lower().replace(":", "_")
+        key = f"portrait_{ar_clean}" if "9_16" in ar_clean else f"landscape_{ar_clean}" if "16_9" in ar_clean else "square_1_1"
+
+        if key in presets:
+            return tuple(presets[key])
+
+        # Fallback defaults based on family
+        family = model.get("family", "").lower()
+        if "sd15" in family:
+            if "9_16" in ar_clean:
+                return (512, 912)
+            if "16_9" in ar_clean:
+                return (912, 512)
+            return (512, 512)
+
+        # FLUX / Z-Image / SDXL
+        if "9_16" in ar_clean:
+            return (832, 1472)
+        if "16_9" in ar_clean:
+            return (1472, 832)
+        return (1024, 1024)
+
 
 # Global singleton
 model_registry = ModelRegistry()
+
+

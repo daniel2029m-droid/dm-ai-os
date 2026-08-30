@@ -338,6 +338,85 @@ async def creative_get_strategy_brief(topic: str = None, **kwargs) -> Dict[str, 
     except Exception as e:
         return {"status": "ERROR", "error_code": "STRATEGY_BRIEF_FAILED", "error": str(e)}
 
+# ─── Creative Engine & Model Router MCP Tools ───────────────────────────────
+
+async def creative_list_models(task_type: str = None, **kwargs) -> List[Dict[str, Any]]:
+    """Lists all registered models in the creative catalog with their capabilities and requirements."""
+    from ..core.model_registry import model_registry
+    if task_type:
+        return model_registry.list_models_by_task(task_type)
+    return model_registry.list_models()
+
+async def creative_get_model_capabilities(**kwargs) -> Dict[str, Any]:
+    """Returns the dynamic capability matrix comparing registered models with active compute resources."""
+    from ..core.model_router import model_router
+    return model_router.get_capability_matrix()
+
+async def creative_list_workers(**kwargs) -> List[Dict[str, Any]]:
+    """Lists all registered compute workers (e.g. Google Colab Tesla T4) and their real-time states."""
+    from ..providers.worker_registry import worker_registry
+    return worker_registry.list_workers()
+
+async def creative_worker_status(**kwargs) -> Dict[str, Any]:
+    """Evaluates the physical and logical state of the GPU Compute Plane."""
+    from ..core.compute_plane_orchestrator import ComputePlaneOrchestrator
+    orch = ComputePlaneOrchestrator()
+    return orch.get_compute_status()
+
+async def creative_submit_job(
+    task_type: str = "image_generation",
+    prompt: str = "",
+    model: str = None,
+    parameters: Dict[str, Any] = None,
+    negative_prompt: str = None,
+    seed: int = None,
+    input_assets: List[str] = None,
+    **kwargs
+) -> Dict[str, Any]:
+    """
+    Submits a high-level creative generation job routed through ModelRouter and CreativeEngine.
+    If GPU is offline, returns REQUIRES_ACTIVATION with 1-click Colab activation instructions.
+    """
+    from ..core.creative_engine import creative_engine
+    params = dict(parameters or {})
+    params.update(kwargs)
+    return await creative_engine.submit_generation_job(
+        task_type=task_type,
+        prompt=prompt,
+        model_name=model,
+        parameters=params,
+        negative_prompt=negative_prompt,
+        seed=seed,
+        input_assets=input_assets
+    )
+
+async def creative_upscale(image_path: str, model: str = None, scale: int = 4, **kwargs) -> Dict[str, Any]:
+    """Upscales an image using SeedVR2 super-resolution."""
+    from ..core.creative_engine import creative_engine
+    return await creative_engine.upscale(image_path=image_path, model=model, scale=scale, **kwargs)
+
+async def creative_tts(text: str, model: str = None, voice_reference: str = None, **kwargs) -> Dict[str, Any]:
+    """Synthesizes speech using Qwen3-TTS."""
+    from ..core.creative_engine import creative_engine
+    return await creative_engine.tts(text=text, model=model, voice_reference=voice_reference, **kwargs)
+
+async def creative_lipsync(image_or_video: str, audio: str, model: str = None, **kwargs) -> Dict[str, Any]:
+    """Synchronizes lipsync using ComfyUI-FLOAT."""
+    from ..core.creative_engine import creative_engine
+    return await creative_engine.lipsync(image_or_video_path=image_or_video, audio_path=audio, model=model, **kwargs)
+
+async def creative_list_user_outputs(category: str = None, limit: int = 50, **kwargs) -> Dict[str, Any]:
+
+    """Lists files in the user-accessible deliverable library (C:\\Users\\moral\\DM_AI_OS_OUTPUTS\\)."""
+    from ..storage.user_outputs import user_outputs
+    return user_outputs.list_user_outputs(category=category, limit=limit)
+
+async def creative_get_preview_url(job_id: str, ttl: int = 3600, base_url: str = "", **kwargs) -> Dict[str, Any]:
+    """Generates HMAC signed preview and download URLs for viewing assets on mobile/desktop browsers."""
+    from ..api.creative_assets_router import generate_signed_urls
+    return generate_signed_urls(job_id=job_id, ttl=ttl, base_url=base_url)
+
+
 # Register all MCP tools
 def register_all_tools():
     mcp_registry.register_tool("system_status", "Get system health and state diagnostics", system_status)
@@ -374,8 +453,21 @@ def register_all_tools():
     mcp_registry.register_tool("creative_analyze_patterns", "Analyze high-performing creative patterns backed by audience metrics", creative_analyze_patterns)
     mcp_registry.register_tool("creative_create_experiment", "Design controlled multivariate creative experiments", creative_create_experiment)
     mcp_registry.register_tool("creative_get_strategy_brief", "Synthesize actionable creative strategy briefs from memory and evidence", creative_get_strategy_brief)
+    # Phase 16 Creative Engine Remote GPU tools
+    mcp_registry.register_tool("creative_list_models", "List all registered models and their capabilities", creative_list_models)
+    mcp_registry.register_tool("creative_get_model_capabilities", "Get dynamic capability matrix and hardware requirements", creative_get_model_capabilities)
+    mcp_registry.register_tool("creative_list_workers", "List registered remote compute workers and states", creative_list_workers)
+    mcp_registry.register_tool("creative_worker_status", "Get compute plane and worker health diagnostics", creative_worker_status)
+    mcp_registry.register_tool("creative_submit_job", "Submit high-level generation job with automated routing and fallback", creative_submit_job)
+    mcp_registry.register_tool("creative_upscale", "Super-resolution upscale using SeedVR2", creative_upscale)
+    mcp_registry.register_tool("creative_tts", "Synthesize voice speech using Qwen3-TTS", creative_tts)
+    mcp_registry.register_tool("creative_lipsync", "Synchronize video/image lipsync using FLOAT", creative_lipsync)
+    mcp_registry.register_tool("creative_list_user_outputs", "List deliverables in user-facing output library", creative_list_user_outputs)
+    mcp_registry.register_tool("creative_get_preview_url", "Get presigned preview and download URLs for mobile and web", creative_get_preview_url)
 
 register_all_tools()
+
+
 
 
 

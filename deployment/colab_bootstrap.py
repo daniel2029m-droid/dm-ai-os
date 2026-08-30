@@ -33,6 +33,20 @@ WORKER_ID = os.getenv("DM_WORKER_ID", "colab-comfy-primary")
 SESSION_ID = os.getenv("DM_SESSION_ID", f"rt-colab-{int(time.time())}")
 COMFY_PORT = 8188
 
+# ── Model Storage Plane ────────────────────────────────────────────
+# Canonical Drive mount point (Colab standard)
+DRIVE_MOUNT_POINT = "/content/drive"
+# Default model storage root relative to MyDrive. Override via env: DM_DRIVE_MODELS_PATH
+DRIVE_MODELS_DEFAULT_SUBPATH = "MyDrive/DM-AI-OS-MODELS"
+# Minimum free disk (GB) that must remain after any copy operation
+COPY_SAFETY_MARGIN_GB = 5.0
+# Model categories that ComfyUI recognises
+MODEL_CATEGORIES = [
+    "checkpoints", "diffusion_models", "unet",
+    "clip", "text_encoders", "vae",
+    "loras", "controlnet", "upscale_models",
+]
+
 
 def log_step(emoji: str, title: str, details: str = ""):
     print(f"\n{emoji} \033[1;36m[{title}]\033[0m {details}")
@@ -136,20 +150,23 @@ def start_cloudflare_tunnel(port: int = 8188) -> str:
     return tunnel_url or ""
 
 
-def register_worker_with_dmaios(dmaios_url: str, worker_id: str, session_id: str, tunnel_url: str, gpu_info: dict) -> dict:
-    """Sends registration payload to DM AI OS."""
-    reg_url = f"{dmaios_url.rstrip('/')}/api/v1/workers/register"
-    
-    # Detect physically installed models
-    comfy_dir = Path("/content/ComfyUI") if Path("/content").exists() else Path("./ComfyUI")
-    installed_models = ["sd15_base"]
-    if (comfy_dir / "models" / "unet" / "flux-2-klein-4b-fp8.safetensors").exists():
-        installed_models.append("flux2_klein")
-    if (comfy_dir / "models" / "unet" / "wan2.2_i2v_480p_14B_fp8_scaled.safetensors").exists():
-        installed_models.append("wan22_i2v")
+def register_worker_with_dmaios(
+    dmaios_url: str,
+    worker_id: str,
+    session_id: str,
+    tunnel_url: str,
+    gpu_info: dict,
+    installed_models: list | None = None
+) -> dict:
+    """Sends registration payload to DM AI OS.
+    installed_models: pre-computed list from discover_available_models(). If None, defaults to [sd15_base].
+    DOES NOT auto-add FLUX or WAN — only what was physically discovered.
+    """
+    if installed_models is None:
+        installed_models = ["sd15_base"]
 
     capabilities = ["image"]
-    if "wan22_i2v" in installed_models:
+    if any("i2v" in m or "video" in m or "wan" in m for m in installed_models):
         capabilities.append("video")
 
     payload = {
@@ -167,7 +184,7 @@ def register_worker_with_dmaios(dmaios_url: str, worker_id: str, session_id: str
     }
 
     req = urllib.request.Request(
-        reg_url,
+        f"{dmaios_url.rstrip('/')}/api/v1/workers/register",
         data=json.dumps(payload).encode("utf-8"),
         headers={"Content-Type": "application/json", "User-Agent": "DM-AI-OS-Colab-Bootstrap/1.5.1"}
     )
@@ -198,6 +215,288 @@ def start_heartbeat_thread(dmaios_url: str, worker_id: str, session_id: str, int
     t = threading.Thread(target=_loop, daemon=True)
     t.start()
     return t
+
+
+# ── Google Drive Storage Plane ────────────────────────────────────────────
+
+def mount_google_drive() -> bool:
+    """
+    Mounts Google Drive using the official Google Colab OAuth mechanism.
+    Identity is resolved by Colab OAuth — NO credentials stored in code.
+    Returns True if Drive was successfully mounted.
+    """
+    if not Path("/content").exists():
+        print("   [⚠️] Not running in Colab — Drive mount skipped.")
+        return False
+    if Path(f"{DRIVE_MOUNT_POINT}/MyDrive").exists():
+        print("   Drive ya montado en /content/drive/MyDrive")
+        return True
+    try:
+        from google.colab import drive  # type: ignore
+        drive.mount(DRIVE_MOUNT_POINT, force_remount=False)
+        mounted = Path(f"{DRIVE_MOUNT_POINT}/MyDrive").exists()
+        if mounted:
+            print("   \033[1;32mGoogle Drive montado correctamente.\033[0m")
+        else:
+            print("   \033[1;33m[AVISO] Mount retornó pero MyDrive no es accesible.\033[0m")
+        return mounted
+    except ImportError:
+        print("   No es un entorno Colab — Drive mount omitido.")
+        return False
+    except Exception as e:
+        print(f"   \033[1;31m[ERROR] Drive mount falló: {e}\033[0m")
+        return False
+
+
+def get_drive_models_path() -> Path:
+    """
+    Resolves the model storage root path.
+    Priority: 1. DM_DRIVE_MODELS_PATH env var  2. Default convention.
+    No hardcoded account information.
+    """
+    env_val = os.getenv("DM_DRIVE_MODELS_PATH")
+    if env_val:
+        return Path(env_val)
+    return Path(DRIVE_MOUNT_POINT) / DRIVE_MODELS_DEFAULT_SUBPATH
+
+
+def run_drive_diagnostic(models_root: Path) -> dict:
+    """
+    Runs a non-destructive diagnostic of the Drive model storage root.
+    Checks mount, read access, write access, and directory structure.
+    DOES NOT download models. DOES NOT report space as “5 TB verified”.
+    """
+    result = {
+        "drive_mount": False,
+        "model_root_exists": False,
+        "read_access": False,
+        "write_access": False,
+        "reported_available_storage": "unknown",
+        "directories": {},
+        "pass": False,
+    }
+
+    mount_path = Path(DRIVE_MOUNT_POINT) / "MyDrive"
+    result["drive_mount"] = mount_path.exists()
+    if not result["drive_mount"]:
+        return result
+
+    result["model_root_exists"] = models_root.exists()
+    if not result["model_root_exists"]:
+        return result
+
+    # Read check
+    try:
+        list(models_root.iterdir())
+        result["read_access"] = True
+    except Exception as e:
+        print(f"   Read error: {e}")
+        return result
+
+    # Write check (small temp file, deleted immediately)
+    test_file = models_root / ".dm_write_test"
+    try:
+        test_file.write_text("DM-AI-OS write check")
+        test_file.unlink()
+        result["write_access"] = True
+    except Exception as e:
+        print(f"   Write error: {e}")
+
+    # Reported storage (not authoritative for quota, just informational)
+    try:
+        import shutil
+        total, used, free = shutil.disk_usage(str(mount_path))
+        result["reported_available_storage"] = f"{round(free / (1024**3), 1)} GB (reported by OS, may be approximate)"
+    except Exception:
+        pass
+
+    # Directory structure check
+    expected_dirs = ["checkpoints", "diffusion_models", "text_encoders",
+                     "clip", "vae", "loras", "controlnet", "upscale_models", "manifests"]
+    for d in expected_dirs:
+        result["directories"][d] = (models_root / d).exists()
+
+    result["pass"] = result["write_access"] and result["read_access"]
+    return result
+
+
+def check_disk_space_for_copy(required_size_bytes: int, safety_margin_gb: float = COPY_SAFETY_MARGIN_GB) -> bool:
+    """
+    Conservative disk space check before copying a model to local runtime.
+    NEVER copies automatically without this check passing.
+    required_size_bytes: total bytes of all components to copy
+    safety_margin_gb: minimum free space to leave after copy
+    Returns True only if: required + safety_margin < available
+    """
+    import shutil
+    try:
+        stat = shutil.disk_usage("/content")
+        free_gb = stat.free / (1024 ** 3)
+        required_gb = required_size_bytes / (1024 ** 3)
+        total_needed_gb = required_gb + safety_margin_gb
+        will_fit = total_needed_gb < free_gb
+        print(f"   Disco libre: {free_gb:.1f} GB | Requerido: {required_gb:.1f} GB | Margen: {safety_margin_gb:.0f} GB | Copia: {'YES' if will_fit else 'NO'}")
+        return will_fit
+    except Exception as e:
+        print(f"   [AVISO] No se pudo verificar espacio en disco: {e}")
+        return False  # Conservative: deny if unknown
+
+
+def find_component_in_storage(filename: str, category: str, search_roots: list) -> Path | None:
+    """
+    Searches for a model component file across all registered storage roots.
+    Checks multiple category aliases (diffusion_models/unet, clip/text_encoders).
+    Returns the Path if found, None otherwise. Does NOT download.
+    """
+    category_aliases: list
+    if category in ("unet", "diffusion_models"):
+        category_aliases = ["diffusion_models", "unet"]
+    elif category in ("clip", "text_encoders"):
+        category_aliases = ["clip", "text_encoders"]
+    else:
+        category_aliases = [category]
+
+    for root in search_roots:
+        root_path = Path(root)
+        if not root_path.exists():
+            continue
+        for cat in category_aliases:
+            candidates = [
+                root_path / cat / filename,
+                root_path / "models" / cat / filename,
+                root_path / filename,
+                root_path / "AI_LIBRARY" / "IMAGE" / "Z_IMAGE_TURBO" / cat / filename,
+                root_path / "AI_LIBRARY" / "IMAGE" / "Z-IMAGE" / cat / filename,
+                root_path / "AI_LIBRARY" / "IMAGE" / "SD15" / cat / filename,
+            ]
+            for c in candidates:
+                if c.exists():
+                    return c
+        # Fallback recursive search across the root
+        try:
+            for match in root_path.rglob(filename):
+                if match.is_file():
+                    return match
+        except Exception:
+            pass
+    return None
+
+
+
+def generate_extra_model_paths_yaml(comfy_dir: Path, storage_roots: list) -> Path:
+    """
+    Generates ComfyUI extra_model_paths.yaml mapping all active storage roots.
+    This allows ComfyUI to index models on Drive without copying them.
+    The file is written to ComfyUI's root directory.
+    """
+    yaml_path = comfy_dir / "extra_model_paths.yaml"
+    lines = [
+        "# DM AI OS v1.5.1 — Auto-generated Model Storage Paths",
+        "# Generated by colab_bootstrap.py — DO NOT EDIT MANUALLY",
+        "# Paths resolved from config/storage_nodes.json (no credentials)",
+        "",
+    ]
+    for idx, root in enumerate(storage_roots):
+        root_str = str(root).replace("\\", "/")
+        label = f"dm_storage_{idx}"
+        lines += [
+            f"{label}:",
+            f"    base_path: {root_str}",
+            "    checkpoints: checkpoints",
+            "    diffusion_models: diffusion_models",
+            "    unet: diffusion_models",
+            "    clip: clip",
+            "    text_encoders: clip",
+            "    vae: vae",
+            "    loras: loras",
+            "    controlnet: controlnet",
+            "    upscale_models: upscale_models",
+            "",
+        ]
+    content = "\n".join(lines)
+    yaml_path.write_text(content, encoding="utf-8")
+    print(f"   extra_model_paths.yaml generado: {yaml_path}")
+    return yaml_path
+
+
+def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
+    """
+    Discovers which model components are physically present across all storage roots.
+    Returns a capability dict: model_id -> {discovered: bool, components_found: [...], components_missing: [...]}
+    Does NOT download. Does NOT mark anything as READY (requires physical generation proof).
+    """
+    # Inline minimal component manifest (mirrors model_registry.json for Colab use without src imports)
+    COMPONENT_MANIFEST = {
+        "sd15_base": [
+            {"filename": "v1-5-pruned-emaonly-fp16.safetensors", "category": "checkpoints", "min_size_bytes": 1_500_000_000},
+        ],
+        "zimage_turbo": [
+            {"filename": "z_image_turbo_fp8_e4m3fn.safetensors", "category": "diffusion_models", "min_size_bytes": 4_000_000_000},
+            {"filename": "qwen_3_4b.safetensors", "category": "text_encoders", "min_size_bytes": 2_000_000_000},
+            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 100_000_000},
+        ],
+
+        "seedvr2_upscale": [
+            {"filename": "seedvr2_upscale_v1.safetensors", "category": "upscale_models", "min_size_bytes": 50_000_000},
+        ],
+        "flux1_schnell_fp8": [
+            {"filename": "flux1-schnell-fp8.safetensors", "category": "diffusion_models", "min_size_bytes": 11_000_000_000},
+            {"filename": "clip_l.safetensors", "category": "clip", "min_size_bytes": 200_000_000},
+            {"filename": "t5xxl_fp8_e4m3fn.safetensors", "category": "clip", "min_size_bytes": 4_000_000_000},
+            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 250_000_000},
+        ],
+        "flux2_klein_4b_fp8": [
+            {"filename": "flux-2-klein-4b-fp8.safetensors", "category": "diffusion_models", "min_size_bytes": 3_500_000_000},
+            {"filename": "clip_l.safetensors", "category": "clip", "min_size_bytes": 200_000_000},
+            {"filename": "t5xxl_fp8_e4m3fn.safetensors", "category": "clip", "min_size_bytes": 4_000_000_000},
+            {"filename": "ae.safetensors", "category": "vae", "min_size_bytes": 250_000_000},
+        ],
+        "sdxl_base": [
+            {"filename": "sd_xl_base_1.0.safetensors", "category": "checkpoints", "min_size_bytes": 5_000_000_000},
+        ],
+        "wan22_i2v": [
+            {"filename": "wan2.2_i2v_480p_14B_fp8_scaled.safetensors", "category": "diffusion_models", "min_size_bytes": 10_000_000_000},
+            {"filename": "umt5_xxl_fp8_e4m3fn_scaled.safetensors", "category": "clip", "min_size_bytes": 3_500_000_000},
+            {"filename": "wan_2.1_vae.safetensors", "category": "vae", "min_size_bytes": 1_000_000_000},
+        ],
+    }
+
+
+    results = {}
+    for model_id, components in COMPONENT_MANIFEST.items():
+        found = []
+        missing = []
+        for comp in components:
+            path = find_component_in_storage(comp["filename"], comp["category"], storage_roots)
+            if path:
+                valid, reason = is_valid_safetensors(path, min_bytes=comp["min_size_bytes"])
+                if valid:
+                    found.append({"filename": comp["filename"], "path": str(path)})
+                    try:
+                        cat_dir = comfy_dir / "models" / comp["category"]
+                        cat_dir.mkdir(parents=True, exist_ok=True)
+                        link_target = cat_dir / comp["filename"]
+                        if not link_target.exists():
+                            link_target.symlink_to(path)
+                    except Exception:
+                        pass
+                else:
+
+                    missing.append({"filename": comp["filename"], "reason": f"INTEGRITY_FAIL: {reason}"})
+            else:
+                missing.append({"filename": comp["filename"], "reason": "NOT_FOUND"})
+
+        all_present = len(missing) == 0
+        results[model_id] = {
+            "discovered": all_present,
+            "status": "DISCOVERED" if all_present else "MISSING_COMPONENTS",
+            "components_found": found,
+            "components_missing": missing,
+        }
+        status_icon = "✅" if all_present else "⭘"
+        print(f"   {status_icon} {model_id}: {results[model_id]['status']} ({len(found)}/{len(components)} componentes)")
+
+    return results
 
 
 def is_valid_safetensors(file_path: Path, min_bytes: int = 2_000_000_000) -> bool:
@@ -359,7 +658,28 @@ def run_bootstrap():
     if not gpu["available"]:
         print("\033[1;31m[ADVERTENCIA] No se detectó GPU CUDA. Ejecutando en modo CPU limitado.\033[0m")
 
-    # 2. ComfyUI Setup
+    # 2. Google Drive Mount (OAuth — no credentials stored)
+    log_step("📁", "Montando Google Drive...", "OAuth Colab (sin credenciales en código)")
+    drive_mounted = mount_google_drive()
+
+    # 3. Resolve storage paths
+    storage_roots = []
+    if drive_mounted:
+        models_root = get_drive_models_path()
+        log_step("📊", "Drive Diagnostic...", str(models_root))
+        diag = run_drive_diagnostic(models_root)
+        print(f"   DRIVE MOUNT:                {'PASS' if diag['drive_mount'] else 'FAIL'}")
+        print(f"   MODEL STORAGE ROOT:         {'PASS' if diag['model_root_exists'] else 'FAIL — crear DM-AI-OS-MODELS en Drive'}")
+        print(f"   READ ACCESS:                {'PASS' if diag['read_access'] else 'FAIL'}")
+        print(f"   WRITE ACCESS:               {'PASS' if diag['write_access'] else 'FAIL'}")
+        print(f"   REPORTED AVAILABLE STORAGE: {diag['reported_available_storage']}")
+        missing_dirs = [d for d, ok in diag["directories"].items() if not ok]
+        if missing_dirs:
+            print(f"   [AVISO] Carpetas faltantes en Drive: {missing_dirs}")
+        if diag["model_root_exists"] and diag["read_access"]:
+            storage_roots.append(models_root)
+
+    # 4. ComfyUI Setup
     comfy_dir = Path("/content/ComfyUI") if Path("/content").exists() else Path("./ComfyUI")
     if not comfy_dir.exists():
         log_step("📦", "Clonando repositorio ComfyUI...", "")
@@ -371,12 +691,29 @@ def run_bootstrap():
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
 
-    # Validar y descargar Checkpoint SD 1.5 con diagnóstico físico
+    # Also add ComfyUI's own models dir as a storage root (for local cache hits)
+    local_models_root = comfy_dir / "models"
+    if local_models_root.exists() and local_models_root not in storage_roots:
+        storage_roots.append(local_models_root)
+
+    # 5. Discover available models across all storage roots
+    log_step("🔎", "Descubriendo modelos en storage...", f"{len(storage_roots)} storage root(s)")
+    discovered = discover_available_models(storage_roots, comfy_dir)
+    discovered_model_ids = [mid for mid, info in discovered.items() if info["discovered"]]
+    print(f"   Modelos descubiertos: {discovered_model_ids}")
+
+    # 6. Generate extra_model_paths.yaml for ComfyUI
+    if storage_roots:
+        log_step("🗂️", "Generando extra_model_paths.yaml...", "")
+        generate_extra_model_paths_yaml(comfy_dir, storage_roots)
+
+    # 7. SD15 validation and download fallback (SD15 E2E is frozen — do not modify workflow)
+    log_step("⚙️", "Validando SD15...", "")
     if not download_and_validate_checkpoint(ckpt_dir):
         print("\033[1;31m[ERROR FATAL] El checkpoint SD 1.5 no pudo validarse. Abortando registro.\033[0m")
         return
 
-    # 3. Launch ComfyUI in Background
+    # 8. Launch ComfyUI in Background
     subprocess.run(["pkill", "-9", "-f", "main.py"], check=False)
     time.sleep(1.0)
     log_step("⚡", "Arrancando servidor ComfyUI...", f"Puerto {COMFY_PORT}")
@@ -389,14 +726,15 @@ def run_bootstrap():
         "--preview-method", "auto"
     ]
     comfy_log = open("/content/comfyui.log", "w") if Path("/content").exists() else open("comfyui.log", "w")
-    comfy_proc = subprocess.Popen(comfy_cmd, stdout=comfy_log, stderr=comfy_log)
+    subprocess.Popen(comfy_cmd, stdout=comfy_log, stderr=comfy_log)
 
     log_step("⏳", "Esperando respuesta de ComfyUI /system_stats...", "")
     if not wait_for_port(COMFY_PORT, timeout=45):
         print("\033[1;31m[ERROR] ComfyUI no respondió en el puerto 8188.\033[0m")
         return
 
-    # Validar que ComfyUI haya indexado el checkpoint
+    # 9. Validate SD15 indexed in ComfyUI (SD15 E2E frozen — must continue to pass)
+    sd15_indexed = False
     for _ in range(10):
         try:
             req = urllib.request.Request(f"http://127.0.0.1:{COMFY_PORT}/object_info/CheckpointLoaderSimple")
@@ -404,21 +742,31 @@ def run_bootstrap():
                 data = json.loads(r.read().decode())
                 ckpts = data.get("CheckpointLoaderSimple", {}).get("input", {}).get("required", {}).get("ckpt_name", [[]])[0]
                 if "v1-5-pruned-emaonly-fp16.safetensors" in ckpts:
-                    print("   Checkpoint ComfyUI: \033[1;32mv1-5-pruned-emaonly-fp16.safetensors INDEXADO\033[0m")
+                    print("   Checkpoint SD15: \033[1;32mv1-5-pruned-emaonly-fp16.safetensors INDEXADO\033[0m")
+                    sd15_indexed = True
                     break
         except Exception:
             pass
         time.sleep(2)
 
-    # 4. Start Tunnel
+    if not sd15_indexed:
+        print("   \033[1;33m[AVISO] SD15 aún no indexado. ComfyUI puede estar cargando.\033[0m")
+
+    # 10. Validate discovered model indexing (CONFIGURED status only — not READY)
+    log_step("📌", "Validando indexado de modelos en ComfyUI...", "")
+    for model_id in discovered_model_ids:
+        if model_id == "sd15_base":
+            continue  # Already validated above
+        print(f"   {model_id}: DISCOVERED (requiere prueba física para READY)")
+
+    # 11. Start Cloudflare Tunnel
     tunnel_url = start_cloudflare_tunnel(COMFY_PORT)
     if not tunnel_url:
         print("\033[1;31m[ERROR] No se pudo obtener la URL del túnel Cloudflare.\033[0m")
         return
-
     print(f"   Túnel Activo: \033[1;32m{tunnel_url}\033[0m")
 
-    # 5. Register with DM AI OS
+    # 12. Register worker with real capability matrix (only discovered models)
     log_step("🤝", "Registrando worker con DM AI OS...", DM_AI_OS_URL)
     try:
         reg_res = register_worker_with_dmaios(
@@ -426,27 +774,33 @@ def run_bootstrap():
             worker_id=WORKER_ID,
             session_id=SESSION_ID,
             tunnel_url=tunnel_url,
-            gpu_info=gpu
+            gpu_info=gpu,
+            installed_models=discovered_model_ids,
         )
         print(f"   Estado de Registro: \033[1;32m{reg_res.get('status')}\033[0m")
+        print(f"   Modelos registrados: {discovered_model_ids}")
     except Exception as e:
         print(f"\033[1;33m[AVISO] Registro HTTP falló ({e}). El worker seguirá intentando.\033[0m")
 
-    # 6. Start Heartbeat Daemon
+    # 13. Start Heartbeat Daemon
     log_step("💓", "Iniciando servicio de Heartbeat (cada 30s)...", "")
     start_heartbeat_thread(DM_AI_OS_URL, WORKER_ID, SESSION_ID, interval_sec=30)
 
-    # 7. Complete Summary Banner & Keep-Alive Loop
+    # 14. Summary Banner
     print("\n" + "=" * 65)
     print("🟢 \033[1;32mWORKER READY — COMPUTE PLANE OPERATIVO\033[0m")
-    print(f"   Worker ID:   {WORKER_ID}")
-    print(f"   Session ID:  {SESSION_ID}")
-    print(f"   GPU:         {gpu['name']} ({gpu['vram_gb']} GB)")
-    print(f"   ComfyUI URL: {tunnel_url}")
-    print(f"   Control URL: {DM_AI_OS_URL}/connect")
+    print(f"   Worker ID:         {WORKER_ID}")
+    print(f"   Session ID:        {SESSION_ID}")
+    print(f"   GPU:               {gpu['name']} ({gpu['vram_gb']} GB)")
+    print(f"   ComfyUI URL:       {tunnel_url}")
+    print(f"   Control URL:       {DM_AI_OS_URL}/connect")
+    print(f"   Drive Mounted:     {'YES' if drive_mounted else 'NO'}")
+    print(f"   Storage Roots:     {len(storage_roots)}")
+    print(f"   Models Discovered: {discovered_model_ids}")
+    print(f"   FLUX Status:       CONFIGURED / NOT YET READY (requires physical E2E)")
     print("=" * 65)
     print("⚡ Manteniendo conexión activa con DM AI OS...")
-    print("   (Para detener el worker, detén la ejecución de esta celda en Colab)\n")
+    print("   (Para detener el worker, detiene la ejecución de esta celda en Colab)\n")
 
     try:
         while True:

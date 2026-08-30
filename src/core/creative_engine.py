@@ -402,16 +402,239 @@ class CreativeEngine:
             "output_size_bytes": primary_size,
             "completed_at": completed_at
         })
-        storage.save_artifact(f"creative_manifest_{job_id}.json", json.dumps(manifest_dict, indent=2, ensure_ascii=False))
+        # Export deliverable to accessible user library (C:\Users\moral\DM_AI_OS_OUTPUTS\)
+        user_deliverables = []
+        try:
+            from ..storage.user_outputs import user_outputs
+            for saved_rel in saved_assets:
+                source_f = (storage.artifacts_dir.parent / saved_rel).resolve()
+                success, dest_p, _ = user_outputs.export_asset(
+                    vault_file=source_f,
+                    job_id=job_id,
+                    workflow_name=manifest_dict.get("workflow_name", "")
+                )
+                if success and dest_p:
+                    user_deliverables.append(str(dest_p))
+        except Exception as e:
+            log.warning(f"[CreativeEngine] User outputs mirror error: {e}")
+
+        # Also vault output into CloudAssetStorage (Google One 5 TB) if mounted
+        try:
+            from ..storage.cloud_asset_storage import cloud_asset_storage
+            if cloud_asset_storage.is_mounted():
+                for saved_rel in saved_assets:
+                    source_f = (storage.artifacts_dir.parent / saved_rel).resolve()
+                    cloud_asset_storage.vault_generated_output(source_f, job_id=job_id)
+        except Exception as e:
+            log.debug(f"[CreativeEngine] Cloud storage sync skipped/failed: {e}")
 
         return {
             "status": "COMPLETED",
             "job_id": job_id,
             "output_assets": saved_assets,
+            "user_deliverables": user_deliverables,
             "output_sha256": primary_sha256,
             "output_size_bytes": primary_size,
             "completed_at": completed_at
         }
 
+
+    # ── High-Level Intent Methods ──────────────────────────────────────────
+
+    async def submit_generation_job(
+        self,
+        task_type: str,
+        prompt: str = "",
+        model_name: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        negative_prompt: Optional[str] = None,
+        seed: Optional[int] = None,
+        input_assets: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        High-level entrypoint for all creative generation jobs.
+        1. Evaluates intent and hardware constraints via ModelRouter.
+        2. If GPU worker is offline, returns REQUIRES_ACTIVATION with 1-click Colab URL.
+        3. If GPU worker is READY, resolves optimal workflow from WorkflowRegistry and dispatches.
+        """
+        from .model_router import model_router, ExecutionTarget
+        from .workflow_registry import workflow_registry, CreativeTask
+
+        params = parameters.copy() if parameters else {}
+        route = model_router.route_intent(task_type=task_type, prompt=prompt, model_name=model_name)
+
+        if route.target == ExecutionTarget.REQUIRES_ACTIVATION:
+            job_id = f"job_queued_{int(time.time())}"
+            created_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+            try:
+                storage.job_store.create_job({
+                    "job_id": job_id,
+                    "status": "REQUIRES_ACTIVATION",
+                    "workflow_name": route.model_id,
+                    "backend_type": "COLAB_T4_GPU",
+                    "provider": "google-colab",
+                    "prompt": prompt,
+                    "parameters": params,
+                    "error_message": route.reason,
+                    "created_at": created_at
+                })
+            except Exception:
+                pass
+
+            return {
+                "status": "REQUIRES_ACTIVATION",
+                "job_id": job_id,
+                "model_id": route.model_id,
+                "target": route.target.value,
+                "message": route.reason,
+                "activation_url": route.activation_url,
+                "instructions": "Pachu local hardware cannot execute heavy visual models. Click activation link to launch Google Colab Tesla T4 worker."
+            }
+
+        # Resolve workflow template
+        has_ref = bool(input_assets and len(input_assets) > 0)
+        task_enum = CreativeTask.IMAGE_TXT2IMG
+        if "upscale" in task_type.lower():
+            task_enum = CreativeTask.IMAGE_UPSCALE
+        elif "video" in task_type.lower():
+            task_enum = CreativeTask.VIDEO_TXT2VID if not has_ref else CreativeTask.VIDEO_I2V
+        elif "tts" in task_type.lower():
+            task_enum = CreativeTask.AUDIO_TTS
+        elif "lipsync" in task_type.lower():
+            task_enum = CreativeTask.VIDEO_LIPSYNC
+        elif "img2img" in task_type.lower() or has_ref:
+            task_enum = CreativeTask.IMAGE_IMG2IMG
+
+        wf_info = workflow_registry.select_workflow(
+            task=task_enum,
+            preferred_model=route.model_id,
+            has_reference_image=has_ref
+        )
+        template_name = wf_info.get("template", "zimage_turbo_txt2img")
+
+        # Merge input assets into parameters if provided
+        if input_assets:
+            if "image" in task_type.lower() or "upscale" in task_type.lower() or "lipsync" in task_type.lower():
+                params["INPUT_IMAGE"] = input_assets[0]
+            if "lipsync" in task_type.lower() and len(input_assets) > 1:
+                params["INPUT_AUDIO"] = input_assets[1]
+
+        # Dispatch workflow
+        return await self.run_workflow(
+            template_name_or_path=template_name,
+            prompt=prompt,
+            parameters=params,
+            negative_prompt=negative_prompt,
+            seed=seed
+        )
+
+    async def generate(
+        self,
+        prompt: str,
+        task: str = "image_generation",
+        model: Optional[str] = None,
+        width: int = 1024,
+        height: int = 1024,
+        steps: int = 20,
+        cfg: float = 7.0,
+        seed: Optional[int] = None,
+        negative_prompt: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Convenience method for image generation (Z-Image Turbo, FLUX.2, SD15)."""
+        params = {
+            "WIDTH": width,
+            "HEIGHT": height,
+            "STEPS": steps,
+            "CFG": cfg,
+            "DENOISE": kwargs.get("denoise", 1.0)
+        }
+        params.update(kwargs)
+        return await self.submit_generation_job(
+            task_type=task,
+            prompt=prompt,
+            model_name=model,
+            parameters=params,
+            negative_prompt=negative_prompt,
+            seed=seed
+        )
+
+    async def video(
+        self,
+        prompt: str,
+        image_path: Optional[str] = None,
+        model: Optional[str] = None,
+        width: int = 768,
+        height: int = 512,
+        steps: int = 20,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Convenience method for video generation (LTX-Video, Wan 2.2, MiniMax H3)."""
+        params = {"WIDTH": width, "HEIGHT": height, "STEPS": steps}
+        params.update(kwargs)
+        inputs = [image_path] if image_path else []
+        return await self.submit_generation_job(
+            task_type="video_generation",
+            prompt=prompt,
+            model_name=model or "ltx_video",
+            parameters=params,
+            input_assets=inputs
+        )
+
+    async def upscale(
+        self,
+        image_path: str,
+        model: Optional[str] = None,
+        scale: int = 4,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Convenience method for image super-resolution (SeedVR2)."""
+        params = {"scale": scale}
+        params.update(kwargs)
+        return await self.submit_generation_job(
+            task_type="image_upscale",
+            prompt="",
+            model_name=model or "seedvr2_upscale",
+            parameters=params,
+            input_assets=[image_path]
+        )
+
+    async def tts(
+        self,
+        text: str,
+        model: Optional[str] = None,
+        voice_reference: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Convenience method for text-to-speech audio synthesis (Qwen3-TTS)."""
+        params = {"voice_reference": voice_reference}
+        params.update(kwargs)
+        return await self.submit_generation_job(
+            task_type="audio_tts",
+            prompt=text,
+            model_name=model or "qwen3_tts",
+            parameters=params
+        )
+
+    async def lipsync(
+        self,
+        image_or_video_path: str,
+        audio_path: str,
+        model: Optional[str] = None,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Convenience method for audio/video lipsync synchronization (FLOAT)."""
+        params = {}
+        params.update(kwargs)
+        return await self.submit_generation_job(
+            task_type="video_lipsync",
+            prompt="",
+            model_name=model or "comfyui_float",
+            parameters=params,
+            input_assets=[image_or_video_path, audio_path]
+        )
+
+
 # Singleton instance
 creative_engine = CreativeEngine()
+

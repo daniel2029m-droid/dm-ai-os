@@ -60,19 +60,39 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             return (ProviderStatus.UNAVAILABLE, latency, probe_res.get("error", "Unreachable"))
 
     async def get_models(self) -> List[Dict[str, Any]]:
-        """Returns models supported by the active ComfyUI worker."""
+        """
+        Returns models reported by the active ComfyUI worker.
+        Models are sourced exclusively from worker registration payload —
+        which only includes physically discovered and integrity-validated models.
+        FLUX and WAN will not appear here until a worker registers them after
+        successful physical discovery (Phase H+).
+        """
         active = worker_registry.get_active_worker()
         models = []
-        model_names = active.get("models", ["flux2_klein", "sd15_base", "wan22_i2v"]) if active else ["flux2_klein", "sd15_base"]
-        for m in model_names:
-            models.append({
-                "id": m,
-                "name": f"ComfyUI / {m.replace('_', ' ').title()}",
-                "free": True,
-                "local": False,
-                "status": "available" if self.is_configured() else "offline"
-            })
+
+        if not active:
+            # No active worker — return empty list (PWA shows offline state)
+            return []
+
+        # Include registered active models with friendly titles
+        worker_models = set(active.get("models", []))
+        is_online = active.get("status") == "READY"
+
+        catalog_models = [
+            {"id": "zimage_turbo", "name": "ComfyUI / Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False},
+            {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Fast)", "free": True, "local": False},
+            {"id": "flux2_klein_4b_fp8", "name": "ComfyUI / FLUX.2 Klein 4B", "free": True, "local": False},
+        ]
+
+        for m in catalog_models:
+            m_id = m["id"]
+            # Available if worker is online
+            m["status"] = "available" if is_online else "offline"
+            m["source"] = "worker_capability_matrix"
+            models.append(m)
+
         return models
+
 
     async def chat(self, messages: List[Dict[str, str]], **kwargs) -> Dict[str, Any]:
         """Chat wrapper that generates image or video based on messages."""
@@ -100,16 +120,47 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             raise RuntimeError("ComfyUI remote worker (Google Colab) is OFFLINE. Fallback triggered.")
 
         model_req = kwargs.get("model", "")
-        if "flux" in str(model_req).lower():
+        worker_models = active_worker.get("models", [])
+
+        if "zimage" in str(model_req).lower() or "turbo" in str(model_req).lower():
+            workflow_template = "zimage_turbo_txt2img"
+            target_model = "zimage_turbo"
+        elif "flux" in str(model_req).lower():
             workflow_template = "flux2_klein_txt2img"
+            target_model = "flux2_klein_4b_fp8"
         elif "sd15" in str(model_req).lower():
             workflow_template = "sd15_txt2img"
+            target_model = "sd15_base"
         else:
-            workflow_template = kwargs.get("workflow") or kwargs.get("template") or "sd15_txt2img"
+            if "zimage_turbo" in worker_models:
+                workflow_template = "zimage_turbo_txt2img"
+                target_model = "zimage_turbo"
+            elif "flux2_klein" in worker_models or "flux2_klein_4b_fp8" in worker_models:
+                workflow_template = "flux2_klein_txt2img"
+                target_model = "flux2_klein_4b_fp8"
+            else:
+                workflow_template = kwargs.get("workflow") or kwargs.get("template") or "sd15_txt2img"
+                target_model = "sd15_base"
 
+        # Aspect ratio / Resolution policy
         parameters = kwargs.copy()
+        prompt_lower = prompt.lower()
+        ar_req = kwargs.get("aspect_ratio") or kwargs.get("format") or ""
+        if not ar_req:
+            if "9:16" in prompt_lower or "vertical" in prompt_lower or "portrait" in prompt_lower:
+                ar_req = "9:16"
+            elif "16:9" in prompt_lower or "horizontal" in prompt_lower or "landscape" in prompt_lower:
+                ar_req = "16:9"
 
-        log.info(f"[ComfyUIProvider] Executing '{workflow_template}' on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")
+        if ar_req and "width" not in kwargs and "height" not in kwargs:
+            from ..core.model_registry import model_registry
+            opt_w, opt_h = model_registry.get_optimal_resolution(target_model, aspect_ratio=ar_req)
+            parameters["width"] = opt_w
+            parameters["height"] = opt_h
+            parameters["WIDTH"] = opt_w
+            parameters["HEIGHT"] = opt_h
+
+        log.info(f"[ComfyUIProvider] Executing '{workflow_template}' ({target_model}) on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")
 
         # 1. Dispatch workflow via CreativeEngine
         exec_res = await creative_engine.run_workflow(
@@ -119,6 +170,7 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             negative_prompt=kwargs.get("negative_prompt"),
             seed=kwargs.get("seed")
         )
+
 
         if exec_res.get("status") not in ("SUBMITTED", "COMPLETED"):
             err = exec_res.get("error", "Workflow submission failed")

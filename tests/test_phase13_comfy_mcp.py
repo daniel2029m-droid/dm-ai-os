@@ -26,14 +26,19 @@ def test_comfy_adapter_default_unconfigured():
 @pytest.mark.asyncio
 async def test_comfy_adapter_submit_when_unavailable():
     """Validates that submission returns UNAVAILABLE without throwing uncaught exceptions."""
-    adapter = ComfyAdapter()
-    adapter.api_key = ""
-    adapter.runpod_url = ""
-    adapter.local_enabled = False
+    from unittest.mock import patch
+    from src.providers.worker_registry import worker_registry
+    
+    with patch.object(worker_registry, "get_active_worker", return_value=None):
+        adapter = ComfyAdapter()
+        adapter.api_key = ""
+        adapter.runpod_url = ""
+        adapter.local_enabled = False
 
-    res = await adapter.submit_workflow({"1": {"class_type": "KSampler"}})
-    assert res["status"] == "UNAVAILABLE"
-    assert "error" in res
+        res = await adapter.submit_workflow({"1": {"class_type": "KSampler"}})
+        assert res["status"] == "UNAVAILABLE"
+        assert "error" in res
+
 
 def test_creative_engine_list_templates():
     """Validates that CreativeEngine discovers existing JSON workflows and hashes them."""

@@ -1,7 +1,7 @@
 """
 DM AI Operating System — API Gateway v1.2.0-production
 =======================================================
-Mounts two router groups:
+Mounts router groups:
 
   1. Existing platform routes  (routes.py)
      /health, /system/status, /agent/run, /workflow/run,
@@ -11,6 +11,11 @@ Mounts two router groups:
      GET  /v1/models
      POST /v1/chat/completions
      POST /v1/responses
+
+  3. Model Storage Plane Router  (model_storage_router)  [Phase 14.8]
+     GET  /api/v1/models                  — capability matrix from worker
+     GET  /api/v1/models/{model_id}        — model detail
+     GET  /api/v1/model-storage/status     — storage node health
 
 All OpenAI endpoints delegate to BrainPipeline internally.
 """
@@ -67,6 +72,12 @@ app.include_router(creative_assets_router)
 # ── Remote Compute Workers Router (Colab, Tesla T4, Heartbeat, Handshake) ───
 from src.api.workers_router import workers_router
 app.include_router(workers_router)
+
+# ── Model Storage Plane Router (Model Availability, Storage Node Status) ─────
+# Exposes real-time model capability matrix from worker registration.
+# FLUX and other models only appear as available after physical validation.
+from src.api.model_storage_router import model_storage_router
+app.include_router(model_storage_router)
 
 
 def start_api(host: str = "0.0.0.0", port: int = 8000):

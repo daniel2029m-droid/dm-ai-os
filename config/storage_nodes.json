@@ -1,0 +1,39 @@
+{
+  "_comment": "DM AI OS v1.5.1 — Storage Node Registry. No credentials stored here. Identity resolved by OAuth at runtime (Google Colab drive.mount()).",
+  "version": "1.0.0",
+  "nodes": {
+    "google-drive-primary": {
+      "provider": "google_drive",
+      "display_name": "Google Drive Primary",
+      "mount_point": "/content/drive",
+      "root_path": "MyDrive/DM-AI-OS-MODELS",
+      "env_override": "DM_DRIVE_MODELS_PATH",
+      "status": "configured",
+      "priority": 1,
+      "capabilities": ["persistent_storage", "model_hosting"],
+      "notes": "Mounted via official Google Colab OAuth: from google.colab import drive; drive.mount('/content/drive'). No credentials stored in this file."
+    },
+    "google-drive-secondary": {
+      "provider": "google_drive_shared_shortcut",
+      "display_name": "Google Drive Secondary (Shared Shortcuts)",
+      "mount_point": "/content/drive",
+      "root_path": "MyDrive/DM-AI-OS-MODELS-SHARED",
+      "env_override": "DM_DRIVE_MODELS_SHARED_PATH",
+      "status": "optional",
+      "priority": 2,
+      "capabilities": ["persistent_storage", "model_hosting"],
+      "notes": "Optional secondary storage via Drive shortcuts. Shortcuts added manually by user from 'Shared with me'. No automation of credentials."
+    },
+    "local-comfyui": {
+      "provider": "local_filesystem",
+      "display_name": "ComfyUI Local Models (Ephemeral Runtime)",
+      "mount_point": "/content",
+      "root_path": "ComfyUI/models",
+      "env_override": "COMFYUI_MODELS_PATH",
+      "status": "ephemeral",
+      "priority": 0,
+      "capabilities": ["fast_inference", "nvme_cache"],
+      "notes": "Ephemeral Colab runtime NVMe. ~500 MB/s. Cleared on runtime reset. Used as local cache for frequently-used models."
+    }
+  }
+}

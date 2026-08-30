@@ -1,0 +1,22 @@
+{
+  "1": {
+    "inputs": {
+      "model_name": "qwen3_tts_0.6b_fp16.safetensors"
+    },
+    "class_type": "TTSModelLoader"
+  },
+  "2": {
+    "inputs": {
+      "text": "{{PROMPT}}",
+      "model": ["1", 0]
+    },
+    "class_type": "TTSSynthesizer"
+  },
+  "3": {
+    "inputs": {
+      "filename_prefix": "Qwen3_TTS_Audio",
+      "audio": ["2", 0]
+    },
+    "class_type": "SaveAudio"
+  }
+}

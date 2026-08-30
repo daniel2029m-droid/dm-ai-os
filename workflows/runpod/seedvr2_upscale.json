@@ -1,0 +1,29 @@
+{
+  "1": {
+    "inputs": {
+      "image": "{{INPUT_IMAGE}}",
+      "upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "2": {
+    "inputs": {
+      "model_name": "seedvr2_upscale_v1.safetensors"
+    },
+    "class_type": "UpscaleModelLoader"
+  },
+  "3": {
+    "inputs": {
+      "upscale_model": ["2", 0],
+      "image": ["1", 0]
+    },
+    "class_type": "ImageUpscaleWithModel"
+  },
+  "4": {
+    "inputs": {
+      "filename_prefix": "SeedVR2_Upscale",
+      "images": ["3", 0]
+    },
+    "class_type": "SaveImage"
+  }
+}
