@@ -231,6 +231,60 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             parameters["width"] = 832
             parameters["height"] = 1472
 
+        # Handle input images for FaceSwap, Img2Img, ControlNet
+        from ..adapters.comfy_adapter import comfy_adapter
+        input_imgs = []
+        for key in ["image_urls", "reference_images", "images"]:
+            if key in kwargs and isinstance(kwargs[key], list):
+                input_imgs.extend(kwargs[key])
+        if kwargs.get("reference_image_url"):
+            input_imgs.append(kwargs["reference_image_url"])
+        if kwargs.get("image_url"):
+            input_imgs.append(kwargs["image_url"])
+        if kwargs.get("image_url_2"):
+            input_imgs.append(kwargs["image_url_2"])
+
+        # Deduplicate while preserving order
+        seen = set()
+        deduped_imgs = []
+        for img in input_imgs:
+            if img and img not in seen:
+                seen.add(img)
+                deduped_imgs.append(img)
+
+        # Upload images to ComfyUI
+        uploaded_names = []
+        for img_ref in deduped_imgs:
+            filename = ""
+            file_bytes = None
+            if isinstance(img_ref, str):
+                if "/uploads/" in img_ref:
+                    fn = img_ref.split("/uploads/")[-1]
+                    local_p = Path("deployment") / "uploads" / fn
+                    if local_p.exists():
+                        file_bytes = local_p.read_bytes()
+                        filename = fn
+                elif img_ref.startswith("http"):
+                    try:
+                        import urllib.request
+                        file_bytes = urllib.request.urlopen(img_ref, timeout=10).read()
+                        filename = img_ref.split("/")[-1].split("?")[0] or "input.png"
+                    except Exception:
+                        pass
+            if file_bytes:
+                up_name = await comfy_adapter.upload_image(file_bytes, filename)
+                if up_name:
+                    uploaded_names.append(up_name)
+
+        if len(uploaded_names) >= 1:
+            parameters["INPUT_IMAGE_1"] = uploaded_names[0]
+            parameters["input_image_1"] = uploaded_names[0]
+            parameters["INPUT_IMAGE"] = uploaded_names[0]
+            parameters["input_image"] = uploaded_names[0]
+        if len(uploaded_names) >= 2:
+            parameters["INPUT_IMAGE_2"] = uploaded_names[1]
+            parameters["input_image_2"] = uploaded_names[1]
+
         if target_model == "zimage_turbo":
             parameters.setdefault("steps", 8)
             parameters.setdefault("cfg", 0.0)

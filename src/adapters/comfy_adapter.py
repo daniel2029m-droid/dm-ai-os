@@ -225,9 +225,45 @@ class ComfyAdapter:
         outputs = await self.get_job_outputs(job_id)
         return {"status": "SUCCESS", "job_id": job_id, "outputs": outputs}
 
+    async def upload_image(self, file_data: Any, filename: str) -> Optional[str]:
+        """
+        Uploads an input image (for FaceSwap, Img2Img, ControlNet) to remote ComfyUI /upload/image.
+        Returns the uploaded filename on ComfyUI's input directory.
+        """
+        active_ep = self.get_active_endpoint()
+        if not active_ep:
+            return None
+
+        if isinstance(file_data, (str, Path)):
+            p = Path(file_data)
+            if p.exists():
+                file_bytes = p.read_bytes()
+                filename = filename or p.name
+            else:
+                return None
+        elif isinstance(file_data, bytes):
+            file_bytes = file_data
+        else:
+            return None
+
+        upload_url = f"{active_ep}/upload/image"
+        files = {"image": (filename, file_bytes, "image/png")}
+        data = {"overwrite": "true"}
+        try:
+            async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+                res = await client.post(upload_url, files=files, data=data)
+                if res.status_code == 200:
+                    resp_json = res.json()
+                    return resp_json.get("name", filename)
+                log.warning(f"[ComfyAdapter] /upload/image returned HTTP {res.status_code}")
+        except Exception as e:
+            log.error(f"[ComfyAdapter] Error uploading image {filename}: {e}")
+        return None
+
     async def search_templates(self, query: str = "") -> List[Dict[str, Any]]:
         """Search pre-built workflow templates."""
         return []
+
 
     async def search_models(self, query: str = "") -> List[Dict[str, Any]]:
         """Search available models in backend catalog."""

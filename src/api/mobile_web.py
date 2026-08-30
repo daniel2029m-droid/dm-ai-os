@@ -607,36 +607,33 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     </div>
                 </div>
 
-                <div class="preview-box" id="previewBox" style="display:none;">
-                    <img id="previewThumb" src="" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;" />
-                    <div style="flex:1;min-width:0;">
-                        <div id="previewText" style="font-size:0.78rem;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
-                        <div style="display:flex;gap:6px;margin-top:4px;">
-                            <button type="button" id="modeImgBtn" onclick="setMediaMode('image')" style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:rgba(56,189,248,0.3);color:#38bdf8;border:1px solid #38bdf8;cursor:pointer;">📸 Referencia</button>
-                            <button type="button" id="modeVidBtn" onclick="setMediaMode('video')" style="font-size:0.7rem;padding:2px 8px;border-radius:4px;background:rgba(139,92,246,0.1);color:#94a3b8;border:1px solid rgba(139,92,246,0.3);cursor:pointer;">🎬 Animar</button>
-                        </div>
+                <div class="preview-box" id="previewBox" style="display:none; flex-wrap:wrap; gap:8px; align-items:center; background:rgba(30,41,59,0.9); border:1px solid rgba(56,189,248,0.3); border-radius:10px; padding:8px 12px; margin-bottom:8px;">
+                    <div id="attachmentsContainer" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; flex:1;"></div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button type="button" onclick="openFile()" style="font-size:0.75rem; padding:4px 10px; border-radius:6px; background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid #38bdf8; cursor:pointer;">+ Agregar otra</button>
+                        <button type="button" onclick="clearAttachments()" style="background:none; border:none; color:#94a3b8; font-size:1.1rem; cursor:pointer; padding:4px;">✖</button>
                     </div>
-                    <button type="button" onclick="clearAttachment()" style="background:none;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:4px;">✖</button>
                 </div>
 
                 <div class="quick-pills">
                     <span class="quick-pill" onclick="triggerDictation()">🎙️ Dictar</span>
                     <span class="quick-pill" onclick="openCamera()">📷 Cámara</span>
-                    <span class="quick-pill" onclick="openFile()">📎 Subir imagen</span>
-                    <span class="quick-pill" onclick="openFileAnimate()">🎬 Animar imagen</span>
+                    <span class="quick-pill" onclick="openFile()">📎 Subir imagen (@Image 1)</span>
+                    <span class="quick-pill" onclick="openFile()">📎 Subir segunda (@Image 2)</span>
                     <span class="quick-pill" onclick="quickTask('research')">🔍 Investigar</span>
                     <span class="quick-pill" onclick="quickTask('media')">🎨 Higgsfield</span>
                 </div>
 
                 <div class="input-controls">
-                    <input type="file" id="fileInput" accept="image/*" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'image')">
+                    <input type="file" id="fileInput" accept="image/*" multiple style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'image')">
                     <input type="file" id="fileInputAnimate" accept="image/*" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'video')">
                     <input type="file" id="cameraInput" accept="image/*" capture="environment" style="opacity:0; position:absolute; width:1px; height:1px; pointer-events:none;" onchange="handleFileSelected(event, 'image')">
 
-                    <button type="button" class="icon-btn" onclick="openFile()" title="Subir imagen de referencia">📎</button>
+                    <button type="button" class="icon-btn" onclick="openFile()" title="Subir imagen de referencia (@Image 1, @Image 2)">📎</button>
                     <button type="button" class="icon-btn" id="voiceBtn" onclick="toggleVoiceRecording()" title="Dictar por voz">🎙️</button>
                     
                     <textarea class="chat-textarea" id="chatInput" placeholder="Mensaje o comando a DM AI OS..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
+
                     
                     <button type="button" class="icon-btn send-btn" id="sendBtn" onclick="sendMessage()" title="Enviar">➔</button>
                 </div>
@@ -941,7 +938,7 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
         async function sendMessage() {{
             const input = document.getElementById('chatInput');
             const prompt = input.value.trim();
-            if (!prompt && !attachedFile) return;
+            if (!prompt && attachedFiles.length === 0) return;
 
             const chatMessages = document.getElementById('chatMessages');
             const providerSelect = document.getElementById('aiProviderSelect');
@@ -951,15 +948,14 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             const selectedModel = modelSelect ? modelSelect.value : 'auto';
 
             let userContentText = prompt;
-            let currentAttachedFile = attachedFile;
+            const currentFiles = [...attachedFiles];
             let currentMediaMode = mediaMode;  // 'image' or 'video'
-            attachedFile = null;
+            clearAttachments();
             mediaMode = 'image';
-            document.getElementById('previewBox').style.display = 'none';
 
-            if (currentAttachedFile) {{
-                const modeLabel = currentMediaMode === 'video' ? '🎬 Animar' : '📸 Referencia';
-                userContentText += ` [Adjunto ${{modeLabel}}: ${{currentAttachedFile.name}}]`;
+            if (currentFiles.length > 0) {{
+                const names = currentFiles.map((f, i) => `@Image ${{i+1}}: ${{f.name}}`).join(', ');
+                userContentText += ` [Adjuntos: ${{names}}]`;
             }}
 
             const userMsgDiv = document.createElement('div');
@@ -977,25 +973,26 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             chatMessages.appendChild(assistantMsgDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            let uploadedImageUrl = null;
-            if (currentAttachedFile) {{
-                try {{
-                    const modeLabel = currentMediaMode === 'video' ? 'imagen para animar' : 'imagen de referencia';
-                    assistantMsgDiv.innerHTML = `<em>Subiendo ${{modeLabel}} [${{currentAttachedFile.name}}]...</em>`;
-                    const formData = new FormData();
-                    formData.append('file', currentAttachedFile);
-                    const upRes = await fetch('/api/providers/upload-media', {{
-                        method: 'POST',
-                        headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
-                        body: formData
-                    }});
-                    const upData = await upRes.json();
-                    if (upData.url) {{
-                        uploadedImageUrl = upData.url;
-                        logDebug('UPLOAD_OK', {{mode: currentMediaMode, url: uploadedImageUrl}});
+            let uploadedUrls = [];
+            if (currentFiles.length > 0) {{
+                assistantMsgDiv.innerHTML = `<em>Subiendo ${{currentFiles.length}} imagen(es) de referencia...</em>`;
+                for (let i = 0; i < currentFiles.length; i++) {{
+                    const f = currentFiles[i];
+                    try {{
+                        const formData = new FormData();
+                        formData.append('file', f);
+                        const upRes = await fetch('/api/providers/upload-media', {{
+                            method: 'POST',
+                            headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
+                            body: formData
+                        }});
+                        const upData = await upRes.json();
+                        if (upData.url) {{
+                            uploadedUrls.push(upData.url);
+                        }}
+                    }} catch (upErr) {{
+                        logDebug('UPLOAD_ERR', upErr.message);
                     }}
-                }} catch (upErr) {{
-                    logDebug('UPLOAD_ERR', upErr.message);
                 }}
             }}
 
@@ -1004,11 +1001,15 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             try {{
                 const payload = {{
                     messages: [{{ role: 'user', content: userContentText }}],
-                    provider: (uploadedImageUrl && currentMediaMode === 'video') ? 'higgsfield' : selectedProvider,
+                    provider: (uploadedUrls.length > 0 && currentMediaMode === 'video') ? 'higgsfield' : selectedProvider,
                     model: (selectedModel && selectedModel !== 'auto') ? selectedModel : null,
-                    image_url: (currentMediaMode === 'video') ? uploadedImageUrl : null,
-                    reference_image_url: (currentMediaMode === 'image') ? uploadedImageUrl : null,
+                    image_urls: uploadedUrls,
+                    reference_images: uploadedUrls,
+                    image_url: uploadedUrls[0] || null,
+                    image_url_2: uploadedUrls[1] || null,
+                    reference_image_url: uploadedUrls[0] || null,
                 }};
+
 
                 const res = await fetch('/api/providers/route/chat', {{
                     method: 'POST',
@@ -1218,39 +1219,68 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             }}
         }}
 
-        function handleFileSelected(event, mode) {{
-            const file = event.target.files[0];
-            if (!file) return;
-            attachedFile = file;
-            if (mode) mediaMode = mode;
-            // Show thumbnail if image
-            const thumb = document.getElementById('previewThumb');
-            if (file.type.startsWith('image/')) {{
-                const reader = new FileReader();
-                reader.onload = e => {{ thumb.src = e.target.result; thumb.style.display = 'block'; }};
-                reader.readAsDataURL(file);
-            }} else {{
-                thumb.style.display = 'none';
+        let attachedFiles = [];
+
+        function renderAttachmentsPreview() {{
+            const container = document.getElementById('attachmentsContainer');
+            const previewBox = document.getElementById('previewBox');
+            if (!container || !previewBox) return;
+            if (attachedFiles.length === 0) {{
+                previewBox.style.display = 'none';
+                container.innerHTML = '';
+                return;
             }}
-            document.getElementById('previewText').innerText = file.name;
-            document.getElementById('previewBox').style.display = 'flex';
-            setMediaMode(mediaMode);
-            // Auto-set prompt placeholder
+            previewBox.style.display = 'flex';
+            container.innerHTML = '';
+            attachedFiles.forEach((file, idx) => {{
+                const item = document.createElement('div');
+                item.style.cssText = 'display:flex; align-items:center; gap:6px; background:rgba(15,23,42,0.9); border:1px solid rgba(56,189,248,0.4); border-radius:6px; padding:3px 8px;';
+                
+                const label = document.createElement('span');
+                label.style.cssText = 'font-size:0.75rem; color:#38bdf8; font-weight:700;';
+                label.textContent = `@Image ${{idx + 1}}`;
+                
+                const name = document.createElement('span');
+                name.style.cssText = 'font-size:0.75rem; color:#e2e8f0; max-width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+                name.textContent = file.name;
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.style.cssText = 'background:none; border:none; color:#f43f5e; font-size:0.85rem; cursor:pointer; padding:0 2px;';
+                removeBtn.textContent = '✖';
+                removeBtn.onclick = () => {{
+                    attachedFiles.splice(idx, 1);
+                    renderAttachmentsPreview();
+                }};
+                
+                item.appendChild(label);
+                item.appendChild(name);
+                item.appendChild(removeBtn);
+                container.appendChild(item);
+            }});
+        }}
+
+        function handleFileSelected(event, mode) {{
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            Array.from(files).forEach(f => {{
+                attachedFiles.push(f);
+            }});
+            if (mode) mediaMode = mode;
+            renderAttachmentsPreview();
+            event.target.value = '';
+            
             const chatInput = document.getElementById('chatInput');
-            if (mediaMode === 'video' && !chatInput.value) {{
-                chatInput.placeholder = 'Describe qué debe hacer en el video (ej: haciendo sentadillas, sonidos de esfuerzo)...';
-            }} else if (!chatInput.value) {{
-                chatInput.placeholder = 'Describe el cambio que quieres (ej: cambia el outfit con top escotado rojo)...';
+            if (!chatInput.value && attachedFiles.length >= 2) {{
+                chatInput.value = 'Change the person of the @Image 1 to the person of the @Image 2, SAME OUTFIT as @Image 1, same pose.';
             }}
         }}
 
-        function clearAttachment() {{
-            attachedFile = null;
-            mediaMode = 'image';
-            document.getElementById('previewBox').style.display = 'none';
-            document.getElementById('previewThumb').src = '';
-            document.getElementById('chatInput').placeholder = 'Mensaje o comando a DM AI OS...';
+        function clearAttachments() {{
+            attachedFiles = [];
+            renderAttachmentsPreview();
         }}
+
 
         function selectAgent(name, desc) {{
             activeAgent = name;

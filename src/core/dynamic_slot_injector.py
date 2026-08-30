@@ -39,9 +39,12 @@ SLOT_REGISTRY: Dict[str, Dict[str, Any]] = {
     "HEIGHT":          {"type": int,   "default": 512,   "required": False,  "min": 64,  "max": 8192},
     "DENOISE":         {"type": float, "default": 1.0,   "required": False,  "min": 0.0, "max": 1.0},
     "INPUT_IMAGE":     {"type": str,   "default": None,  "required": False},
+    "INPUT_IMAGE_1":   {"type": str,   "default": "image_1.png",  "required": False},
+    "INPUT_IMAGE_2":   {"type": str,   "default": "image_2.png",  "required": False},
     "LORA_NAME":       {"type": str,   "default": None,  "required": False},
     "LORA_STRENGTH":   {"type": float, "default": 1.0,   "required": False,  "min": -10.0, "max": 10.0},
 }
+
 
 SLOT_PATTERN = re.compile(r"\{\{([A-Z_]+)\}\}")
 
