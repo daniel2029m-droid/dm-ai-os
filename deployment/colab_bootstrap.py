@@ -717,15 +717,27 @@ def run_bootstrap():
         facerestore_models = comfy_dir / "models" / "facerestore_models"
         insight_models.mkdir(parents=True, exist_ok=True)
         facerestore_models.mkdir(parents=True, exist_ok=True)
+        # Check if inswapper is in storage roots or download from open mirror
         inswapper_target = insight_models / "inswapper_128.onnx"
+        for sr in storage_roots:
+            for cand in [sr / "insightface" / "inswapper_128.onnx", sr / "IDENTITY" / "INSIGHTFACE" / "inswapper_128.onnx", sr / "AI_LIBRARY" / "IDENTITY" / "INSIGHTFACE" / "inswapper_128.onnx"]:
+                if cand.exists() and cand.stat().st_size > 500_000_000 and not inswapper_target.exists():
+                    symlink_or_copy(cand, inswapper_target)
+                    print(f"   [Link] {cand.name} -> {insight_models}")
+                    break
+
         if not inswapper_target.exists() or inswapper_target.stat().st_size < 500_000_000:
-            subprocess.run(["wget", "-c", "https://huggingface.co/ezioroz/inswapper_128.onnx/resolve/main/inswapper_128.onnx", "-O", str(inswapper_target)], check=False)
+            subprocess.run(["wget", "-c", "https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx", "-O", str(inswapper_target)], check=False)
+            if not inswapper_target.exists() or inswapper_target.stat().st_size < 500_000_000:
+                subprocess.run(["wget", "-c", "https://huggingface.co/MonsterMMORPG/tools/resolve/main/inswapper_128.onnx", "-O", str(inswapper_target)], check=False)
+
         gfpgan_target = facerestore_models / "GFPGANv1.4.pth"
         if not gfpgan_target.exists() or gfpgan_target.stat().st_size < 300_000_000:
             subprocess.run(["wget", "-c", "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth", "-O", str(gfpgan_target)], check=False)
 
     ckpt_dir = comfy_dir / "models" / "checkpoints"
     ckpt_dir.mkdir(parents=True, exist_ok=True)
+
 
 
 
