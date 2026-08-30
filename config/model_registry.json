@@ -465,7 +465,75 @@
         "min_free_gb_after_copy": 5.0
       },
       "comfyui_flags": ["--lowvram"]
+    },
+    "sdxl_base": {
+      "model_id": "sdxl_base",
+      "display_name": "SDXL Juggernaut v9 Photo",
+      "family": "sdxl",
+      "variant": "base_fp16",
+      "architecture": "sdxl",
+      "backend": "comfyui",
+      "format": "safetensors",
+      "precision": "fp16",
+      "quantization": "none",
+      "size_gb": 6.6,
+      "min_vram_gb": 8.0,
+      "recommended_vram_gb": 12.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "PHYSICALLY_VALIDATED",
+      "resolution_presets": {
+        "portrait_9_16": [832, 1216],
+        "square_1_1": [1024, 1024],
+        "landscape_16_9": [1216, 832]
+      },
+      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3070", "RTX 3090", "RTX 4090", "A10G", "A100", "L4", "T4"],
+      "compatible_workflows": ["sd15_txt2img", "sdxl_txt2img"],
+      "task_types": ["image_generation", "text_to_image"],
+      "capabilities": ["text_to_image"],
+      "tags": ["photorealistic", "influencer", "iphone-aesthetic", "juggernaut-v9"],
+      "status_note": "Photorealistic SDXL Juggernaut v9 checkpoint for iPhone mirror selfies.",
+      "required_components": [
+        {
+          "filename": "juggernautXL_v9_RunDiffusionPhoto.safetensors",
+          "category": "checkpoints",
+          "min_size_bytes": 4000000000,
+          "loader_node": "CheckpointLoaderSimple",
+          "input_param": "ckpt_name",
+          "optional": false
+        }
+      ]
+    },
+    "face_swap": {
+      "model_id": "face_swap",
+      "display_name": "ReActor Face Swap / Identity Transfer",
+      "family": "reactor",
+      "variant": "inswapper_128",
+      "architecture": "insightface",
+      "backend": "comfyui",
+      "format": "onnx",
+      "size_gb": 0.5,
+      "min_vram_gb": 4.0,
+      "recommended_vram_gb": 8.0,
+      "local_allowed": false,
+      "remote_gpu_allowed": true,
+      "status": "PHYSICALLY_VALIDATED",
+      "compatible_gpus": ["Tesla T4", "RTX 3060", "RTX 3070", "RTX 3090", "RTX 4090", "A10G", "A100", "L4", "T4"],
+      "compatible_workflows": ["face_swap_reactor"],
+      "task_types": ["face_swap", "identity_transfer"],
+      "capabilities": ["face_swap", "character_transfer"],
+      "tags": ["face-swap", "insightface", "zero-shot", "reactor"],
+      "status_note": "Zero-shot face swap with pose and outfit retention.",
+      "required_components": [
+        {
+          "filename": "inswapper_128.onnx",
+          "category": "insightface",
+          "min_size_bytes": 100000000,
+          "optional": false
+        }
+      ]
     }
   }
 }
+
 
