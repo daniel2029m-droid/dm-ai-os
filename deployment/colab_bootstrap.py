@@ -251,13 +251,19 @@ def mount_google_drive() -> bool:
 def get_drive_models_path() -> Path:
     """
     Resolves the model storage root path.
-    Priority: 1. DM_DRIVE_MODELS_PATH env var  2. Default convention.
-    No hardcoded account information.
+    Checks DM_AI_OS (canonical), DM-AI-OS-MODELS, or env override.
     """
     env_val = os.getenv("DM_DRIVE_MODELS_PATH")
     if env_val:
         return Path(env_val)
-    return Path(DRIVE_MOUNT_POINT) / DRIVE_MODELS_DEFAULT_SUBPATH
+    
+    mydrive = Path(DRIVE_MOUNT_POINT) / "MyDrive"
+    for candidate_name in ["DM_AI_OS", "DM-AI-OS-MODELS", "DM_AI_OS_MODELS"]:
+        cand = mydrive / candidate_name
+        if cand.exists():
+            return cand
+    return mydrive / "DM_AI_OS"
+
 
 
 def run_drive_diagnostic(models_root: Path) -> dict:
