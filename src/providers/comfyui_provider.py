@@ -127,6 +127,7 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         is_online = active.get("status") == "READY"
 
         catalog_models = [
+            {"id": "face_swap", "name": "🎭 Face Swap / Transferencia de Rostro [INSTANTÁNEO]", "free": True, "local": False},
             {"id": "flux1_schnell", "name": "ComfyUI / FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False},
             {"id": "sdxl_base", "name": "ComfyUI / SDXL Juggernaut v9 (Selfie iPhone) [TOP]", "free": True, "local": False},
             {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Sin Censura)", "free": True, "local": False},
@@ -167,8 +168,11 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         model_req = kwargs.get("model", "")
         worker_models = active_worker.get("models", [])
 
-        if "juggernaut" in str(model_req).lower() or "sdxl" in str(model_req).lower():
-            workflow_template = "sd15_txt2img" # Or SDXL template
+        if "swap" in str(model_req).lower() or "face" in str(model_req).lower() or "change the person" in prompt.lower():
+            workflow_template = "face_swap_reactor"
+            target_model = "face_swap"
+        elif "juggernaut" in str(model_req).lower() or "sdxl" in str(model_req).lower():
+            workflow_template = "sd15_txt2img"
             target_model = "sdxl_base"
         elif "flux" in str(model_req).lower() or "schnell" in str(model_req).lower():
             workflow_template = "flux1_schnell_txt2img"
@@ -179,6 +183,7 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         elif "sd15" in str(model_req).lower():
             workflow_template = "sd15_txt2img"
             target_model = "sd15_base"
+
         else:
             if "flux1_schnell" in worker_models or "flux1_schnell_fp8" in worker_models:
                 workflow_template = "flux1_schnell_txt2img"
