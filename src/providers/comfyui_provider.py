@@ -157,10 +157,11 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             opt_w, opt_h = model_registry.get_optimal_resolution(target_model, aspect_ratio=ar_req)
             parameters["width"] = opt_w
             parameters["height"] = opt_h
-            parameters["WIDTH"] = opt_w
-            parameters["HEIGHT"] = opt_h
+        parameters["model"] = target_model
+        parameters["workflow"] = workflow_template
 
         log.info(f"[ComfyUIProvider] Executing '{workflow_template}' ({target_model}) on worker '{active_worker['worker_id']}' for prompt: '{prompt[:40]}...'")
+
 
         # 1. Dispatch workflow via CreativeEngine
         exec_res = await creative_engine.run_workflow(
