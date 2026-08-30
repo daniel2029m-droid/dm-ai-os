@@ -1049,8 +1049,41 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     return {{}};
                 }}
 
+                if (data.pending || (data.status === 'SUBMITTED' && data.job_id)) {{
+                    const jobId = data.job_id;
+                    const gpuLabel = data.gpu || 'Tesla T4';
+                    const modelLabel = data.model || 'Z-Image Turbo';
+                    let elapsed = 0;
+                    assistantMsgDiv.innerHTML = `<em>🎨 Renderizando con ${{modelLabel}} en ${{gpuLabel}}... (<span id="renderTimer_${{jobId}}">0s</span>)</em>`;
+                    
+                    const pollInterval = setInterval(async () => {{
+                        elapsed += 2;
+                        const timerSpan = document.getElementById(`renderTimer_${{jobId}}`);
+                        if (timerSpan) timerSpan.innerText = `${{elapsed}}s`;
+                        
+                        try {{
+                            const statRes = await fetch(`/api/v1/creative/assets/${{jobId}}/status`, {{
+                                headers: {{ 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }}
+                            }});
+                            if (statRes.ok) {{
+                                const statData = await statRes.json();
+                                if (statData.status === 'COMPLETED' && statData.view_url) {{
+                                    clearInterval(pollInterval);
+                                    const finalMsg = `🖼️ **Imagen generada por ComfyUI (${{gpuLabel}}):**\\n\\n![Imagen](${{statData.view_url}})\\n\\n[📥 Descargar Imagen](${{statData.download_url || statData.view_url}}) [🌐 Ver HD](${{statData.view_url}})`;
+                                    assistantMsgDiv.innerHTML = renderMedia(finalMsg);
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                }}
+                            }}
+                        }} catch (pollErr) {{
+                            console.warn('Polling error:', pollErr);
+                        }}
+                    }}, 2000);
+                    return;
+                }}
+
                 const extracted = extractMediaFromData(data);
                 let answerText = "";
+
 
                 if (!res.ok) {{
                     const detail = data.detail || data.error || data.message || (typeof data === 'string' ? data : JSON.stringify(data));

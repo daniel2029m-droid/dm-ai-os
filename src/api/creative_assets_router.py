@@ -158,7 +158,50 @@ async def sign_asset_url(
     return JSONResponse(content={"status": "SUCCESS", **signed})
 
 
+@creative_assets_router.get("/{job_id}/status")
+async def get_asset_status(job_id: str, request: Request):
+    """
+    Polls the real-time completion status of a job.
+    If completed in ComfyUI, auto-vaults it and returns freshly signed HMAC URLs.
+    """
+    # 1. Check if already vaulted locally
+    media_dir = storage.artifacts_dir / "media" / job_id
+    if media_dir.exists() and any(media_dir.glob("*.*")):
+        base_url = str(request.base_url).rstrip("/")
+        signed = generate_signed_urls(job_id=job_id, base_url=base_url)
+        return JSONResponse(content={
+            "status": "COMPLETED",
+            "job_id": job_id,
+            "urls": signed,
+            "view_url": signed.get("view_url", ""),
+            "download_url": signed.get("download_url", "")
+        })
+
+    # 2. Check and attempt download from ComfyUI
+    try:
+        from ..core.creative_engine import creative_engine
+        vault_res = await creative_engine.download_and_vault_artifact(job_id)
+        if vault_res.get("status") == "COMPLETED":
+            base_url = str(request.base_url).rstrip("/")
+            signed = generate_signed_urls(job_id=job_id, base_url=base_url)
+            return JSONResponse(content={
+                "status": "COMPLETED",
+                "job_id": job_id,
+                "urls": signed,
+                "view_url": signed.get("view_url", ""),
+                "download_url": signed.get("download_url", "")
+            })
+    except Exception as e:
+        log.warning(f"[CreativeAssets] Status poll error for {job_id}: {e}")
+
+    return JSONResponse(content={
+        "status": "RUNNING",
+        "job_id": job_id
+    })
+
+
 @creative_assets_router.get("/{job_id}/metadata", dependencies=[Depends(verify_api_key)])
+
 async def get_asset_metadata(job_id: str, request: Request):
     """
     Returns complete technical metadata, cryptographic SHA-256, and freshly signed URLs.

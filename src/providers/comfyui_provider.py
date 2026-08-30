@@ -177,12 +177,9 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             err = exec_res.get("error", "Workflow submission failed")
             raise RuntimeError(f"ComfyUI execution error: {err}")
 
-        job_id = exec_res.get("job_id")
-
-        # 2. Wait for completion & Auto-Vault output
-        # If not reused, poll until complete or timeout
+        # 2. Quick poll (up to 8s) or return async pending descriptor
         poll_start = time.time()
-        timeout_sec = float(kwargs.get("timeout", 180.0))
+        timeout_sec = float(kwargs.get("timeout", 8.0))
         vault_res = {"status": "FAILED"}
 
         while (time.time() - poll_start) < timeout_sec:
@@ -191,10 +188,29 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
                 vault_res = status_info
                 break
             import asyncio
-            await asyncio.sleep(2.5)
+            await asyncio.sleep(2.0)
+
+        gpu_name = active_worker.get("gpu_name", "NVIDIA Tesla T4")
+        session_id = active_worker.get("session_id", "colab-session")
+        model_name = kwargs.get("model", target_model)
 
         if vault_res.get("status") != "COMPLETED":
-            raise RuntimeError(f"ComfyUI generation timed out or failed to vault asset for job '{job_id}'")
+            # Return pending descriptor so HTTP response is returned immediately (<8s)
+            return {
+                "status": "SUBMITTED",
+                "pending": True,
+                "job_id": job_id,
+                "provider": "comfyui",
+                "backend": "google-colab",
+                "gpu": gpu_name,
+                "model": model_name,
+                "choices": [{
+                    "message": {
+                        "role": "assistant",
+                        "content": f"🎨 **Procesando con {model_name} en Tesla T4...** (Job: `{job_id}`)"
+                    }
+                }]
+            }
 
         duration_ms = round((time.monotonic() - t0) * 1000, 1)
 
@@ -203,9 +219,6 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         view_url = signed.get("view_url", "")
         download_url = signed.get("download_url", "")
 
-        gpu_name = active_worker.get("gpu_name", "NVIDIA Tesla T4")
-        session_id = active_worker.get("session_id", "colab-session")
-        model_name = kwargs.get("model", "FLUX.2 Klein 4B")
 
         # Record in provider_history.db with true telemetry
         provider_history.record(
