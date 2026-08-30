@@ -678,9 +678,12 @@ def run_bootstrap():
     if not comfy_dir.exists():
         log_step("📦", "Clonando repositorio ComfyUI...", "")
         subprocess.run(["git", "clone", "--depth", "1", "https://github.com/comfyanonymous/ComfyUI.git", str(comfy_dir)], check=False)
-        req_file = comfy_dir / "requirements.txt"
-        if req_file.exists():
-            subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(req_file)], check=False)
+
+    req_file = comfy_dir / "requirements.txt"
+    if req_file.exists():
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "-r", str(req_file)], check=False)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-q", "alembic", "blake3", "comfy-aimdo"], check=False)
+
 
     # Auto-install ReActor Face Swap custom node for 1-click Face Swapping & Consistency
     reactor_dir = comfy_dir / "custom_nodes" / "ComfyUI-ReActor"
