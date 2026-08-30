@@ -65,7 +65,8 @@
       "recommended_vram_gb": 12.0,
       "local_allowed": false,
       "remote_gpu_allowed": true,
-      "status": "SUPPORTED",
+      "status": "PHYSICALLY_VALIDATED",
+      "priority": 1,
       "resolution_presets": {
         "portrait_9_16": [832, 1472],
         "square_1_1": [1024, 1024],
