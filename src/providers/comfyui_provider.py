@@ -128,7 +128,9 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
 
         catalog_models = [
             {"id": "flux1_schnell", "name": "ComfyUI / FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False},
+            {"id": "sdxl_base", "name": "ComfyUI / SDXL Juggernaut v9 (Selfie iPhone) [TOP]", "free": True, "local": False},
             {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Sin Censura)", "free": True, "local": False},
+            {"id": "wan22_i2v", "name": "ComfyUI / Wan 2.1 Video (Animación I2V)", "free": True, "local": False},
             {"id": "zimage_turbo", "name": "ComfyUI / Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False},
         ]
 
@@ -147,6 +149,9 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         Executes text-to-image or image-to-video for ComfyUI.
         """
         prompt = messages[-1].get("content", "") if messages else ""
+        model_req = kwargs.get("model", "")
+        if "video" in str(model_req).lower() or "wan" in str(model_req).lower() or kwargs.get("media_type") == "video":
+            return await self.generate_video(prompt=prompt, **kwargs)
         return await self.generate_image(prompt=prompt, **kwargs)
 
     async def generate_image(self, prompt: str, **kwargs) -> Dict[str, Any]:
@@ -162,7 +167,10 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
         model_req = kwargs.get("model", "")
         worker_models = active_worker.get("models", [])
 
-        if "flux" in str(model_req).lower() or "schnell" in str(model_req).lower():
+        if "juggernaut" in str(model_req).lower() or "sdxl" in str(model_req).lower():
+            workflow_template = "sd15_txt2img" # Or SDXL template
+            target_model = "sdxl_base"
+        elif "flux" in str(model_req).lower() or "schnell" in str(model_req).lower():
             workflow_template = "flux1_schnell_txt2img"
             target_model = "flux1_schnell"
         elif "zimage" in str(model_req).lower() or "turbo" in str(model_req).lower():
@@ -175,12 +183,16 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
             if "flux1_schnell" in worker_models or "flux1_schnell_fp8" in worker_models:
                 workflow_template = "flux1_schnell_txt2img"
                 target_model = "flux1_schnell"
+            elif "sdxl_base" in worker_models:
+                workflow_template = "sd15_txt2img"
+                target_model = "sdxl_base"
             elif "zimage_turbo" in worker_models:
                 workflow_template = "zimage_turbo_txt2img"
                 target_model = "zimage_turbo"
             else:
                 workflow_template = kwargs.get("workflow") or kwargs.get("template") or "sd15_txt2img"
                 target_model = "sd15_base"
+
 
         # Aspect ratio / Resolution policy
         parameters = kwargs.copy()

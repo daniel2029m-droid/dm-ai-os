@@ -454,13 +454,14 @@ def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
             {"filename": ["ae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
         "sdxl_base": [
-            {"filename": ["sd_xl_base_1.0.safetensors", "sdxl_base.safetensors"], "category": "checkpoints", "min_size_bytes": 5_000_000_000},
+            {"filename": ["juggernautXL_v9_RunDiffusionPhoto.safetensors", "sd_xl_base_1.0.safetensors", "sdxl_base.safetensors", "juggernaut_xl.safetensors"], "category": "checkpoints", "min_size_bytes": 4_000_000_000},
         ],
         "wan22_i2v": [
-            {"filename": ["wan2.2_i2v_480p_14B_fp8_scaled.safetensors"], "category": "diffusion_models", "min_size_bytes": 10_000_000_000},
-            {"filename": ["umt5_xxl_fp8_e4m3fn_scaled.safetensors"], "category": "clip", "min_size_bytes": 3_500_000_000},
-            {"filename": ["wan_2.1_vae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
+            {"filename": ["wan2.1_i2v_480p_14B_fp8.safetensors", "wan2.2_i2v_480p_14B_fp8_scaled.safetensors", "wan2.1_i2v.safetensors"], "category": "diffusion_models", "min_size_bytes": 8_000_000_000},
+            {"filename": ["umt5_xxl_fp8_e4m3fn_scaled.safetensors", "umt5_xxl.safetensors"], "category": "clip", "min_size_bytes": 3_000_000_000},
+            {"filename": ["wan_2.1_vae.safetensors", "wan_vae.safetensors"], "category": "vae", "min_size_bytes": 50_000_000},
         ],
+
     }
 
     results = {}
