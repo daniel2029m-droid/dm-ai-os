@@ -469,8 +469,7 @@ def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
         for comp in components:
             path = find_component_in_storage(comp["filename"], comp["category"], storage_roots)
             if path:
-                valid, reason = is_valid_safetensors(path, min_bytes=comp["min_size_bytes"])
-                if valid:
+                if is_valid_safetensors(path, min_bytes=comp["min_size_bytes"]):
                     found.append({"filename": comp["filename"], "path": str(path)})
                     try:
                         cat_dir = comfy_dir / "models" / comp["category"]
@@ -481,10 +480,10 @@ def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
                     except Exception:
                         pass
                 else:
-
-                    missing.append({"filename": comp["filename"], "reason": f"INTEGRITY_FAIL: {reason}"})
+                    missing.append({"filename": comp["filename"], "reason": "INTEGRITY_FAIL: Invalid or truncated file"})
             else:
                 missing.append({"filename": comp["filename"], "reason": "NOT_FOUND"})
+
 
         all_present = len(missing) == 0
         results[model_id] = {
