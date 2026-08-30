@@ -372,11 +372,19 @@ def find_component_in_storage(filename: str, category: str, search_roots: list) 
             candidates = [
                 root_path / cat / filename,
                 root_path / "models" / cat / filename,
-                root_path / filename,
-                root_path / "DM_AI_OS" / "AI_LIBRARY" / "IMAGE" / "Z_IMAGE_TURBO" / cat / filename,
-                root_path / "AI_LIBRARY" / "IMAGE" / "Z_IMAGE_TURBO" / cat / filename,
+                root_path / "AI_LIBRARY" / cat / filename,
+                root_path / "DM_AI_OS" / "AI_LIBRARY" / cat / filename,
+                root_path / "AI_LIBRARY" / "IMAGE" / "FLUX" / cat / filename,
+                root_path / "AI_LIBRARY" / "IMAGE" / "SDXL" / cat / filename,
+                root_path / "AI_LIBRARY" / "VIDEO" / "WAN" / cat / filename,
+                root_path / "AI_LIBRARY" / "VIDEO" / "LTX" / cat / filename,
+                root_path / "AI_LIBRARY" / "IDENTITY" / "INSIGHTFACE" / filename,
+                root_path / "AI_LIBRARY" / "IDENTITY" / "PULID" / filename,
+                root_path / "AI_LIBRARY" / "UPSCALE" / filename,
+                root_path / "AI_LIBRARY" / "AUDIO" / "F5_TTS" / filename,
                 root_path / "DM-AI-OS-MODELS" / cat / filename,
                 root_path / "DM_AI_OS" / cat / filename,
+
             ]
             for c in candidates:
                 if c.exists() and c.is_file():
