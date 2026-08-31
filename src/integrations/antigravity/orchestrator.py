@@ -1,7 +1,7 @@
 """
 DM AI OS v1.5.2 — Antigravity Autonomous Multi-Engine Orchestrator
 Decomposes high-level instructions, routes across providers, executes MCP/workspace tools,
-applies strict permission gates, and performs physical verification.
+parses textual tool calls, re-injects tool results into the agent loop, and performs physical verification.
 """
 import abc
 import time
@@ -30,53 +30,20 @@ from .models import (
 from .permissions import permissions_engine
 from .session import session_store
 from .verifier import physical_verifier
+from .tool_parser import safe_tool_parser, list_workspace_directory, read_workspace_file, execute_list_directory, execute_read_file
 
 log = logging.getLogger("antigravity_orchestrator")
 WORKSPACE_ROOT = Path(".").resolve()
-
-
-# ── MCP / WORKSPACE TOOLS ─────────────────────────────────────────────────────
-def list_workspace_directory(subpath: str = ".") -> str:
-    """Lists files and folders in the workspace directory physically."""
-    clean_subpath = subpath.strip().strip("/\\")
-    if clean_subpath in ("", ".", "scratch", "workspace"):
-        target = WORKSPACE_ROOT
-    else:
-        target = (WORKSPACE_ROOT / clean_subpath).resolve()
-
-    if not target.exists():
-        target = WORKSPACE_ROOT
-
-    items = []
-    for p in sorted(target.iterdir()):
-        kind = "[DIR]" if p.is_dir() else "[FILE]"
-        items.append(f"{kind} {p.name}")
-    return "\n".join(items) if items else "(Empty directory)"
-
-
-
-def read_workspace_file(file_path: str) -> str:
-    """Reads content from a workspace file physically."""
-    target = (WORKSPACE_ROOT / file_path).resolve()
-    if not target.exists() or not target.is_file():
-        return f"File not found: {file_path}"
-    try:
-        content = target.read_text(encoding="utf-8", errors="ignore")
-        return content[:4000]
-    except Exception as e:
-        return f"Error reading file {file_path}: {e}"
 
 
 # ── ABSTRACT AGENT PROVIDER ───────────────────────────────────────────────────
 class AgentProvider(abc.ABC):
     @abc.abstractmethod
     async def health(self) -> Dict[str, Any]:
-        """Returns health status of the provider."""
         pass
 
     @abc.abstractmethod
     async def capabilities(self) -> ProviderCapabilities:
-        """Returns verified provider capabilities."""
         pass
 
     @abc.abstractmethod
@@ -85,11 +52,10 @@ class AgentProvider(abc.ABC):
         prompt: str,
         session: AntigravitySession
     ) -> AntigravityResponse:
-        """Executes a single-turn or multi-turn prompt."""
         pass
 
 
-# ── 1. ANTIGRAVITY AGENT PROVIDER ─────────────────────────────────────────────
+# ── 1. ANTIGRAVITY AGENT PROVIDER (WITH SAFE TOOL CALL & RE-INJECTION) ────────
 class AntigravityAgentProvider(AgentProvider):
     def __init__(self, model: str = "qwen2.5:1.5b", base_url: str = "http://127.0.0.1:11434/v1"):
         self.model = model
@@ -100,7 +66,6 @@ class AntigravityAgentProvider(AgentProvider):
         if not self.is_online:
             return {"status": "OFFLINE", "provider": "antigravity", "reason": "Manually set offline"}
         try:
-            # Check Ollama connection
             req = urllib.request.Request("http://127.0.0.1:11434/api/tags")
             with urllib.request.urlopen(req, timeout=3) as r:
                 if r.status == 200:
@@ -140,7 +105,7 @@ class AntigravityAgentProvider(AgentProvider):
         prompt_clean = prompt.strip()
         executed_tools: List[Dict[str, Any]] = []
 
-        # Permission gating for mutating intentions
+        # ── 1. SECURITY GATING FOR DIRECT MUTATION REQUESTS ───────────────────
         is_mutation = any(w in prompt_clean.lower() for w in [
             "modifica", "modificá", "agrega", "agregá", "escribe", "escribí",
             "cambia", "cambiá", "elimina", "eliminá", "crea archivo", "creá archivo",
@@ -204,7 +169,7 @@ class AntigravityAgentProvider(AgentProvider):
                     latency_ms=latency
                 )
 
-        # Real execution via google.antigravity.Agent
+        # ── 2. REAL EXECUTION VIA google.antigravity.Agent ────────────────────
         cfg = LocalOpenAIAgentConfig(
             model=self.model,
             base_url=self.base_url,
@@ -218,6 +183,7 @@ class AntigravityAgentProvider(AgentProvider):
 
         try:
             async with Agent(cfg) as agent:
+                # ── TURN 1: Send user prompt to Agent ─────────────────────────
                 chat_resp = await agent.chat(prompt_clean)
                 await chat_resp.resolve()
 
@@ -231,22 +197,115 @@ class AntigravityAgentProvider(AgentProvider):
                             "status": "CALLED"
                         })
 
-                response_text = "".join(text_chunks).strip()
-                if "list_workspace_directory" in response_text or '"name": "list_workspace_directory"' in response_text or "list_directory" in response_text:
-                    dir_output = list_workspace_directory()
-                    response_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{dir_output}\n```"
-                elif "read_workspace_file" in response_text or '"name": "read_workspace_file"' in response_text or "read_file" in response_text:
-                    file_output = read_workspace_file("README.md")
-                    response_text = f"📖 **Contenido de `README.md`:**\n\n```markdown\n{file_output}\n```"
-                elif not response_text:
-                    if any(w in prompt_clean.lower() for w in ["listá", "lista", "archivos", "carpetas", "directory"]):
-                        dir_output = list_workspace_directory()
-                        response_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{dir_output}\n```"
+                raw_turn1_text = "".join(text_chunks).strip()
+
+                # ── TURN 2: Parse and safely dispatch any textual tool calls ───
+                tool_calls = safe_tool_parser.extract_tool_calls(raw_turn1_text)
+                
+                if tool_calls:
+                    selected_call = tool_calls[0]
+                    p_lower = prompt_clean.lower()
+                    if any(w in p_lower for w in ["list", "carpetas", "archivos", "directorio"]):
+                        for c in tool_calls:
+                            if "list" in c["name"].lower():
+                                selected_call = c
+                                break
+                    elif any(w in p_lower for w in ["lee", "read", "titulo", "título", "contenido"]):
+                        for c in tool_calls:
+                            if "read" in c["name"].lower() or "view" in c["name"].lower():
+                                selected_call = c
+                                break
+
+                    t_name = selected_call["name"]
+                    t_args = selected_call["arguments"]
+
+
+                    success, tool_result, pending_action = safe_tool_parser.dispatch_tool(
+                        tool_name=t_name,
+                        arguments=t_args,
+                        permission_mode=session.permission_mode
+                    )
+
+                    if pending_action:
+                        session.status = SessionStatus.PENDING_USER_APPROVAL
+                        session.pending_action = pending_action
+                        session_store.save_session(session)
+                        latency = round((time.perf_counter() - t0) * 1000, 2)
+                        return AntigravityResponse(
+                            session_id=session.session_id,
+                            status=SessionStatus.PENDING_USER_APPROVAL,
+                            permission_mode=session.permission_mode,
+                            engine_used="google.antigravity.Agent",
+                            model_used=self.model,
+                            response_text=f"⚠️ **ANTIGRAVITY REQUESTS APPROVAL**\n\n**Acción:** `{pending_action.tool_name}`\n**Detalle:** {pending_action.summary}",
+                            pending_action=pending_action,
+                            latency_ms=latency
+                        )
+
+                    if tool_result.startswith("BLOCKED"):
+                        latency = round((time.perf_counter() - t0) * 1000, 2)
+                        return AntigravityResponse(
+                            session_id=session.session_id,
+                            status=SessionStatus.FAILED,
+                            permission_mode=session.permission_mode,
+                            engine_used="google.antigravity.Agent",
+                            model_used=self.model,
+                            response_text=tool_result,
+                            latency_ms=latency
+                        )
+
+                    executed_tools.append({
+                        "tool": t_name,
+                        "arguments": t_args,
+                        "result_snippet": tool_result[:100],
+                        "status": "SUCCESS" if success else "ERROR"
+                    })
+
+                    # Re-inject tool result into Agent for final synthesis
+                    reinject_prompt = (
+                        f"Resultado físico de la herramienta '{t_name}':\n"
+                        f"```text\n{tool_result}\n```\n\n"
+                        f"Con base en esta información física real del filesystem, respondé en detalle a la solicitud del usuario: '{prompt_clean}'."
+                    )
+
+                    chat_resp2 = await agent.chat(reinject_prompt)
+                    await chat_resp2.resolve()
+
+                    final_chunks = []
+                    async for chunk2 in chat_resp2.chunks:
+                        if isinstance(chunk2, types.Text):
+                            final_chunks.append(chunk2.text)
+
+                    final_text = "".join(final_chunks).strip()
+                    if not final_text or "{" in final_text[:5]:
+                        # Format clearly with the confirmed physical result
+                        if "list" in t_name.lower():
+                            final_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{tool_result}\n```"
+                        elif "read" in t_name.lower() or "view" in t_name.lower():
+                            final_text = f"📖 **Contenido de `{t_args.get('file_path', 'archivo')}`:**\n\n```markdown\n{tool_result}\n```"
+                        else:
+                            final_text = tool_result
+
+                    latency = round((time.perf_counter() - t0) * 1000, 2)
+                    return AntigravityResponse(
+                        session_id=session.session_id,
+                        status=SessionStatus.COMPLETED,
+                        permission_mode=session.permission_mode,
+                        engine_used="google.antigravity.Agent",
+                        model_used=self.model,
+                        response_text=final_text,
+                        executed_tools=executed_tools,
+                        latency_ms=latency
+                    )
+
+                # If no tool call detected in text
+                if not raw_turn1_text:
+                    if any(w in prompt_clean.lower() for w in ["listá", "lista", "archivos", "carpetas"]):
+                        raw_turn1_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{execute_list_directory({}) }\n```"
                     elif any(w in prompt_clean.lower() for w in ["leé", "lee", "readme"]):
-                        file_output = read_workspace_file("README.md")
-                        response_text = f"📖 **Contenido de `README.md`:**\n\n```markdown\n{file_output}\n```"
+                        raw_turn1_text = f"📖 **Contenido de `README.md`:**\n\n```markdown\n{execute_read_file({'file_path': 'README.md'})}\n```"
                     else:
-                        response_text = "ANTIGRAVITY_E2E_AGENT_OK"
+                        raw_turn1_text = "ANTIGRAVITY_E2E_AGENT_OK"
 
                 latency = round((time.perf_counter() - t0) * 1000, 2)
                 return AntigravityResponse(
@@ -255,7 +314,7 @@ class AntigravityAgentProvider(AgentProvider):
                     permission_mode=session.permission_mode,
                     engine_used="google.antigravity.Agent",
                     model_used=self.model,
-                    response_text=response_text,
+                    response_text=raw_turn1_text,
                     executed_tools=executed_tools,
                     latency_ms=latency
                 )
@@ -355,11 +414,9 @@ class AntigravityOrchestrator:
         self.ollama_provider = OllamaDirectProvider()
 
     async def get_health_report(self) -> Dict[str, Any]:
-        """Returns granular health probes across all system components."""
         ag_health = await self.antigravity_provider.health()
         ol_health = await self.ollama_provider.health()
         
-        # Check MCP server at 127.0.0.1:8001
         mcp_status = "OFFLINE"
         try:
             req = urllib.request.Request("http://127.0.0.1:8001/mcp/tools")
@@ -387,18 +444,13 @@ class AntigravityOrchestrator:
         session: AntigravitySession,
         engine_preference: EngineType = EngineType.AUTO
     ) -> AntigravityResponse:
-        """
-        Autonomous routing engine with health check and safe fallback.
-        """
         t0 = time.perf_counter()
 
-        # ── AUTO ROUTING LOGIC ────────────────────────────────────────────────
         if engine_preference == EngineType.AUTO or engine_preference == EngineType.ANTIGRAVITY:
             ag_health = await self.antigravity_provider.health()
             if ag_health.get("status") == "ONLINE":
                 resp = await self.antigravity_provider.chat(prompt, session)
             else:
-                # Fallback to Ollama Direct
                 ol_health = await self.ollama_provider.health()
                 if ol_health.get("status") == "ONLINE":
                     resp = await self.ollama_provider.chat(prompt, session)
@@ -415,8 +467,8 @@ class AntigravityOrchestrator:
         else:
             resp = await self.ollama_provider.chat(prompt, session)
 
-        # Record audit log
-        audit_entry = OrchestratorAuditEntry(
+        # Audit log
+        session_store.record_audit(OrchestratorAuditEntry(
             session_id=session.session_id,
             provider=resp.engine_used or "Unknown",
             model=resp.model_used or "Unknown",
@@ -424,8 +476,7 @@ class AntigravityOrchestrator:
             permission_mode=session.permission_mode.value,
             result=resp.status.value,
             duration_ms=resp.latency_ms
-        )
-        session_store.record_audit(audit_entry)
+        ))
 
         return resp
 
@@ -434,12 +485,8 @@ class AntigravityOrchestrator:
         task_prompt: str,
         session: AntigravitySession
     ) -> AntigravityResponse:
-        """
-        Multi-step task decomposition, planning, and execution engine.
-        """
         t0 = time.perf_counter()
         
-        # Step 1: Decompose into plan
         steps = [
             PlanStep(step_index=1, title="Inspección de Workspace", description="Inspeccionar archivos clave del proyecto", tool_name="list_workspace_directory"),
             PlanStep(step_index=2, title="Lectura de Configuración", description="Revisar documentación y estado", tool_name="read_workspace_file"),
@@ -456,24 +503,20 @@ class AntigravityOrchestrator:
         session.current_plan = plan
         session_store.save_plan(plan)
 
-        # Step 2: Execute Step 1 (Inspection)
-        dir_content = list_workspace_directory()
+        dir_content = execute_list_directory({})
         plan.steps[0].status = StepStatus.COMPLETED
-        plan.steps[0].result = f"Inspeccionados {len(dir_content.splitlines())} elementos."
+        plan.steps[0].result = f"Inspeccionados {len(dir_content.splitlines())} elementos físicos."
         plan.steps[0].verification_status = "PASSED"
 
-        # Step 3: Execute Step 2 (Read README)
-        readme_content = read_workspace_file("README.md")
+        readme_content = execute_read_file({"file_path": "README.md"})
         plan.steps[1].status = StepStatus.COMPLETED
         plan.steps[1].result = "Leído README.md correctamente."
         plan.steps[1].verification_status = "PASSED"
 
-        # Step 4: Diagnosis & Reason
         plan.steps[2].status = StepStatus.COMPLETED
         plan.steps[2].result = "Diagnóstico generado: El sistema está operativo y enrutado."
         plan.steps[2].verification_status = "PASSED"
 
-        # Step 5: Await user approval before any write
         plan.steps[3].status = StepStatus.AWAITING_APPROVAL
         plan.current_step_index = 3
         session_store.save_plan(plan)
@@ -506,9 +549,6 @@ class AntigravityOrchestrator:
         action_id: str,
         decision: str
     ) -> Dict[str, Any]:
-        """
-        Executes or rejects an action with physical verification.
-        """
         session = session_store.get_or_create_session(session_id=session_id)
         if not session.pending_action or session.pending_action.action_id != action_id:
             return {"status": "ERROR", "message": f"Action ID '{action_id}' not found or already processed."}
@@ -520,7 +560,6 @@ class AntigravityOrchestrator:
             session.pending_action = None
             session_store.save_session(session)
 
-            # Audit log
             session_store.record_audit(OrchestratorAuditEntry(
                 session_id=session_id,
                 action="USER_REJECT",
@@ -531,7 +570,6 @@ class AntigravityOrchestrator:
             ))
             return {"status": "REJECTED", "message": "Acción rechazada por el usuario. Sistema inalterado."}
 
-        # APPROVE
         target_path = Path(action.target_path) if action.target_path else (WORKSPACE_ROOT / "scratch/temp_test.txt")
         content = action.parameters.get("ReplacementContent") or "# Approved modification\n"
         
@@ -542,7 +580,6 @@ class AntigravityOrchestrator:
         else:
             target_path.write_text(content, encoding="utf-8")
 
-        # Independent physical verification
         verified, verif_msg = physical_verifier.verify_action_execution(
             tool_name=action.tool_name,
             target_path=str(target_path),
@@ -554,7 +591,6 @@ class AntigravityOrchestrator:
         session.pending_action = None
         session_store.save_session(session)
 
-        # Audit log
         session_store.record_audit(OrchestratorAuditEntry(
             session_id=session_id,
             action="USER_APPROVE",
