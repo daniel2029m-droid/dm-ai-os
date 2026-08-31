@@ -362,28 +362,43 @@ class ChatRouteRequest(BaseModel):
     provider: str = "auto"
     model: Optional[str] = None
     image_url: Optional[str] = None
+    image_url_2: Optional[str] = None
     reference_image_url: Optional[str] = None
+    image_urls: Optional[List[str]] = None
+    reference_images: Optional[List[str]] = None
 
 @providers_router.post("/route/chat")
 async def route_chat(req: ChatRouteRequest):
     """
     Route a chat request through the AI Router.
-    Provider 'auto' → selects best available provider automatically.
+    Provider 'auto' -> selects best available provider automatically.
     """
     t0 = time.perf_counter()
     try:
         ref_url = req.reference_image_url or req.image_url
+        kwargs = {}
+        if req.model:
+            kwargs["model"] = req.model
+        if ref_url:
+            kwargs["image_url"] = ref_url
+        if req.image_url_2:
+            kwargs["image_url_2"] = req.image_url_2
+        if req.image_urls:
+            kwargs["image_urls"] = req.image_urls
+        if req.reference_images:
+            kwargs["reference_images"] = req.reference_images
+
         result = await provider_manager.route_chat(
             req.messages,
             preferred_provider=req.provider,
-            **({"model": req.model} if req.model else {}),
-            **({"image_url": ref_url} if ref_url else {})
+            **kwargs
         )
         elapsed = round((time.perf_counter() - t0) * 1000, 1)
         result["_routing_ms"] = elapsed
         return result
     except Exception as e:
         raise HTTPException(status_code=503, detail=str(e))
+
 
 
 # ── POST /api/providers/route/image ──────────────────────────────

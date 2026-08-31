@@ -8,7 +8,9 @@ import os
 import json
 import logging
 import httpx
+from pathlib import Path
 from typing import Dict, Any, Optional, List
+
 
 from ..providers.worker_registry import worker_registry, WorkerStatus
 

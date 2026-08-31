@@ -313,9 +313,12 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
 
 
 
+        log.info(f"[ComfyUIProvider] Workflow dispatched. Result status={exec_res.get('status')}, job_id={exec_res.get('job_id')}, manifest_error={exec_res.get('manifest', {}).get('error_message')}")
+
         if exec_res.get("status") not in ("SUBMITTED", "COMPLETED"):
-            err = exec_res.get("error", "Workflow submission failed")
+            err = exec_res.get("manifest", {}).get("error_message") or exec_res.get("error") or exec_res.get("response", {}).get("error") or "Workflow submission failed"
             raise RuntimeError(f"ComfyUI execution error: {err}")
+
 
         job_id = exec_res.get("job_id")
 

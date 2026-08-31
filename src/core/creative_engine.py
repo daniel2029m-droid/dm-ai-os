@@ -231,8 +231,28 @@ class CreativeEngine:
                     "reused": True
                 }
 
+        # Auto-upload any referenced input image assets to remote ComfyUI input folder
+        for key in ["INPUT_IMAGE", "input_image", "INPUT_IMAGE_1", "input_image_1", "INPUT_IMAGE_2", "input_image_2", "IMAGE_URL", "reference_image_url"]:
+            val = effective_params.get(key)
+            if val and isinstance(val, str):
+                local_candidates = [
+                    Path("deployment") / "uploads" / val,
+                    Path(val),
+                    Path("deployment") / "uploads" / os.path.basename(val),
+                ]
+                for p in local_candidates:
+                    if p.exists() and p.is_file():
+                        try:
+                            up_name = await comfy_adapter.upload_image(p, p.name)
+                            if up_name:
+                                log.info(f"[CreativeEngine] Synced input image {p.name} -> ComfyUI input/{up_name}")
+                        except Exception as e:
+                            log.warning(f"[CreativeEngine] Failed uploading input image {p}: {e}")
+                        break
+
         # Submit via ComfyAdapter using the effective resolved workflow
         res = await comfy_adapter.submit_workflow(effective_workflow, parameters=effective_params)
+
         duration = round(time.time() - start_time, 3)
 
         job_id = res.get("job_id", f"cr_{int(time.time())}_{effective_hash[:8]}")
