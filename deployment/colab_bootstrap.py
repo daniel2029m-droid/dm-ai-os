@@ -425,11 +425,39 @@ def generate_extra_model_paths_yaml(comfy_dir: Path, storage_roots: list) -> Pat
             "    controlnet: controlnet",
             "    upscale_models: upscale_models",
             "",
+            f"{label}_ai_lib_flux:",
+            f"    base_path: {root_str}/AI_LIBRARY/IMAGE/FLUX",
+            "    diffusion_models: diffusion_models",
+            "    clip: text_encoders",
+            "    text_encoders: text_encoders",
+            "    vae: vae",
+            "",
+            f"{label}_ai_lib_wan:",
+            f"    base_path: {root_str}/AI_LIBRARY/VIDEO/WAN",
+            "    diffusion_models: diffusion_models",
+            "    clip: text_encoders",
+            "    text_encoders: text_encoders",
+            "    vae: vae",
+            "",
+            f"{label}_ai_lib_sdxl:",
+            f"    base_path: {root_str}/AI_LIBRARY/IMAGE/SDXL",
+            "    checkpoints: checkpoints",
+            "    loras: loras",
+            "",
+            f"{label}_ai_lib_ltx:",
+            f"    base_path: {root_str}/AI_LIBRARY/VIDEO/LTX",
+            "    diffusion_models: diffusion_models",
+            "",
+            f"{label}_ai_lib_upscale:",
+            f"    base_path: {root_str}/AI_LIBRARY/UPSCALE",
+            "    upscale_models: .",
+            "",
         ]
     content = "\n".join(lines)
     yaml_path.write_text(content, encoding="utf-8")
-    print(f"   extra_model_paths.yaml generado: {yaml_path}")
+    print(f"   extra_model_paths.yaml generado con mapeo completo: {yaml_path}")
     return yaml_path
+
 
 
 def discover_available_models(storage_roots: list, comfy_dir: Path) -> dict:
