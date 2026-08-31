@@ -586,6 +586,7 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                         <span style="font-size:0.75rem; color:var(--text-muted); flex-shrink:0;">Proveedor:</span>
                         <select class="router-select" id="aiProviderSelect" onchange="onProviderChanged()" style="flex:1;">
                             <option value="auto" selected>✨ Auto (Recomendado)</option>
+                            <option value="antigravity">🧠 Antigravity (Local Agent Bridge)</option>
                             <option value="comfyui">🎨 ComfyUI (Google Colab T4 16GB)</option>
                             <option value="openrouter">🌐 OpenRouter (Modelos Gratis)</option>
                             <option value="nvidia">⚡ NVIDIA NIM API</option>
@@ -598,6 +599,7 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                             <option value="deepseek">🐳 DeepSeek Local</option>
                             <option value="higgsfield">🎬 Higgsfield AI</option>
                         </select>
+
                     </div>
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                         <span style="font-size:0.75rem; color:var(--text-muted); flex-shrink:0;">Modelo:</span>
@@ -1301,6 +1303,42 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             attachedFiles = [];
             renderAttachmentsPreview();
         }}
+
+        async function approveAntigravityAction(sessionId, actionId, btn) {{
+            if (btn) btn.disabled = true;
+            try {{
+                const res = await fetch('/api/v1/antigravity/approve', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
+                    body: JSON.stringify({{ session_id: sessionId, action_id: actionId, decision: 'APPROVE' }})
+                }});
+                const data = await res.json();
+                alert(data.message || 'Acción aprobada y ejecutada.');
+                if (btn && btn.parentElement) btn.parentElement.innerHTML = '<span style="color:#22c55e; font-weight:700;">✅ ACCIÓN APROBADA Y EJECUTADA</span>';
+            }} catch (err) {{
+                alert('Error al aprobar: ' + err.message);
+                if (btn) btn.disabled = false;
+            }}
+        }}
+
+        async function rejectAntigravityAction(sessionId, actionId, btn) {{
+            if (btn) btn.disabled = true;
+            try {{
+                const res = await fetch('/api/v1/antigravity/reject', {{
+                    method: 'POST',
+                    headers: {{ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + API_KEY, 'X-API-Key': API_KEY }},
+                    body: JSON.stringify({{ session_id: sessionId, action_id: actionId, decision: 'REJECT' }})
+                }});
+                const data = await res.json();
+                alert(data.message || 'Acción rechazada.');
+                if (btn && btn.parentElement) btn.parentElement.innerHTML = '<span style="color:#ef4444; font-weight:700;">❌ ACCIÓN RECHAZADA</span>';
+            }} catch (err) {{
+                alert('Error al rechazar: ' + err.message);
+                if (btn) btn.disabled = false;
+            }}
+        }}
+
+
 
 
         function selectAgent(name, desc) {{

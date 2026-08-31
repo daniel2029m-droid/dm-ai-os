@@ -448,6 +448,13 @@ class ProviderManager:
         # Local providers
         self.register(OllamaProviderAdapter())
 
+        # Antigravity Remote Bridge Provider (v1.5.2)
+        try:
+            from src.integrations.antigravity.provider_adapter import AntigravityProviderAdapter
+            self.register(AntigravityProviderAdapter())
+        except Exception as e:
+            log.warning(f"[ProviderManager] Antigravity registration skipped: {e}")
+
         # Cloud stub providers
         for cls in [ClaudeProviderAdapter, GeminiProviderAdapter, OpenAIProviderAdapter,
                     GrokProviderAdapter, DeepSeekProviderAdapter, QwenProviderAdapter]:
@@ -455,6 +462,7 @@ class ProviderManager:
                 self.register(cls())
             except Exception as e:
                 log.warning(f"[ProviderManager] {cls.__name__} registration skipped: {e}")
+
 
     def register(self, adapter: BaseProviderAdapter):
         self._providers[adapter.id] = adapter

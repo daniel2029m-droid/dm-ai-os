@@ -79,6 +79,11 @@ app.include_router(workers_router)
 from src.api.model_storage_router import model_storage_router
 app.include_router(model_storage_router)
 
+# ── Antigravity Remote Bridge Router (v1.5.2) ──────────────────────────────
+from src.integrations.antigravity import antigravity_router
+app.include_router(antigravity_router)
+
+
 
 def start_api(host: str = "0.0.0.0", port: int = 8000):
     uvicorn.run("src.api.server:app", host=host, port=port, reload=False, log_level="info")
