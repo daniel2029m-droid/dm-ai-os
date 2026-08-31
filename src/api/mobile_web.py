@@ -602,8 +602,17 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                         <span style="font-size:0.75rem; color:var(--text-muted); flex-shrink:0;">Modelo:</span>
                         <select class="router-select" id="aiModelSelect" style="flex:1;">
-                            <option value="auto" selected>Auto (Mejor Disponible)</option>
+                            <option value="face_swap" selected>🎭 Face Swap / Transferencia de Rostro [INSTANTÁNEO] [GRATIS]</option>
+                            <option value="flux1_schnell">⚡ FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP] [GRATIS]</option>
+                            <option value="flux1_kontext">🎨 FLUX.1 Kontext (Edición In-Context y Consistencia) [GRATIS]</option>
+                            <option value="qwen25_vl">👁️ Qwen2.5-VL Multimodal (Análisis Visual) [MULTIMODAL] [GRATIS]</option>
+                            <option value="sdxl_base">📸 SDXL Juggernaut v9 (Selfie iPhone) [TOP] [GRATIS]</option>
+                            <option value="wan22_i2v">🎬 Wan 2.1 Video (Animación Cinemática I2V) [GRATIS]</option>
+                            <option value="ltx_video">🎥 LTX-Video 0.9.5 (Generación de Video Rápido) [GRATIS]</option>
+                            <option value="f5_tts">🎙️ F5-TTS (Clonación de Voz de Valeria) [GRATIS]</option>
+                            <option value="auto">✨ Auto (Mejor Disponible)</option>
                         </select>
+
                     </div>
                 </div>
 

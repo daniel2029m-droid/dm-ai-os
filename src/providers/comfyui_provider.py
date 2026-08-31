@@ -130,12 +130,16 @@ class ComfyUIProviderAdapter(BaseProviderAdapter):
 
         catalog_models = [
             {"id": "face_swap", "name": "🎭 Face Swap / Transferencia de Rostro [INSTANTÁNEO]", "free": True, "local": False},
-            {"id": "flux1_schnell", "name": "ComfyUI / FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False},
-            {"id": "sdxl_base", "name": "ComfyUI / SDXL Juggernaut v9 (Selfie iPhone) [TOP]", "free": True, "local": False},
-            {"id": "sd15_base", "name": "ComfyUI / SD 1.5 Base (Sin Censura)", "free": True, "local": False},
-            {"id": "wan22_i2v", "name": "ComfyUI / Wan 2.1 Video (Animación I2V)", "free": True, "local": False},
-            {"id": "zimage_turbo", "name": "ComfyUI / Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False},
+            {"id": "flux1_schnell", "name": "⚡ FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False},
+            {"id": "flux1_kontext", "name": "🎨 FLUX.1 Kontext (Edición In-Context y Consistencia)", "free": True, "local": False},
+            {"id": "qwen25_vl", "name": "👁️ Qwen2.5-VL Multimodal (Análisis Visual y Comprensión)", "free": True, "local": False, "multimodal": True},
+            {"id": "sdxl_base", "name": "📸 SDXL Juggernaut v9 (Selfie iPhone) [TOP]", "free": True, "local": False},
+            {"id": "wan22_i2v", "name": "🎬 Wan 2.1 Video (Animación Cinemática I2V)", "free": True, "local": False},
+            {"id": "ltx_video", "name": "🎥 LTX-Video 0.9.5 (Generación de Video Rápido)", "free": True, "local": False},
+            {"id": "f5_tts", "name": "🎙️ F5-TTS (Clonación de Voz de Valeria)", "free": True, "local": False},
+            {"id": "sd15_base", "name": "🖼️ SD 1.5 Base (Sin Censura)", "free": True, "local": False},
         ]
+
 
         for m in catalog_models:
             m_id = m["id"]

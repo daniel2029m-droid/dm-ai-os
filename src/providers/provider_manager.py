@@ -540,11 +540,17 @@ class ProviderManager:
                 {"id": "higgsfield-video", "name": "Higgsfield Video (Animate)", "free": True, "local": False, "status": "available"}
             ],
             "comfyui": [
-                {"id": "zimage_turbo", "name": "Z-Image Turbo (Fotorealista 9:16)", "free": True, "local": False, "status": "available"},
-                {"id": "sd15_base", "name": "Stable Diffusion 1.5 Fast", "free": True, "local": False, "status": "available"},
-                {"id": "flux2_klein_4b_fp8", "name": "FLUX.2 Klein 4B", "free": True, "local": False, "status": "available"},
-                {"id": "ltx_video", "name": "LTX-Video (Text/Image to Video)", "free": True, "local": False, "status": "available"}
+                {"id": "face_swap", "name": "🎭 Face Swap / Transferencia de Rostro [INSTANTÁNEO]", "free": True, "local": False, "status": "available"},
+                {"id": "flux1_schnell", "name": "⚡ FLUX.1 Schnell (Ultra-Fotorealista HD) [TOP]", "free": True, "local": False, "status": "available"},
+                {"id": "flux1_kontext", "name": "🎨 FLUX.1 Kontext (Edición In-Context y Consistencia)", "free": True, "local": False, "status": "available"},
+                {"id": "qwen25_vl", "name": "👁️ Qwen2.5-VL Multimodal (Análisis Visual y Comprensión)", "free": True, "local": False, "status": "available"},
+                {"id": "sdxl_base", "name": "📸 SDXL Juggernaut v9 (Selfie iPhone) [TOP]", "free": True, "local": False, "status": "available"},
+                {"id": "wan22_i2v", "name": "🎬 Wan 2.1 Video (Animación Cinemática I2V)", "free": True, "local": False, "status": "available"},
+                {"id": "ltx_video", "name": "🎥 LTX-Video 0.9.5 (Generación de Video Rápido)", "free": True, "local": False, "status": "available"},
+                {"id": "f5_tts", "name": "🎙️ F5-TTS (Clonación de Voz de Valeria)", "free": True, "local": False, "status": "available"},
+                {"id": "sd15_base", "name": "🖼️ SD 1.5 Base (Sin Censura)", "free": True, "local": False, "status": "available"}
             ]
+
 
         }
 
