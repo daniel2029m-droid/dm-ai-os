@@ -22,6 +22,7 @@ All OpenAI endpoints delegate to BrainPipeline internally.
 
 import logging
 import uvicorn
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
