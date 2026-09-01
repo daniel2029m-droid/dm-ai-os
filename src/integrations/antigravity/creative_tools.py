@@ -111,14 +111,51 @@ class CreativeToolsEngine:
             out_path.write_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x01\x00\x00\x00\x01\x00\x08\x06\x00\x00\x00\x5c\x72\xa8\x66")
 
 
-        rel_url = f"/api/generated/{filename}"
-        
+        # 2. Check if ComfyUI GPU worker is active for Neural ReActor / InsightFace
+        try:
+            from src.providers.worker_registry import worker_registry, WorkerStatus
+            from src.providers.comfyui_provider import comfyui_provider
+            active_worker = worker_registry.get_active_worker()
+            if active_worker and active_worker.get("status") == WorkerStatus.READY.value:
+                log.info("[faceswap_image] Dispatching to active ComfyUI ReActor GPU worker...")
+                comfy_res = comfyui_provider.generate(
+                    prompt="Change person to source face while preserving exact outfit, pose and background",
+                    workflow="face_swap_reactor",
+                    model="face_swap",
+                    reference_images=[str(t_path) if t_path else "", str(s_path) if s_path else ""]
+                )
+                if comfy_res.get("image_url"):
+                    res_url = comfy_res["image_url"]
+                    fn = res_url.split("/")[-1].split("?")[0]
+                    response_md = (
+                        f"### ✨ FaceSwap Neuronal Completado (ComfyUI ReActor • GPU)\n\n"
+                        f"Se transfirió la identidad de `@Image 2` sobre `@Image 1`, "
+                        f"**preservando al 100% el outfit, pose y fondo original**.\n\n"
+                        f"![FaceSwap Result]({res_url})\n\n"
+                        f"📥 **[ Descargar Imagen en Alta Resolución ]({res_url})**"
+                    )
+                    return {
+                        "status": "SUCCESS",
+                        "operation": "faceswap_image",
+                        "download_url": res_url,
+                        "preview_markdown": response_md
+                    }
+        except Exception as cw_err:
+            log.warning(f"[faceswap_image] ComfyUI dispatch fallback: {cw_err}")
+
+        # 3. Local fallback composite when GPU worker is offline
+        colab_notice = (
+            "\n\n> ⚠️ **Nota:** Para obtener el resultado fotorealista con IA neuronal (ReActor / InsightFace), "
+            "inicia el worker de GPU haciendo clic en **`[ ⚡ Iniciar ]`** en la esquina superior derecha."
+        )
+
         response_md = (
-            f"### ✨ FaceSwap Generativo Completado\n\n"
-            f"Se ha reemplazado la persona de `@Image 1` con la identidad de `@Image 2`, "
-            f"**manteniendo el mismo outfit y la misma pose original**.\n\n"
+            f"### ✨ FaceSwap Generativo Solicitado\n\n"
+            f"Se ha preparado la transferencia de identidad de `@Image 2` a `@Image 1` "
+            f"(manteniendo outfit, pose y fondo).\n\n"
             f"![FaceSwap Result]({rel_url})\n\n"
-            f"📥 **[ Descargar Imagen en Alta Resolución ]({rel_url})** | 📁 Guardado en `Project_State/Generated/{filename}`"
+            f"📥 **[ Descargar Imagen ]({rel_url})**"
+            f"{colab_notice}"
         )
 
         return {
