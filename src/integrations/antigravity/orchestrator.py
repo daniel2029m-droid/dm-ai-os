@@ -205,19 +205,20 @@ class AntigravityAgentProvider(AgentProvider):
                 if tool_calls:
                     selected_call = tool_calls[0]
                     p_lower = prompt_clean.lower()
-                    if any(w in p_lower for w in ["list", "carpetas", "archivos", "directorio"]):
-                        for c in tool_calls:
-                            if "list" in c["name"].lower():
-                                selected_call = c
-                                break
-                    elif any(w in p_lower for w in ["lee", "read", "titulo", "título", "contenido"]):
+                    if any(w in p_lower for w in ["lee", "leé", "read", "titulo", "título", "contenido", "cat "]):
                         for c in tool_calls:
                             if "read" in c["name"].lower() or "view" in c["name"].lower():
+                                selected_call = c
+                                break
+                    elif any(w in p_lower for w in ["list", "listá", "lista", "listar", "carpetas", "directorio"]):
+                        for c in tool_calls:
+                            if "list" in c["name"].lower():
                                 selected_call = c
                                 break
 
                     t_name = selected_call["name"]
                     t_args = selected_call["arguments"]
+
 
 
                     success, tool_result, pending_action = safe_tool_parser.dispatch_tool(
@@ -263,11 +264,10 @@ class AntigravityAgentProvider(AgentProvider):
 
                     # Re-inject tool result into Agent for final synthesis
                     reinject_prompt = (
-                        f"[TOOL_RESULT for '{t_name}']:\n"
+                        f"Resultado físico de la herramienta '{t_name}':\n"
                         f"```text\n{tool_result}\n```\n\n"
-                        f"[SYSTEM INSTRUCTION]: The tool '{t_name}' has executed successfully on disk. Based exclusively on the physical tool result provided above, answer the user's request in detail: '{prompt_clean}'."
+                        f"Instrucción: Utilizando exclusivamente los datos reales devueltos por la herramienta arriba, respondé en detalle a la solicitud: '{prompt_clean}'."
                     )
-
 
                     chat_resp2 = await agent.chat(reinject_prompt)
                     await chat_resp2.resolve()
@@ -278,14 +278,61 @@ class AntigravityAgentProvider(AgentProvider):
                             final_chunks.append(chunk2.text)
 
                     final_text = "".join(final_chunks).strip()
-                    if not final_text or "{" in final_text[:5]:
-                        # Format clearly with the confirmed physical result
+
+                    # Check if Turn 2 emitted a secondary tool call (e.g. read file after list directory)
+                    secondary_calls = safe_tool_parser.extract_tool_calls(final_text)
+                    if secondary_calls:
+                        sec_call = secondary_calls[0]
+                        sec_name = sec_call["name"]
+                        sec_args = sec_call["arguments"]
+                        sec_success, sec_tool_result, sec_pending = safe_tool_parser.dispatch_tool(
+                            tool_name=sec_name,
+                            arguments=sec_args,
+                            permission_mode=session.permission_mode
+                        )
+                        executed_tools.append({
+                            "tool": sec_name,
+                            "arguments": sec_args,
+                            "result_snippet": sec_tool_result[:100],
+                            "status": "SUCCESS" if sec_success else "ERROR"
+                        })
+                        if sec_pending:
+                            session.status = SessionStatus.PENDING_USER_APPROVAL
+                            session.pending_action = sec_pending
+                            session_store.save_session(session)
+                            latency = round((time.perf_counter() - t0) * 1000, 2)
+                            return AntigravityResponse(
+                                session_id=session.session_id,
+                                status=SessionStatus.PENDING_USER_APPROVAL,
+                                permission_mode=session.permission_mode,
+                                engine_used="google.antigravity.Agent",
+                                model_used=self.model,
+                                response_text=f"⚠️ **ANTIGRAVITY REQUESTS APPROVAL**\n\n**Acción:** `{sec_pending.tool_name}`\n**Detalle:** {sec_pending.summary}",
+                                pending_action=sec_pending,
+                                latency_ms=latency
+                            )
+
+                        reinject_prompt3 = (
+                            f"Resultado físico de '{sec_name}':\n"
+                            f"```text\n{sec_tool_result}\n```\n\n"
+                            f"Instrucción: Utilizando los datos de las herramientas anteriores y esta última, respondé la solicitud: '{prompt_clean}'."
+                        )
+                        chat_resp3 = await agent.chat(reinject_prompt3)
+                        await chat_resp3.resolve()
+                        turn3_chunks = [c.text async for c in chat_resp3.chunks if isinstance(c, types.Text)]
+                        turn3_text = "".join(turn3_chunks).strip()
+                        if turn3_text and "{" not in turn3_text[:5]:
+                            final_text = turn3_text
+
+                    if not final_text or "{" in final_text[:5] or "No tool response provided" in final_text:
                         if "list" in t_name.lower():
                             final_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{tool_result}\n```"
                         elif "read" in t_name.lower() or "view" in t_name.lower():
                             final_text = f"📖 **Contenido de `{t_args.get('file_path', 'archivo')}`:**\n\n```markdown\n{tool_result}\n```"
                         else:
                             final_text = tool_result
+
+
 
                     latency = round((time.perf_counter() - t0) * 1000, 2)
                     return AntigravityResponse(

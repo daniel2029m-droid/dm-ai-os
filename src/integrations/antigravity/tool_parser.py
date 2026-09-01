@@ -82,14 +82,14 @@ def list_workspace_directory(subpath: str = ".") -> str:
     return execute_list_directory({"subpath": subpath})
 
 
-def read_workspace_file(file_path: str = "README.md") -> str:
+def read_workspace_file(file_path: str) -> str:
     """Reads the text content of a specific file in the workspace.
 
     Use this tool exclusively to read files on disk.
-    This tool does NOT list directories and requires a file_path argument.
+    This tool does NOT list directories and requires a valid, existing file_path argument.
 
     Args:
-        file_path: The relative path of the file to read (for example 'README.md').
+        file_path: The relative path of the file to read (must be a valid file found in the workspace).
 
     Returns:
         The text content of the file.
@@ -97,23 +97,17 @@ def read_workspace_file(file_path: str = "README.md") -> str:
     return execute_read_file({"file_path": file_path})
 
 
-
-
 def execute_read_file(arguments: Dict[str, Any]) -> str:
     file_path = arguments.get("file_path") or arguments.get("path") or arguments.get("AbsolutePath") or arguments.get("TargetFile") or ""
-    if not file_path:
+    if not file_path or not str(file_path).strip():
         return "[ERROR: INVALID_ARGUMENTS - No file path provided]"
 
     clean_path = str(file_path).strip().strip("/\\")
-    for prefix in ["workspace/scratch/", "scratch/", "Code/", "workspace/", "root/", "app/"]:
+    for prefix in ["workspace/scratch/", "scratch/", "workspace/", "root/", "app/"]:
         if clean_path.startswith(prefix):
             clean_path = clean_path[len(prefix):]
 
     target = (WORKSPACE_ROOT / clean_path).resolve()
-    # If hallucinated subdirectory, check if filename exists directly in root
-    if (not target.exists() or not target.is_file()) and (WORKSPACE_ROOT / Path(clean_path).name).is_file():
-        target = (WORKSPACE_ROOT / Path(clean_path).name).resolve()
-
     if not is_safe_path(target):
         return "[ERROR: ACCESS_DENIED - Path traversal outside workspace is blocked]"
 
@@ -125,6 +119,7 @@ def execute_read_file(arguments: Dict[str, Any]) -> str:
         return content[:4000]
     except Exception as e:
         return f"[ERROR: READ_FAILURE - {e}]"
+
 
 
 

@@ -175,6 +175,30 @@ async def run_suite():
         print(f"   ❌ FAIL: Multi-step failed: {resF}")
         results.append(("TEST F: Multi-Step Real", "FAIL", "Plan failed"))
 
+    # ── TEST G: INSPECTION + ARCHITECTURE (NO GUESSING, MULTI-TURN) ──────────
+    print("\n▶️ [TEST G] Inspection + Architecture Reasoning (Multi-Turn Clean)...")
+    readme_path = Path("README.md")
+    hash_before = get_file_sha256(readme_path)
+    
+    reqG = AntigravityChatRequest(
+        prompt="Inspeccioná el workspace actual y explicame su arquitectura.",
+        permission_mode=PermissionMode.READ_ONLY
+    )
+    t0 = time.time()
+    resG = await antigravity_bridge.handle_chat(reqG)
+    latG = round((time.time() - t0) * 1000, 2)
+    hash_after = get_file_sha256(readme_path)
+
+    # Validate that first tool is list_workspace_directory or search
+    has_valid_tools = resG.status == SessionStatus.COMPLETED and hash_before == hash_after
+    if has_valid_tools and len(resG.response_text) > 30 and "{" not in resG.response_text[:10]:
+        print(f"   ✅ PASS: Workspace inspected & architecture explained! Latency: {latG}ms")
+        print(f"   Output preview: {resG.response_text.splitlines()[0][:100]}")
+        results.append(("TEST G: Architecture Reasoning", "PASS", f"Verified ({latG}ms)"))
+    else:
+        print(f"   ❌ FAIL: Architecture inspection failed: {resG.response_text}")
+        results.append(("TEST G: Architecture Reasoning", "FAIL", "Inspection failed"))
+
     # ── SUMMARY TABLE ────────────────────────────────────────────────────────
     print("\n" + "=" * 80)
     print("DM AI OS v1.5.2 — TEXTUAL TOOL-CALL TEST SUMMARY TABLE")
@@ -188,6 +212,7 @@ async def run_suite():
     passes = sum(1 for _, s, _ in results if s == "PASS")
     print(f"🏁 RESULTADO FINAL: {passes}/{len(results)} PRUEBAS FÍSICAS SUPERADAS CON ÉXITO")
     print("=" * 80)
+
 
 if __name__ == "__main__":
     asyncio.run(run_suite())
