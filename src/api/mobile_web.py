@@ -627,12 +627,14 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                 </div>
 
                 <div class="quick-pills">
+                    <span class="quick-pill" onclick="triggerFaceSwapAction()">🎭 FaceSwap (@Image 1 + @Image 2)</span>
+                    <span class="quick-pill" onclick="triggerAnimateAction()">🎬 Animar Video (@Image 1)</span>
+                    <span class="quick-pill" onclick="triggerGenerateImageAction()">🎨 Generar Imagen</span>
+                    <span class="quick-pill" onclick="triggerGDriveAction()">☁️ Google Drive (5 TB)</span>
                     <span class="quick-pill" onclick="triggerDictation()">🎙️ Dictar</span>
                     <span class="quick-pill" onclick="openCamera()">📷 Cámara</span>
                     <span class="quick-pill" onclick="openFile()">📎 Subir imagen (@Image 1)</span>
                     <span class="quick-pill" onclick="openFile()">📎 Subir segunda (@Image 2)</span>
-                    <span class="quick-pill" onclick="quickTask('research')">🔍 Investigar</span>
-                    <span class="quick-pill" onclick="quickTask('media')">🎨 Higgsfield</span>
                 </div>
 
                 <div class="input-controls">
@@ -1152,18 +1154,26 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
                     answerText = `⚠️ **Respuesta no reconocida:**\n\`\`\`json\n${{JSON.stringify(data, null, 2)}}\n\`\`\``;
                 }}
 
-                // Render media with signed URL support and Lightbox
+                // Render media with signed URL support, Video Player and Lightbox
                 function renderMedia(text) {{
-                    // Images: ![alt](url) → clickable image card with Lightbox & download
+                    // Images & Videos: ![alt](url) → clickable image card or video player with Lightbox & download
                     text = text.replace(/!\[(.*?)\]\((https?:\/\/[^\)]+|\/[^\)]+)\)/g, function(m, alt, url) {{
                         const filename = url.split('/').pop().split('?')[0] || 'generated_asset.png';
                         const downloadUrl = url.includes('/view?') ? url.replace('/view?', '/download?') : url;
-                        return `<div style="position:relative;display:inline-block;margin:10px 0;width:100%;">`+
+                        if (url.endsWith('.mp4')) {{
+                            return `<div style="position:relative;display:inline-block;margin:12px 0;width:100%;">`+
+                                   `<video src="${{url}}" controls autoplay loop playsinline style="max-width:100%;max-height:440px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.6);display:block;background:#0f172a;"></video>`+
+                                   `<div style="margin-top:8px;display:flex;gap:8px;">`+
+                                   `<a href="${{downloadUrl}}" download="${{filename}}" target="_blank" style="background:#0284c7;color:#fff;border-radius:6px;padding:6px 14px;font-size:0.8rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">📥 Descargar Video MP4</a>`+
+                                   `</div></div>`;
+                        }}
+                        return `<div style="position:relative;display:inline-block;margin:12px 0;width:100%;">`+
                                `<img src="${{url}}" alt="${{alt}}" onclick="openMediaLightbox('${{url}}', '${{downloadUrl}}', '${{filename}}')" `+
-                               `style="max-width:100%;max-height:420px;border-radius:0.75rem;box-shadow:0 8px 24px rgba(0,0,0,0.5);display:block;object-fit:contain;cursor:pointer;" title="Toca para ver en pantalla completa" />`+
-                               `<a href="${{downloadUrl}}" download="${{filename}}" target="_blank" title="Descargar" `+
-                               `style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);color:#fff;border-radius:0.5rem;padding:6px 14px;font-size:0.78rem;font-weight:600;text-decoration:none;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.15);">`+
-                               `📥 Descargar</a></div>`;
+                               `style="max-width:100%;max-height:440px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.6);display:block;object-fit:contain;cursor:pointer;background:#0f172a;" title="Toca para ver en pantalla completa" />`+
+                               `<div style="margin-top:8px;display:flex;gap:8px;">`+
+                               `<a href="${{downloadUrl}}" download="${{filename}}" target="_blank" style="background:#0284c7;color:#fff;border-radius:6px;padding:6px 14px;font-size:0.8rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">📥 Descargar Imagen HD</a>`+
+                               `<a href="${{url}}" target="_blank" style="background:rgba(255,255,255,0.1);color:#e2e8f0;border-radius:6px;padding:6px 14px;font-size:0.8rem;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,0.2);">🌐 Pantalla Completa</a>`+
+                               `</div></div>`;
                     }});
                     // Remaining links
                     text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+|\/[^\)]+)\)/g, '<a href="$2" target="_blank" style="color:var(--accent-cyan);font-weight:600;text-decoration:underline;">$1</a>');
@@ -1744,6 +1754,40 @@ def get_mobile_html(api_url: str, tunnel_url: str) -> str:
             const img = document.getElementById('lightboxImg');
             if (modal) modal.style.display = 'none';
             if (img) img.src = '';
+        }}
+
+        function triggerFaceSwapAction() {{
+            const input = document.getElementById('chatInput');
+            if (input) {{
+                input.value = "Change the person of the @Image 1 to the person of the @Image 2, SAME OUTFIT as @Image 1, same pose.";
+                input.focus();
+            }}
+            openFile();
+        }}
+
+        function triggerAnimateAction() {{
+            const input = document.getElementById('chatInput');
+            if (input) {{
+                input.value = "Anima esta imagen @Image 1 con movimiento cinematográfico fluido a 4k 60fps.";
+                input.focus();
+            }}
+            openFile();
+        }}
+
+        function triggerGenerateImageAction() {{
+            const input = document.getElementById('chatInput');
+            if (input) {{
+                input.value = "Genera una imagen artística en alta resolución de: ";
+                input.focus();
+            }}
+        }}
+
+        function triggerGDriveAction() {{
+            const input = document.getElementById('chatInput');
+            if (input) {{
+                input.value = "Consultá la cuota y listá los archivos de mi Google Drive de 5 TB.";
+            }}
+            sendMessage();
         }}
 
         // Initial load of dynamic models on startup

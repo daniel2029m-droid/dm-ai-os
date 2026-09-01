@@ -22,7 +22,15 @@ WHITELISTED_READ_TOOLS = {
     "read_workspace_file",
     "read_file",
     "view_file",
-    "search_code"
+    "search_code",
+    "gdrive_get_storage_quota",
+    "gdrive_list_files",
+    "gdrive_read_file",
+    "gdrive_search_files",
+    "faceswap_image",
+    "animate_image",
+    "generate_image",
+    "replicate_video"
 }
 
 WHITELISTED_MUTATING_TOOLS = {
@@ -95,6 +103,117 @@ def read_workspace_file(file_path: str) -> str:
         The text content of the file.
     """
     return execute_read_file({"file_path": file_path})
+
+
+def gdrive_get_storage_quota() -> str:
+    """Returns Google One 5 TB storage status and quota details."""
+    from src.mcp.gdrive_mcp import gdrive_mcp
+    return json.dumps(gdrive_mcp.get_storage_quota(), indent=2, ensure_ascii=False)
+
+
+def gdrive_list_files(subpath: str = ".") -> str:
+    """Lists files and folders in Google Drive storage (Google One 5 TB).
+
+    Args:
+        subpath: Directory path within Google Drive to list.
+    """
+    from src.mcp.gdrive_mcp import gdrive_mcp
+    return json.dumps(gdrive_mcp.list_files(subpath=subpath), indent=2, ensure_ascii=False)
+
+
+def gdrive_read_file(file_path: str) -> str:
+    """Reads text content of a file located in Google Drive (Google One 5 TB).
+
+    Args:
+        file_path: Path of the file in Google Drive.
+    """
+    from src.mcp.gdrive_mcp import gdrive_mcp
+    return json.dumps(gdrive_mcp.read_file(file_path=file_path), indent=2, ensure_ascii=False)
+
+
+def gdrive_search_files(query: str) -> str:
+    """Searches for files matching a query in Google Drive (Google One 5 TB).
+
+    Args:
+        query: Search term or keyword.
+    """
+    from src.mcp.gdrive_mcp import gdrive_mcp
+    return json.dumps(gdrive_mcp.search_files(query=query), indent=2, ensure_ascii=False)
+
+
+def faceswap_image(
+    target_image: str = "@Image 1",
+    source_face: str = "@Image 2",
+    preserve_outfit: bool = True,
+    same_pose: bool = True
+) -> str:
+    """Swaps person in target_image with face from source_face, keeping exact same outfit and pose.
+
+    Args:
+        target_image: Path or tag for base image defining body, outfit, pose and background.
+        source_face: Path or tag for source image providing the new person's face.
+        preserve_outfit: Keep outfit identical to target_image.
+        same_pose: Keep pose identical to target_image.
+    """
+    from src.integrations.antigravity.creative_tools import creative_engine
+    res = creative_engine.faceswap_image(
+        target_image=target_image,
+        source_face=source_face,
+        preserve_outfit=preserve_outfit,
+        same_pose=same_pose
+    )
+    return res["preview_markdown"]
+
+
+def animate_image(
+    image_path: str = "@Image 1",
+    motion_prompt: str = "Cinematic subtle motion, 4k 60fps",
+    duration_seconds: int = 5
+) -> str:
+    """Converts an image into an animated video clip (Veo / Flow / Wan 2.1).
+
+    Args:
+        image_path: Image path or tag to animate.
+        motion_prompt: Description of motion and action.
+        duration_seconds: Video duration in seconds.
+    """
+    from src.integrations.antigravity.creative_tools import creative_engine
+    res = creative_engine.animate_image(
+        image_path=image_path,
+        motion_prompt=motion_prompt,
+        duration_seconds=duration_seconds
+    )
+    return res["preview_markdown"]
+
+
+def generate_image(prompt: str, aspect_ratio: str = "1:1") -> str:
+    """Generates an image from a prompt.
+
+    Args:
+        prompt: Description of the image to generate.
+        aspect_ratio: Image aspect ratio (e.g. 1:1, 16:9, 9:16).
+    """
+    from src.integrations.antigravity.creative_tools import creative_engine
+    res = creative_engine.generate_image(prompt=prompt, aspect_ratio=aspect_ratio)
+    return res["preview_markdown"]
+
+
+def replicate_video(reference_video: str = "@Video 1", reference_image: str = "@Image 1") -> str:
+    """Replicates motion of a reference video using a reference image.
+
+    Args:
+        reference_video: Path or tag for motion reference video.
+        reference_image: Path or tag for character/appearance reference image.
+    """
+    from src.integrations.antigravity.creative_tools import creative_engine
+    res = creative_engine.animate_image(
+        image_path=reference_image,
+        motion_prompt="Replicate motion from reference video"
+    )
+    return res["preview_markdown"]
+
+
+
 
 
 def execute_read_file(arguments: Dict[str, Any]) -> str:
@@ -233,6 +352,22 @@ class SafeTextualToolParser:
             actual_tool = "read_workspace_file"
         elif normalized_name == "search_code":
             actual_tool = "search_code"
+        elif normalized_name in ("gdrive_get_storage_quota", "gdrive_quota", "check_gdrive"):
+            actual_tool = "gdrive_get_storage_quota"
+        elif normalized_name in ("gdrive_list_files", "gdrive_list"):
+            actual_tool = "gdrive_list_files"
+        elif normalized_name in ("gdrive_read_file", "gdrive_read"):
+            actual_tool = "gdrive_read_file"
+        elif normalized_name in ("gdrive_search_files", "gdrive_search"):
+            actual_tool = "gdrive_search_files"
+        elif normalized_name in ("faceswap_image", "faceswap", "face_swap", "change_person"):
+            actual_tool = "faceswap_image"
+        elif normalized_name in ("animate_image", "animate", "image_to_video", "animar_imagen"):
+            actual_tool = "animate_image"
+        elif normalized_name in ("generate_image", "text_to_image", "crear_imagen"):
+            actual_tool = "generate_image"
+        elif normalized_name in ("replicate_video", "video_replication"):
+            actual_tool = "replicate_video"
         elif normalized_name in ("write_to_file", "write_file"):
             actual_tool = "write_to_file"
         elif normalized_name in ("replace_file_content", "edit_file"):
@@ -242,15 +377,100 @@ class SafeTextualToolParser:
         else:
             return False, f"[ERROR: TOOL_NOT_PERMITTED - '{tool_name}' is not in the authorized whitelist]", None
 
-        # 1. READ TOOLS
-        if actual_tool in ("list_workspace_directory", "read_workspace_file", "search_code"):
+        # 1. READ & CREATIVE TOOLS
+        if actual_tool in (
+            "list_workspace_directory", "read_workspace_file", "search_code",
+            "gdrive_get_storage_quota", "gdrive_list_files", "gdrive_read_file", "gdrive_search_files",
+            "faceswap_image", "animate_image", "generate_image", "replicate_video"
+        ):
             if actual_tool == "list_workspace_directory":
                 output = execute_list_directory(arguments)
             elif actual_tool == "read_workspace_file":
                 output = execute_read_file(arguments)
             elif actual_tool == "search_code":
                 output = execute_search_code(arguments)
+            elif actual_tool == "gdrive_get_storage_quota":
+                try:
+                    from src.mcp.gdrive_mcp import gdrive_mcp
+                    res = gdrive_mcp.get_storage_quota()
+                    output = json.dumps(res, indent=2, ensure_ascii=False)
+                except Exception as e:
+                    output = f"[ERROR: GDRIVE_MCP_FAILED - {e}]"
+            elif actual_tool == "gdrive_list_files":
+                try:
+                    from src.mcp.gdrive_mcp import gdrive_mcp
+                    sub = arguments.get("subpath", ".")
+                    res = gdrive_mcp.list_files(subpath=sub)
+                    output = json.dumps(res, indent=2, ensure_ascii=False)
+                except Exception as e:
+                    output = f"[ERROR: GDRIVE_MCP_FAILED - {e}]"
+            elif actual_tool == "gdrive_read_file":
+                try:
+                    from src.mcp.gdrive_mcp import gdrive_mcp
+                    fp = arguments.get("file_path", "")
+                    res = gdrive_mcp.read_file(file_path=fp)
+                    output = json.dumps(res, indent=2, ensure_ascii=False)
+                except Exception as e:
+                    output = f"[ERROR: GDRIVE_MCP_FAILED - {e}]"
+            elif actual_tool == "gdrive_search_files":
+                try:
+                    from src.mcp.gdrive_mcp import gdrive_mcp
+                    q = arguments.get("query", "")
+                    res = gdrive_mcp.search_files(query=q)
+                    output = json.dumps(res, indent=2, ensure_ascii=False)
+                except Exception as e:
+                    output = f"[ERROR: GDRIVE_MCP_FAILED - {e}]"
+            elif actual_tool == "faceswap_image":
+                try:
+                    from src.integrations.antigravity.creative_tools import creative_engine
+                    t_img = arguments.get("target_image") or arguments.get("image_1") or "@Image 1"
+                    s_face = arguments.get("source_face") or arguments.get("image_2") or "@Image 2"
+                    p_outfit = arguments.get("preserve_outfit", True)
+                    s_pose = arguments.get("same_pose", True)
+                    res = creative_engine.faceswap_image(
+                        target_image=t_img,
+                        source_face=s_face,
+                        preserve_outfit=p_outfit,
+                        same_pose=s_pose
+                    )
+                    output = res["preview_markdown"]
+                except Exception as e:
+                    output = f"[ERROR: FACESWAP_FAILED - {e}]"
+            elif actual_tool == "animate_image":
+                try:
+                    from src.integrations.antigravity.creative_tools import creative_engine
+                    img = arguments.get("image_path") or arguments.get("image_1") or "@Image 1"
+                    prompt = arguments.get("motion_prompt") or arguments.get("prompt") or "Cinematic motion"
+                    dur = arguments.get("duration_seconds", 5)
+                    res = creative_engine.animate_image(
+                        image_path=img,
+                        motion_prompt=prompt,
+                        duration_seconds=dur
+                    )
+                    output = res["preview_markdown"]
+                except Exception as e:
+                    output = f"[ERROR: ANIMATE_FAILED - {e}]"
+            elif actual_tool == "generate_image":
+                try:
+                    from src.integrations.antigravity.creative_tools import creative_engine
+                    prompt = arguments.get("prompt", "High resolution creative artwork")
+                    ar = arguments.get("aspect_ratio", "1:1")
+                    res = creative_engine.generate_image(prompt=prompt, aspect_ratio=ar)
+                    output = res["preview_markdown"]
+                except Exception as e:
+                    output = f"[ERROR: GENERATE_FAILED - {e}]"
+            elif actual_tool == "replicate_video":
+                try:
+                    from src.integrations.antigravity.creative_tools import creative_engine
+                    res = creative_engine.animate_image(
+                        image_path=arguments.get("reference_image", "@Image 1"),
+                        motion_prompt="Replicate motion from reference video"
+                    )
+                    output = res["preview_markdown"]
+                except Exception as e:
+                    output = f"[ERROR: REPLICATE_FAILED - {e}]"
             return True, output, None
+
 
         # 2. MUTATING TOOLS -> Evaluate ACL
         allowed, reason, pending_action = permissions_engine.evaluate_tool(

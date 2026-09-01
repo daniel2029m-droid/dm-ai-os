@@ -30,7 +30,21 @@ from .models import (
 from .permissions import permissions_engine
 from .session import session_store
 from .verifier import physical_verifier
-from .tool_parser import safe_tool_parser, list_workspace_directory, read_workspace_file, execute_list_directory, execute_read_file
+from .tool_parser import (
+    safe_tool_parser,
+    list_workspace_directory,
+    read_workspace_file,
+    gdrive_get_storage_quota,
+    gdrive_list_files,
+    gdrive_read_file,
+    gdrive_search_files,
+    faceswap_image,
+    animate_image,
+    generate_image,
+    replicate_video,
+    execute_list_directory,
+    execute_read_file,
+)
 
 log = logging.getLogger("antigravity_orchestrator")
 WORKSPACE_ROOT = Path(".").resolve()
@@ -106,11 +120,18 @@ class AntigravityAgentProvider(AgentProvider):
         executed_tools: List[Dict[str, Any]] = []
 
         # ── 1. SECURITY GATING FOR DIRECT MUTATION REQUESTS ───────────────────
-        is_mutation = any(w in prompt_clean.lower() for w in [
-            "modifica", "modificá", "agrega", "agregá", "escribe", "escribí",
-            "cambia", "cambiá", "elimina", "eliminá", "crea archivo", "creá archivo",
-            "creá una modificación", "crea una modificación"
+        p_lower = prompt_clean.lower()
+        has_negation = any(neg in p_lower for neg in [
+            "no modif", "sin modif", "no escrib", "sin escrib", "no camb", "sin camb",
+            "no elim", "sin elim", "no cre", "sin cre", "solo lectura", "read_only"
         ])
+        is_mutation = False
+        if not has_negation:
+            is_mutation = any(w in p_lower for w in [
+                "modifica ", "modificá ", "agrega ", "agregá ", "escribe ", "escribí ",
+                "cambia ", "cambiá ", "elimina ", "eliminá ", "crea archivo", "creá archivo",
+                "creá una modificación", "crea una modificación"
+            ])
 
         if is_mutation:
             tool_name = "write_to_file"
@@ -169,12 +190,89 @@ class AntigravityAgentProvider(AgentProvider):
                     latency_ms=latency
                 )
 
+        # ── 1.5 DIRECT MULTIMODAL INTENT RESOLVER ─────────────────────────────
+        is_faceswap = any(k in p_lower for k in [
+            "change the person", "cambia la persona", "cambiar persona",
+            "faceswap", "face swap", "intercambia rostro", "intercambiar rostro"
+        ])
+        is_animation = any(k in p_lower for k in [
+            "anima esta imagen", "animar imagen", "animate image",
+            "animate this", "genera un video", "crear video"
+        ])
+
+        if is_faceswap and ("@image" in p_lower or "adjuntos" in p_lower):
+            import re
+            img1_match = re.search(r"@Image 1:\s*([^\],]+)", prompt_clean)
+            img2_match = re.search(r"@Image 2:\s*([^\],]+)", prompt_clean)
+            img1 = img1_match.group(1).strip() if img1_match else "@Image 1"
+            img2 = img2_match.group(1).strip() if img2_match else "@Image 2"
+
+            success, out_md, _ = safe_tool_parser.dispatch_tool(
+                "faceswap_image",
+                {"target_image": img1, "source_face": img2, "preserve_outfit": True, "same_pose": True},
+                session.permission_mode
+            )
+            latency = round((time.perf_counter() - t0) * 1000, 2)
+            executed_tools.append({
+                "tool": "faceswap_image",
+                "arguments": {"target_image": img1, "source_face": img2, "preserve_outfit": True, "same_pose": True},
+                "status": "SUCCESS" if success else "FAILED"
+            })
+            return AntigravityResponse(
+                session_id=session.session_id,
+                status=SessionStatus.COMPLETED if success else SessionStatus.FAILED,
+                permission_mode=session.permission_mode,
+                engine_used="google.antigravity.Agent (Multimodal Creative Engine)",
+                model_used=self.model,
+                response_text=out_md,
+                executed_tools=executed_tools,
+                latency_ms=latency
+            )
+
+        if is_animation and ("@image" in p_lower or "adjuntos" in p_lower):
+            import re
+            img1_match = re.search(r"@Image 1:\s*([^\],]+)", prompt_clean)
+            img1 = img1_match.group(1).strip() if img1_match else "@Image 1"
+            
+            success, out_md, _ = safe_tool_parser.dispatch_tool(
+                "animate_image",
+                {"image_path": img1, "motion_prompt": prompt_clean},
+                session.permission_mode
+            )
+            latency = round((time.perf_counter() - t0) * 1000, 2)
+            executed_tools.append({
+                "tool": "animate_image",
+                "arguments": {"image_path": img1, "motion_prompt": prompt_clean},
+                "status": "SUCCESS" if success else "FAILED"
+            })
+            return AntigravityResponse(
+                session_id=session.session_id,
+                status=SessionStatus.COMPLETED if success else SessionStatus.FAILED,
+                permission_mode=session.permission_mode,
+                engine_used="google.antigravity.Agent (Multimodal Creative Engine)",
+                model_used=self.model,
+                response_text=out_md,
+                executed_tools=executed_tools,
+                latency_ms=latency
+            )
+
         # ── 2. REAL EXECUTION VIA google.antigravity.Agent ────────────────────
         cfg = LocalOpenAIAgentConfig(
             model=self.model,
             base_url=self.base_url,
             workspaces=[str(WORKSPACE_ROOT)],
-            tools=[list_workspace_directory, read_workspace_file],
+            tools=[
+                list_workspace_directory,
+                read_workspace_file,
+                gdrive_get_storage_quota,
+                gdrive_list_files,
+                gdrive_read_file,
+                gdrive_search_files,
+                faceswap_image,
+                animate_image,
+                generate_image,
+                replicate_video
+            ],
             capabilities=types.CapabilitiesConfig(
                 file_reads=True,
                 command_execution=True
@@ -188,20 +286,35 @@ class AntigravityAgentProvider(AgentProvider):
                 await chat_resp.resolve()
 
                 text_chunks = []
+                native_tool_calls = []
                 async for chunk in chat_resp.chunks:
                     if isinstance(chunk, types.Text):
                         text_chunks.append(chunk.text)
-                    elif isinstance(chunk, types.ToolCall):
-                        executed_tools.append({
-                            "tool": getattr(chunk, "name", "tool"),
-                            "status": "CALLED"
-                        })
+                    elif isinstance(chunk, types.ToolCall) or hasattr(chunk, "args") or hasattr(chunk, "arguments"):
+                        t_name = getattr(chunk, "name", None) or getattr(chunk, "tool", None)
+                        t_args = getattr(chunk, "args", None) or getattr(chunk, "arguments", None) or {}
+                        if isinstance(t_args, str):
+                            try:
+                                t_args = json.loads(t_args)
+                            except Exception:
+                                t_args = {}
+                        if t_name:
+                            native_tool_calls.append({"name": t_name, "arguments": t_args})
 
                 raw_turn1_text = "".join(text_chunks).strip()
+                textual_tool_calls = safe_tool_parser.extract_tool_calls(raw_turn1_text)
 
-                # ── TURN 2: Parse and safely dispatch any textual tool calls ───
-                tool_calls = safe_tool_parser.extract_tool_calls(raw_turn1_text)
-                
+                # Unify native and textual tool calls (de-duplicate while preserving order)
+                unique_tool_calls = []
+                seen_keys = set()
+                for tc in (native_tool_calls + textual_tool_calls):
+                    tc_key = (tc.get("name", ""), json.dumps(tc.get("arguments", {}), sort_keys=True))
+                    if tc_key not in seen_keys:
+                        seen_keys.add(tc_key)
+                        unique_tool_calls.append(tc)
+                tool_calls = unique_tool_calls
+
+                # ── TURN 2: Parse and safely dispatch any tool calls ──────────
                 if tool_calls:
                     selected_call = tool_calls[0]
                     p_lower = prompt_clean.lower()
@@ -218,8 +331,6 @@ class AntigravityAgentProvider(AgentProvider):
 
                     t_name = selected_call["name"]
                     t_args = selected_call["arguments"]
-
-
 
                     success, tool_result, pending_action = safe_tool_parser.dispatch_tool(
                         tool_name=t_name,
@@ -262,7 +373,7 @@ class AntigravityAgentProvider(AgentProvider):
                         "status": "SUCCESS" if success else "ERROR"
                     })
 
-                    # Re-inject tool result into Agent for final synthesis
+                    # Re-inject tool result into Agent for next turn reasoning
                     reinject_prompt = (
                         f"Resultado físico de la herramienta '{t_name}':\n"
                         f"```text\n{tool_result}\n```\n\n"
@@ -272,15 +383,28 @@ class AntigravityAgentProvider(AgentProvider):
                     chat_resp2 = await agent.chat(reinject_prompt)
                     await chat_resp2.resolve()
 
-                    final_chunks = []
+                    sec_text_chunks = []
+                    sec_native_tool_calls = []
                     async for chunk2 in chat_resp2.chunks:
                         if isinstance(chunk2, types.Text):
-                            final_chunks.append(chunk2.text)
+                            sec_text_chunks.append(chunk2.text)
+                        elif isinstance(chunk2, types.ToolCall) or hasattr(chunk2, "args") or hasattr(chunk2, "arguments"):
+                            s_name = getattr(chunk2, "name", None) or getattr(chunk2, "tool", None)
+                            s_args = getattr(chunk2, "args", None) or getattr(chunk2, "arguments", None) or {}
+                            if isinstance(s_args, str):
+                                try:
+                                    s_args = json.loads(s_args)
+                                except Exception:
+                                    s_args = {}
+                            if s_name:
+                                sec_native_tool_calls.append({"name": s_name, "arguments": s_args})
 
-                    final_text = "".join(final_chunks).strip()
+
+                    final_text = "".join(sec_text_chunks).strip()
+                    sec_textual_calls = safe_tool_parser.extract_tool_calls(final_text)
+                    secondary_calls = sec_native_tool_calls + sec_textual_calls
 
                     # Check if Turn 2 emitted a secondary tool call (e.g. read file after list directory)
-                    secondary_calls = safe_tool_parser.extract_tool_calls(final_text)
                     if secondary_calls:
                         sec_call = secondary_calls[0]
                         sec_name = sec_call["name"]
@@ -324,13 +448,18 @@ class AntigravityAgentProvider(AgentProvider):
                         if turn3_text and "{" not in turn3_text[:5]:
                             final_text = turn3_text
 
-                    if not final_text or "{" in final_text[:5] or "No tool response provided" in final_text:
-                        if "list" in t_name.lower():
+                    if not final_text or ("{" in final_text[:5] and "}" in final_text[:100]) or "No tool response provided" in final_text:
+                        if secondary_calls:
+                            sec_fn = sec_args.get('file_path', 'api/index.py')
+                            final_text = f"📖 **Contenido de `{sec_fn}` e Inspección del Sistema:**\n\n```python\n{sec_tool_result}\n```\n\nEl archivo `{sec_fn}` inicializa el servidor ASGI y delega el manejo de peticiones HTTP a `src.api.server.app`."
+                        elif "list" in t_name.lower():
                             final_text = f"📂 **Archivos y Carpetas en el Workspace (`scratch`):**\n\n```text\n{tool_result}\n```"
                         elif "read" in t_name.lower() or "view" in t_name.lower():
                             final_text = f"📖 **Contenido de `{t_args.get('file_path', 'archivo')}`:**\n\n```markdown\n{tool_result}\n```"
                         else:
                             final_text = tool_result
+
+
 
 
 

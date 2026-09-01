@@ -83,6 +83,13 @@ app.include_router(model_storage_router)
 from src.integrations.antigravity import antigravity_router
 app.include_router(antigravity_router)
 
+# ── Generated Media Delivery Layer (FaceSwap, Video, Images) ───────────────
+from fastapi.staticfiles import StaticFiles
+generated_path = Path("Project_State/Generated").resolve()
+generated_path.mkdir(parents=True, exist_ok=True)
+app.mount("/api/generated", StaticFiles(directory=str(generated_path)), name="generated")
+
+
 
 
 def start_api(host: str = "0.0.0.0", port: int = 8000):
