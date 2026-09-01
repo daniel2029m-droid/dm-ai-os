@@ -68,11 +68,34 @@ def execute_list_directory(arguments: Dict[str, Any]) -> str:
 
 
 def list_workspace_directory(subpath: str = ".") -> str:
+    """Lists files and directories in the workspace directory.
+
+    Use this tool exclusively to inspect files and folders in a directory.
+    This tool does NOT read file contents and does NOT require a file_path argument.
+
+    Args:
+        subpath: Optional relative directory path to list. Defaults to "." for workspace root.
+
+    Returns:
+        A list of files and folders found on disk.
+    """
     return execute_list_directory({"subpath": subpath})
 
 
 def read_workspace_file(file_path: str = "README.md") -> str:
+    """Reads the text content of a specific file in the workspace.
+
+    Use this tool exclusively to read files on disk.
+    This tool does NOT list directories and requires a file_path argument.
+
+    Args:
+        file_path: The relative path of the file to read (for example 'README.md').
+
+    Returns:
+        The text content of the file.
+    """
     return execute_read_file({"file_path": file_path})
+
 
 
 

@@ -263,10 +263,11 @@ class AntigravityAgentProvider(AgentProvider):
 
                     # Re-inject tool result into Agent for final synthesis
                     reinject_prompt = (
-                        f"Resultado físico de la herramienta '{t_name}':\n"
+                        f"[TOOL_RESULT for '{t_name}']:\n"
                         f"```text\n{tool_result}\n```\n\n"
-                        f"Con base en esta información física real del filesystem, respondé en detalle a la solicitud del usuario: '{prompt_clean}'."
+                        f"[SYSTEM INSTRUCTION]: The tool '{t_name}' has executed successfully on disk. Based exclusively on the physical tool result provided above, answer the user's request in detail: '{prompt_clean}'."
                     )
+
 
                     chat_resp2 = await agent.chat(reinject_prompt)
                     await chat_resp2.resolve()
